@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Chrome Agent</title>
+  <title>Agentab</title>
   <link rel="stylesheet" href="popup.css">
 </head>
 <body>
@@ -11,8 +11,7 @@
     <!-- Header -->
     <header class="header">
       <div class="header-left">
-        <div class="logo">🤖</div>
-        <h1>Chrome Agent</h1>
+        <h1>Agentab</h1>
       </div>
       <div class="header-right">
         <button id="btn-tasks" class="icon-btn" title="Saved Tasks">
@@ -28,22 +27,6 @@
         </button>
       </div>
     </header>
-
-    <!-- Tab Navigation -->
-    <nav class="tabs">
-      <button class="tab active" data-tab="prompt">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
-        </svg>
-        Prompt
-      </button>
-      <button class="tab" data-tab="code">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>
-        </svg>
-        Code
-      </button>
-    </nav>
 
     <!-- Prompt Tab -->
     <div id="tab-prompt" class="tab-content active">

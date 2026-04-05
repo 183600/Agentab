@@ -1,28 +1,28 @@
 /* popup/popup.css */
 
 :root {
-  --bg-primary: #1a1b2e;
-  --bg-secondary: #232440;
-  --bg-tertiary: #2a2b4a;
-  --bg-hover: #313260;
-  --text-primary: #e8e8f0;
-  --text-secondary: #9a9ab0;
-  --text-muted: #6b6b80;
-  --accent: #6c5ce7;
-  --accent-hover: #7d6ff0;
-  --accent-light: rgba(108, 92, 231, 0.15);
-  --success: #00c853;
-  --success-bg: rgba(0, 200, 83, 0.1);
-  --error: #ff5252;
-  --error-bg: rgba(255, 82, 82, 0.1);
-  --warning: #ffa726;
-  --warning-bg: rgba(255, 167, 38, 0.1);
-  --info: #42a5f5;
-  --info-bg: rgba(66, 165, 245, 0.1);
-  --border: #3a3b5a;
+  --bg-primary: #ffffff;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #f0f0f0;
+  --bg-hover: #e0e0e0;
+  --text-primary: #1a1a1a;
+  --text-secondary: #555555;
+  --text-muted: #888888;
+  --accent: #000000;
+  --accent-hover: #000000;
+  --accent-light: rgba(59, 130, 246, 0.12);
+  --success: #16a34a;
+  --success-bg: rgba(22, 163, 74, 0.1);
+  --error: #dc2626;
+  --error-bg: rgba(220, 38, 38, 0.1);
+  --warning: #d97706;
+  --warning-bg: rgba(217, 119, 6, 0.1);
+  --info: #2563eb;
+  --info-bg: rgba(37, 99, 235, 0.1);
+  --border: #e0e0e0;
   --radius: 8px;
   --radius-sm: 6px;
-  --shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  --shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
   --font: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
   --font-mono: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
   --transition: 0.2s ease;
@@ -67,7 +67,6 @@ body {
   justify-content: space-between;
   padding: 12px 16px;
   background: var(--bg-secondary);
-  border-bottom: 1px solid var(--border);
 }
 
 .header-left {
@@ -160,7 +159,6 @@ body {
 .btn-secondary {
   background: var(--bg-tertiary);
   color: var(--text-secondary);
-  border: 1px solid var(--border);
 }
 
 .btn-secondary:hover {

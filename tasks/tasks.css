@@ -1,18 +1,18 @@
 /* tasks/tasks.css */
 
 :root {
-  --bg-primary: #0f1117;
-  --bg-secondary: #1a1b2e;
-  --bg-card: #1e1f36;
-  --bg-card-hover: #252745;
-  --bg-tertiary: #2a2b4a;
-  --bg-hover: #313260;
-  --text-primary: #e8e8f0;
-  --text-secondary: #9a9ab0;
-  --text-muted: #6b6b80;
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8f9fa;
+  --bg-card: #ffffff;
+  --bg-card-hover: #f5f5f5;
+  --bg-tertiary: #f0f0f0;
+  --bg-hover: #e8e8e8;
+  --text-primary: #1a1a1a;
+  --text-secondary: #555555;
+  --text-muted: #888888;
   --accent: #6c5ce7;
-  --accent-hover: #7d6ff0;
-  --accent-light: rgba(108, 92, 231, 0.15);
+  --accent-hover: #5b4cdb;
+  --accent-light: rgba(108, 92, 231, 0.1);
   --success: #00c853;
   --success-bg: rgba(0, 200, 83, 0.1);
   --error: #ff5252;
@@ -21,10 +21,10 @@
   --warning-bg: rgba(255, 167, 38, 0.1);
   --info: #42a5f5;
   --info-bg: rgba(66, 165, 245, 0.1);
-  --border: #2d2e4a;
+  --border: #e0e0e0;
   --radius: 12px;
   --radius-sm: 8px;
-  --shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  --shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
   --font: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
   --font-mono: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
   --transition: 0.2s ease;
