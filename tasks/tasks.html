@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chrome Agent - Saved Tasks</title>
+  <link rel="stylesheet" href="tasks.css">
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <header class="page-header">
+      <div class="header-content">
+        <div class="header-left">
+          <span class="logo">🤖</span>
+          <div>
+            <h1>Saved Tasks</h1>
+            <p class="subtitle">Manage your automation tasks</p>
+          </div>
+        </div>
+        <div class="header-actions">
+          <div class="search-box">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+            </svg>
+            <input type="text" id="search-input" placeholder="Search tasks...">
+          </div>
+          <div class="filter-group">
+            <button class="filter-btn active" data-filter="all">All</button>
+            <button class="filter-btn" data-filter="prompt">
+              <span class="dot prompt"></span> Prompts
+            </button>
+            <button class="filter-btn" data-filter="code">
+              <span class="dot code"></span> Code
+            </button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Stats Bar -->
+    <div class="stats-bar">
+      <div class="stat">
+        <span class="stat-value" id="total-tasks">0</span>
+        <span class="stat-label">Total Tasks</span>
+      </div>
+      <div class="stat">
+        <span class="stat-value" id="prompt-tasks">0</span>
+        <span class="stat-label">Prompts</span>
+      </div>
+      <div class="stat">
+        <span class="stat-value" id="code-tasks">0</span>
+        <span class="stat-label">Code</span>
+      </div>
+      <div class="stat">
+        <span class="stat-value" id="total-executions">0</span>
+        <span class="stat-label">Executions</span>
+      </div>
+    </div>
+
+    <!-- Tasks Grid -->
+    <div id="tasks-grid" class="tasks-grid">
+      <!-- Tasks will be rendered here -->
+    </div>
+
+    <!-- Empty State -->
+    <div id="empty-state" class="empty-state hidden">
+      <div class="empty-icon">📋</div>
+      <h3>No tasks yet</h3>
+      <p>Save tasks from the extension popup to see them here.</p>
+    </div>
+
+    <!-- No Results -->
+    <div id="no-results" class="empty-state hidden">
+      <div class="empty-icon">🔍</div>
+      <h3>No results found</h3>
+      <p>Try a different search term or filter.</p>
+    </div>
+  </div>
+
+  <!-- Edit Task Modal -->
+  <div id="edit-modal" class="modal-overlay hidden">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 id="modal-title">Edit Task</h2>
+        <button class="close-btn" id="btn-close-modal">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="edit-task-id">
+        <div class="form-group">
+          <label for="edit-name">Task Name</label>
+          <input type="text" id="edit-name" placeholder="Task name">
+        </div>
+        <div class="form-group">
+          <label for="edit-description">Description</label>
+          <input type="text" id="edit-description" placeholder="Description (optional)">
+        </div>
+        <div class="form-group">
+          <label>Type</label>
+          <div class="type-selector">
+            <button class="type-option active" data-type="prompt" id="type-prompt">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+              </svg>
+              Prompt
+            </button>
+            <button class="type-option" data-type="code" id="type-code">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>
+              </svg>
+              Code
+            </button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="edit-content">Content</label>
+          <textarea id="edit-content" rows="10" placeholder="Enter task content..."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="btn-cancel-edit">Cancel</button>
+        <button class="btn btn-primary" id="btn-save-edit">Save Changes</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete Confirmation Modal -->
+  <div id="delete-modal" class="modal-overlay hidden">
+    <div class="modal small">
+      <div class="modal-header">
+        <h2>Delete Task</h2>
+      </div>
+      <div class="modal-body">
+        <p>Are you sure you want to delete "<strong id="delete-task-name"></strong>"?</p>
+        <p class="text-muted">This action cannot be undone.</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="btn-cancel-delete">Cancel</button>
+        <button class="btn btn-danger" id="btn-confirm-delete">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <script src="tasks.js"></script>
+</body>
+</html>
