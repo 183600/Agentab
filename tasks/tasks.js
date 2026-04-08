@@ -1,8 +1,11 @@
 // tasks/tasks.js
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
   // Localize document
   localizeDocument();
+
+  // === Theme ===
+  await initTheme();
 
   // === Elements ===
   const tasksGrid = document.getElementById('tasks-grid');
@@ -14,6 +17,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const promptTasksEl = document.getElementById('prompt-tasks');
   const codeTasksEl = document.getElementById('code-tasks');
   const totalExecutionsEl = document.getElementById('total-executions');
+
+  // Import/Export buttons
+  const btnImportTasks = document.getElementById('btn-import-tasks');
+  const btnExportTasks = document.getElementById('btn-export-tasks');
+  const importFileInput = document.getElementById('import-file-input');
 
   // Edit modal
   const editModal = document.getElementById('edit-modal');
@@ -321,10 +329,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // === Search ===
-  searchInput.addEventListener('input', (e) => {
-    currentSearch = e.target.value.toLowerCase().trim();
+  // === Search (with debounce) ===
+  const debouncedSearch = debounce((value) => {
+    currentSearch = value.toLowerCase().trim();
     renderTasks();
+  }, 300);
+
+  searchInput.addEventListener('input', (e) => {
+    debouncedSearch(e.target.value);
   });
 
   // === Filters ===
@@ -354,52 +366,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // === Toast Notification ===
-  function showToast(message, type = 'info') {
-    const container = document.getElementById('toast-container');
-    const toast = document.createElement('div');
-    toast.className = `toast ${type}`;
-
-    const icons = {
-      success: '✅',
-      error: '❌',
-      info: 'ℹ️'
-    };
-
-    toast.innerHTML = `<span>${icons[type] || ''}</span><span>${escapeHtml(message)}</span>`;
-    container.appendChild(toast);
-
-    setTimeout(() => {
-      toast.style.opacity = '0';
-      toast.style.transform = 'translateX(20px)';
-      toast.style.transition = 'all 0.3s ease';
-      setTimeout(() => toast.remove(), 300);
-    }, 3000);
-  }
-
-  // === Utility ===
-  function escapeHtml(text) {
-    if (text === null || text === undefined) return '';
-    const div = document.createElement('div');
-    div.textContent = String(text);
-    return div.innerHTML;
-  }
-
-  function formatDate(dateStr) {
-    const date = new Date(dateStr);
-    const now = new Date();
-    const diff = now - date;
-    const minutes = Math.floor(diff / 60000);
-    const hours = Math.floor(diff / 3600000);
-    const days = Math.floor(diff / 86400000);
-
-    if (minutes < 1) return i18n('justNow');
-    if (minutes < 60) return i18n('minutesAgo', [minutes]);
-    if (hours < 24) return i18n('hoursAgo', [hours]);
-    if (days < 7) return i18n('daysAgo', [days]);
-    return date.toLocaleDateString();
-  }
-
   // === Tab key in editor ===
   editContent.addEventListener('keydown', (e) => {
     if (e.key === 'Tab') {
@@ -408,6 +374,71 @@ document.addEventListener('DOMContentLoaded', () => {
       const end = editContent.selectionEnd;
       editContent.value = editContent.value.substring(0, start) + '  ' + editContent.value.substring(end);
       editContent.selectionStart = editContent.selectionEnd = start + 2;
+    }
+  });
+
+  // === Import/Export Tasks ===
+  btnExportTasks.addEventListener('click', async () => {
+    try {
+      const response = await chrome.runtime.sendMessage({ action: 'get_tasks' });
+      if (response.success && response.tasks.length > 0) {
+        const exportData = {
+          version: '1.0',
+          exportedAt: new Date().toISOString(),
+          tasks: response.tasks
+        };
+        const jsonStr = JSON.stringify(exportData, null, 2);
+        const filename = `agentab-tasks-${new Date().toISOString().split('T')[0]}.json`;
+        downloadFile(jsonStr, filename);
+        showToast(i18n('tasksExported'), 'success');
+      } else {
+        showToast(i18n('noTasksToExport'), 'error');
+      }
+    } catch (e) {
+      showToast(`${i18n('error')}: ${e.message}`, 'error');
+    }
+  });
+
+  btnImportTasks.addEventListener('click', () => {
+    importFileInput.click();
+  });
+
+  importFileInput.addEventListener('change', async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    try {
+      const content = await readFileAsText(file);
+      const data = JSON.parse(content);
+
+      // Validate import data
+      if (!data.tasks || !Array.isArray(data.tasks)) {
+        throw new Error('Invalid import file: missing tasks array');
+      }
+
+      let importedCount = 0;
+      for (const task of data.tasks) {
+        if (task.name && task.type && task.content) {
+          await chrome.runtime.sendMessage({
+            action: 'save_task',
+            task: {
+              name: task.name,
+              type: task.type,
+              content: task.content,
+              description: task.description || ''
+            }
+          });
+          importedCount++;
+        }
+      }
+
+      showToast(i18n('tasksImported', [importedCount]), 'success');
+      await loadTasks();
+    } catch (e) {
+      showToast(`${i18n('importFailed')}: ${e.message}`, 'error');
+    } finally {
+      // Reset file input
+      importFileInput.value = '';
     }
   });
 

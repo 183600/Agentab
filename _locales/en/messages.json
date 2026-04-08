@@ -386,5 +386,185 @@
   "connectionFailed": {
     "message": "Connection failed: {0}",
     "description": "Connection failed"
+  },
+  "btnTheme": {
+    "message": "Toggle Theme",
+    "description": "Theme toggle button title"
+  },
+  "btnShortcuts": {
+    "message": "Keyboard Shortcuts",
+    "description": "Shortcuts button title"
+  },
+  "tabPrompt": {
+    "message": "Prompt",
+    "description": "Prompt tab label"
+  },
+  "tabCode": {
+    "message": "Code",
+    "description": "Code tab label"
+  },
+  "shortcutsTitle": {
+    "message": "Keyboard Shortcuts",
+    "description": "Shortcuts panel title"
+  },
+  "shortcutRun": {
+    "message": "Run/Execute",
+    "description": "Run shortcut description"
+  },
+  "shortcutTab": {
+    "message": "Indent Code",
+    "description": "Tab shortcut description"
+  },
+  "shortcutClose": {
+    "message": "Close Dialog",
+    "description": "Escape shortcut description"
+  },
+  "historyPageTitle": {
+    "message": "Agentab - Execution History",
+    "description": "History page title"
+  },
+  "historyTitle": {
+    "message": "Execution History",
+    "description": "History page heading"
+  },
+  "historySubtitle": {
+    "message": "View all task execution records",
+    "description": "History page subtitle"
+  },
+  "btnClearHistory": {
+    "message": "Clear History",
+    "description": "Clear history button"
+  },
+  "successCount": {
+    "message": "Success",
+    "description": "Success count label"
+  },
+  "errorCount": {
+    "message": "Failed",
+    "description": "Error count label"
+  },
+  "searchHistory": {
+    "message": "Search history...",
+    "description": "Search history placeholder"
+  },
+  "noHistory": {
+    "message": "No History Yet",
+    "description": "No history message"
+  },
+  "noHistoryHint": {
+    "message": "Execution records will appear here after running tasks.",
+    "description": "No history hint"
+  },
+  "historyDetail": {
+    "message": "Execution Details",
+    "description": "History detail title"
+  },
+  "btnClose": {
+    "message": "Close",
+    "description": "Close button"
+  },
+  "btnRerun": {
+    "message": "Re-run",
+    "description": "Rerun button"
+  },
+  "clearHistoryTitle": {
+    "message": "Clear History",
+    "description": "Clear history title"
+  },
+  "confirmClearHistory": {
+    "message": "Are you sure you want to clear all history? This cannot be undone.",
+    "description": "Confirm clear history"
+  },
+  "btnClear": {
+    "message": "Clear",
+    "description": "Clear button"
+  },
+  "historyCleared": {
+    "message": "History cleared",
+    "description": "History cleared notification"
+  },
+  "stepsCount": {
+    "message": "steps",
+    "description": "Steps count suffix"
+  },
+  "statusSuccess": {
+    "message": "Success",
+    "description": "Success status"
+  },
+  "statusFailed": {
+    "message": "Failed",
+    "description": "Failed status"
+  },
+  "inputLabel": {
+    "message": "Input",
+    "description": "Input label"
+  },
+  "pageLabel": {
+    "message": "Page",
+    "description": "Page label"
+  },
+  "timeLabel": {
+    "message": "Time",
+    "description": "Time label"
+  },
+  "resultsLabel": {
+    "message": "Results",
+    "description": "Results label"
+  },
+  "rerunning": {
+    "message": "Re-running...",
+    "description": "Rerunning status"
+  },
+  "rerunSuccess": {
+    "message": "Re-run successful!",
+    "description": "Rerun success"
+  },
+  "rerunFailed": {
+    "message": "Re-run failed: {0}",
+    "description": "Rerun failed"
+  },
+  "btnHistory": {
+    "message": "Execution History",
+    "description": "History button title"
+  },
+  "btnStop": {
+    "message": "Stop",
+    "description": "Stop button"
+  },
+  "stopped": {
+    "message": "Stopped",
+    "description": "Stopped status"
+  },
+  "agentStopped": {
+    "message": "Agent execution stopped",
+    "description": "Agent stopped message"
+  },
+  "executionStopped": {
+    "message": "Code execution stopped",
+    "description": "Code execution stopped message"
+  },
+  "btnImport": {
+    "message": "Import",
+    "description": "Import button"
+  },
+  "btnExport": {
+    "message": "Export",
+    "description": "Export button"
+  },
+  "tasksExported": {
+    "message": "Tasks exported",
+    "description": "Tasks exported notification"
+  },
+  "noTasksToExport": {
+    "message": "No tasks to export",
+    "description": "No tasks to export"
+  },
+  "tasksImported": {
+    "message": "{0} tasks imported",
+    "description": "Tasks imported notification"
+  },
+  "importFailed": {
+    "message": "Import failed",
+    "description": "Import failed"
   }
 }

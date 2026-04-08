@@ -386,5 +386,185 @@
   "connectionFailed": {
     "message": "连接失败: {0}",
     "description": "Connection failed"
+  },
+  "btnTheme": {
+    "message": "切换主题",
+    "description": "Theme toggle button title"
+  },
+  "btnShortcuts": {
+    "message": "快捷键",
+    "description": "Shortcuts button title"
+  },
+  "tabPrompt": {
+    "message": "提示词",
+    "description": "Prompt tab label"
+  },
+  "tabCode": {
+    "message": "代码",
+    "description": "Code tab label"
+  },
+  "shortcutsTitle": {
+    "message": "快捷键",
+    "description": "Shortcuts panel title"
+  },
+  "shortcutRun": {
+    "message": "运行/执行",
+    "description": "Run shortcut description"
+  },
+  "shortcutTab": {
+    "message": "缩进代码",
+    "description": "Tab shortcut description"
+  },
+  "shortcutClose": {
+    "message": "关闭对话框",
+    "description": "Escape shortcut description"
+  },
+  "historyPageTitle": {
+    "message": "Agentab - 执行历史",
+    "description": "History page title"
+  },
+  "historyTitle": {
+    "message": "执行历史",
+    "description": "History page heading"
+  },
+  "historySubtitle": {
+    "message": "查看所有任务执行记录",
+    "description": "History page subtitle"
+  },
+  "btnClearHistory": {
+    "message": "清除历史",
+    "description": "Clear history button"
+  },
+  "successCount": {
+    "message": "成功",
+    "description": "Success count label"
+  },
+  "errorCount": {
+    "message": "失败",
+    "description": "Error count label"
+  },
+  "searchHistory": {
+    "message": "搜索历史记录...",
+    "description": "Search history placeholder"
+  },
+  "noHistory": {
+    "message": "暂无历史记录",
+    "description": "No history message"
+  },
+  "noHistoryHint": {
+    "message": "执行任务后，历史记录会显示在这里。",
+    "description": "No history hint"
+  },
+  "historyDetail": {
+    "message": "执行详情",
+    "description": "History detail title"
+  },
+  "btnClose": {
+    "message": "关闭",
+    "description": "Close button"
+  },
+  "btnRerun": {
+    "message": "重新执行",
+    "description": "Rerun button"
+  },
+  "clearHistoryTitle": {
+    "message": "清除历史记录",
+    "description": "Clear history title"
+  },
+  "confirmClearHistory": {
+    "message": "确定要清除所有历史记录吗？此操作无法撤销。",
+    "description": "Confirm clear history"
+  },
+  "btnClear": {
+    "message": "清除",
+    "description": "Clear button"
+  },
+  "historyCleared": {
+    "message": "历史记录已清除",
+    "description": "History cleared notification"
+  },
+  "stepsCount": {
+    "message": "步",
+    "description": "Steps count suffix"
+  },
+  "statusSuccess": {
+    "message": "成功",
+    "description": "Success status"
+  },
+  "statusFailed": {
+    "message": "失败",
+    "description": "Failed status"
+  },
+  "inputLabel": {
+    "message": "输入内容",
+    "description": "Input label"
+  },
+  "pageLabel": {
+    "message": "执行页面",
+    "description": "Page label"
+  },
+  "timeLabel": {
+    "message": "执行时间",
+    "description": "Time label"
+  },
+  "resultsLabel": {
+    "message": "执行结果",
+    "description": "Results label"
+  },
+  "rerunning": {
+    "message": "正在重新执行...",
+    "description": "Rerunning status"
+  },
+  "rerunSuccess": {
+    "message": "重新执行成功！",
+    "description": "Rerun success"
+  },
+  "rerunFailed": {
+    "message": "重新执行失败: {0}",
+    "description": "Rerun failed"
+  },
+  "btnHistory": {
+    "message": "执行历史",
+    "description": "History button title"
+  },
+  "btnStop": {
+    "message": "停止",
+    "description": "Stop button"
+  },
+  "stopped": {
+    "message": "已停止",
+    "description": "Stopped status"
+  },
+  "agentStopped": {
+    "message": "智能体执行已停止",
+    "description": "Agent stopped message"
+  },
+  "executionStopped": {
+    "message": "代码执行已停止",
+    "description": "Code execution stopped message"
+  },
+  "btnImport": {
+    "message": "导入",
+    "description": "Import button"
+  },
+  "btnExport": {
+    "message": "导出",
+    "description": "Export button"
+  },
+  "tasksExported": {
+    "message": "任务已导出",
+    "description": "Tasks exported notification"
+  },
+  "noTasksToExport": {
+    "message": "没有任务可导出",
+    "description": "No tasks to export"
+  },
+  "tasksImported": {
+    "message": "已导入 {0} 个任务",
+    "description": "Tasks imported notification"
+  },
+  "importFailed": {
+    "message": "导入失败",
+    "description": "Import failed"
   }
 }

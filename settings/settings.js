@@ -1,8 +1,11 @@
 // settings/settings.js
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
   // Localize document
   localizeDocument();
+
+  // === Theme ===
+  await initTheme();
 
   // === Elements ===
   const apiBaseUrlInput = document.getElementById('api-base-url');
@@ -128,35 +131,4 @@ document.addEventListener('DOMContentLoaded', () => {
       btnTestConnection.innerHTML = originalContent;
     }
   });
-
-  // === Toast Notification ===
-  function showToast(message, type = 'info') {
-    const container = document.getElementById('toast-container');
-    const toast = document.createElement('div');
-    toast.className = `toast ${type}`;
-
-    const icons = {
-      success: '✅',
-      error: '❌',
-      info: 'ℹ️'
-    };
-
-    toast.innerHTML = `<span>${icons[type] || ''}</span><span>${escapeHtml(message)}</span>`;
-    container.appendChild(toast);
-
-    setTimeout(() => {
-      toast.style.opacity = '0';
-      toast.style.transform = 'translateX(20px)';
-      toast.style.transition = 'all 0.3s ease';
-      setTimeout(() => toast.remove(), 300);
-    }, 3000);
-  }
-
-  // === Utility ===
-  function escapeHtml(text) {
-    if (text === null || text === undefined) return '';
-    const div = document.createElement('div');
-    div.textContent = String(text);
-    return div.innerHTML;
-  }
 });

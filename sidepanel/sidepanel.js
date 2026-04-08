@@ -1,8 +1,72 @@
 // sidepanel/sidepanel.js
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
   // Localize document
   localizeDocument();
+
+  // === Theme Management ===
+  const btnTheme = document.getElementById('btn-theme');
+  const iconSun = btnTheme.querySelector('.icon-sun');
+  const iconMoon = btnTheme.querySelector('.icon-moon');
+
+  async function updateThemeUI() {
+    const theme = document.documentElement.getAttribute('data-theme') || 'light';
+    iconSun.classList.toggle('hidden', theme === 'dark');
+    iconMoon.classList.toggle('hidden', theme === 'light');
+  }
+
+  btnTheme.addEventListener('click', async () => {
+    await toggleTheme();
+    await updateThemeUI();
+  });
+
+  await initTheme();
+  await updateThemeUI();
+
+  // === Shortcuts Panel ===
+  const btnShortcuts = document.getElementById('btn-shortcuts');
+  let shortcutsPanel = null;
+
+  btnShortcuts.addEventListener('click', () => {
+    if (!shortcutsPanel) {
+      shortcutsPanel = createShortcutsPanel();
+      document.body.appendChild(shortcutsPanel);
+    }
+    shortcutsPanel.classList.toggle('hidden');
+  });
+
+  function createShortcutsPanel() {
+    const panel = document.createElement('div');
+    panel.className = 'shortcuts-panel';
+    panel.innerHTML = `
+      <div class="shortcuts-header">
+        <h3>${i18n('shortcutsTitle')}</h3>
+        <button class="icon-btn small close-shortcuts">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+      <div class="shortcuts-list">
+        <div class="shortcut-item">
+          <kbd>Ctrl</kbd> + <kbd>Enter</kbd>
+          <span>${i18n('shortcutRun')}</span>
+        </div>
+        <div class="shortcut-item">
+          <kbd>Tab</kbd>
+          <span>${i18n('shortcutTab')}</span>
+        </div>
+        <div class="shortcut-item">
+          <kbd>Esc</kbd>
+          <span>${i18n('shortcutClose')}</span>
+        </div>
+      </div>
+    `;
+    panel.querySelector('.close-shortcuts').addEventListener('click', () => {
+      panel.classList.add('hidden');
+    });
+    return panel;
+  }
 
   // === Elements ===
   const tabs = document.querySelectorAll('.tab');
@@ -11,9 +75,12 @@ document.addEventListener('DOMContentLoaded', () => {
   const codeInput = document.getElementById('code-input');
   const btnRunPrompt = document.getElementById('btn-run-prompt');
   const btnRunCode = document.getElementById('btn-run-code');
+  const btnStopPrompt = document.getElementById('btn-stop-prompt');
+  const btnStopCode = document.getElementById('btn-stop-code');
   const btnSavePrompt = document.getElementById('btn-save-prompt');
   const btnSaveCode = document.getElementById('btn-save-code');
   const btnTasks = document.getElementById('btn-tasks');
+  const btnHistory = document.getElementById('btn-history');
   const btnSettings = document.getElementById('btn-settings');
   const outputSection = document.getElementById('output-section');
   const outputContent = document.getElementById('output-content');
@@ -32,6 +99,20 @@ document.addEventListener('DOMContentLoaded', () => {
   let isRunning = false;
   let currentSaveType = 'prompt';
   let currentSaveContent = '';
+
+  // === Helper to toggle run/stop buttons ===
+  function setRunningState(running, type = 'prompt') {
+    isRunning = running;
+    if (type === 'prompt') {
+      btnRunPrompt.disabled = running;
+      btnRunPrompt.classList.toggle('hidden', running);
+      btnStopPrompt.classList.toggle('hidden', !running);
+    } else {
+      btnRunCode.disabled = running;
+      btnRunCode.classList.toggle('hidden', running);
+      btnStopCode.classList.toggle('hidden', !running);
+    }
+  }
 
   // === Tab Switching ===
   tabs.forEach(tab => {
@@ -124,9 +205,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const prompt = promptInput.value.trim();
     if (!prompt || isRunning) return;
 
-    isRunning = true;
-    btnRunPrompt.disabled = true;
-    btnRunPrompt.innerHTML = `<div class="spinner"></div> ${i18n('running')}`;
+    setRunningState(true, 'prompt');
     clearOutput();
 
     try {
@@ -147,14 +226,21 @@ document.addEventListener('DOMContentLoaded', () => {
         <div>${escapeHtml(e.message)}</div>
       `);
     } finally {
-      isRunning = false;
-      btnRunPrompt.disabled = false;
-      btnRunPrompt.innerHTML = `
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <polygon points="5 3 19 12 5 21 5 3"/>
-        </svg>
-        <span>${i18n('btnRunAgent')}</span>
-      `;
+      setRunningState(false, 'prompt');
+    }
+  });
+
+  // === Stop Prompt ===
+  btnStopPrompt.addEventListener('click', async () => {
+    try {
+      await chrome.runtime.sendMessage({ action: 'stop_agent' });
+      setRunningState(false, 'prompt');
+      addOutput('error', `
+        <div class="label">⏹️ ${i18n('stopped')}</div>
+        <div>${i18n('agentStopped')}</div>
+      `);
+    } catch (e) {
+      console.error('Failed to stop agent:', e);
     }
   });
 
@@ -163,9 +249,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const code = codeInput.value.trim();
     if (!code || isRunning) return;
 
-    isRunning = true;
-    btnRunCode.disabled = true;
-    btnRunCode.innerHTML = `<div class="spinner"></div> ${i18n('running')}`;
+    setRunningState(true, 'code');
     clearOutput();
 
     try {
@@ -186,14 +270,21 @@ document.addEventListener('DOMContentLoaded', () => {
         <div>${escapeHtml(e.message)}</div>
       `);
     } finally {
-      isRunning = false;
-      btnRunCode.disabled = false;
-      btnRunCode.innerHTML = `
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <polygon points="5 3 19 12 5 21 5 3"/>
-        </svg>
-        <span>${i18n('btnExecute')}</span>
-      `;
+      setRunningState(false, 'code');
+    }
+  });
+
+  // === Stop Code ===
+  btnStopCode.addEventListener('click', async () => {
+    try {
+      await chrome.runtime.sendMessage({ action: 'stop_agent' });
+      setRunningState(false, 'code');
+      addOutput('error', `
+        <div class="label">⏹️ ${i18n('stopped')}</div>
+        <div>${i18n('executionStopped')}</div>
+      `);
+    } catch (e) {
+      console.error('Failed to stop execution:', e);
     }
   });
 
@@ -267,6 +358,11 @@ document.addEventListener('DOMContentLoaded', () => {
     chrome.tabs.create({ url: chrome.runtime.getURL('tasks/tasks.html') });
   });
 
+  // === Open History Page ===
+  btnHistory.addEventListener('click', () => {
+    chrome.tabs.create({ url: chrome.runtime.getURL('history/history.html') });
+  });
+
   // === Tab key support for code editor ===
   codeInput.addEventListener('keydown', (e) => {
     if (e.key === 'Tab') {
@@ -293,7 +389,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // === Notification ===
+  // === Notification (sidepanel-specific bottom notification) ===
   function showNotification(message, type = 'success') {
     const notification = document.createElement('div');
     notification.className = `output-entry ${type}`;
@@ -318,15 +414,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 2000);
   }
 
-  // === Utility ===
-  function escapeHtml(text) {
-    if (text === null || text === undefined) return '';
-    const div = document.createElement('div');
-    div.textContent = String(text);
-    return div.innerHTML;
-  }
-
-  // Add CSS animations
+  // Add CSS animations (keep for notification)
   const style = document.createElement('style');
   style.textContent = `
     @keyframes slideUp {
