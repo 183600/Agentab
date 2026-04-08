@@ -1,6 +1,6 @@
 // background/background.js - Service Worker
 
-importScripts('../lib/storage.js');
+import { StorageManager } from '../lib/storage.js';
 
 // ===== LLM Agent =====
 

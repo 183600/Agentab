@@ -1,6 +1,9 @@
 // popup/popup.js
 
 document.addEventListener('DOMContentLoaded', () => {
+  // Localize document
+  localizeDocument();
+
   // === Elements ===
   const tabs = document.querySelectorAll('.tab');
   const tabContents = document.querySelectorAll('.tab-content');
@@ -12,16 +15,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnSaveCode = document.getElementById('btn-save-code');
   const btnTasks = document.getElementById('btn-tasks');
   const btnSettings = document.getElementById('btn-settings');
-  const settingsPanel = document.getElementById('settings-panel');
   const outputSection = document.getElementById('output-section');
   const outputContent = document.getElementById('output-content');
   const btnClearOutput = document.getElementById('btn-clear-output');
-  
-  // Settings elements
-  const apiBaseUrlInput = document.getElementById('api-base-url');
-  const apiKeyInput = document.getElementById('api-key');
-  const modelInput = document.getElementById('model');
-  const btnSaveSettings = document.getElementById('btn-save-settings');
   
   // Save dialog elements
   const saveDialog = document.getElementById('save-dialog');
@@ -47,41 +43,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // === Load Settings ===
-  async function loadSettings() {
-    const response = await chrome.runtime.sendMessage({ action: 'get_settings' });
-    if (response.success) {
-      apiBaseUrlInput.value = response.settings.apiBaseUrl;
-      apiKeyInput.value = response.settings.apiKey;
-      modelInput.value = response.settings.model;
-    }
-  }
-
-  loadSettings();
-
-  // === Settings Panel ===
+  // === Open Settings Page ===
   btnSettings.addEventListener('click', () => {
-    settingsPanel.classList.toggle('hidden');
-  });
-
-  document.querySelectorAll('.close-panel').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const panel = document.getElementById(btn.dataset.panel);
-      if (panel) panel.classList.add('hidden');
-    });
-  });
-
-  btnSaveSettings.addEventListener('click', async () => {
-    await chrome.runtime.sendMessage({
-      action: 'save_settings',
-      settings: {
-        apiBaseUrl: apiBaseUrlInput.value.trim(),
-        apiKey: apiKeyInput.value.trim(),
-        model: modelInput.value.trim()
-      }
-    });
-    settingsPanel.classList.add('hidden');
-    showNotification('Settings saved!');
+    chrome.tabs.create({ url: chrome.runtime.getURL('settings/settings.html') });
   });
 
   // === Output ===
@@ -120,7 +84,7 @@ document.addEventListener('DOMContentLoaded', () => {
           break;
         case 'executing':
           addOutput('executing', `
-            <div class="label">⚡ Executing Code (Step ${update.iteration || 1})</div>
+            <div class="label">⚡ ${i18n('execCodeStep', [update.iteration || 1])}</div>
             <div>${escapeHtml(update.explanation || '')}</div>
             <div class="code-block">${escapeHtml(update.code)}</div>
           `);
@@ -128,26 +92,26 @@ document.addEventListener('DOMContentLoaded', () => {
         case 'executed':
           if (update.result?.success) {
             addOutput('success', `
-              <div class="label">✅ Execution Result</div>
+              <div class="label">✅ ${i18n('execResult')}</div>
               <div class="code-block">${escapeHtml(JSON.stringify(update.result.result, null, 2) || 'undefined')}</div>
             `);
           } else {
             addOutput('error', `
-              <div class="label">❌ Execution Error</div>
-              <div>${escapeHtml(update.result?.error || 'Unknown error')}</div>
+              <div class="label">❌ ${i18n('execError')}</div>
+              <div>${escapeHtml(update.result?.error || i18n('unknownError'))}</div>
             `);
           }
           break;
         case 'complete':
           addOutput('success', `
-            <div class="label">🎉 Task Complete</div>
+            <div class="label">🎉 ${i18n('taskComplete')}</div>
             <div>${escapeHtml(update.message)}</div>
             ${update.explanation ? `<div class="text-muted mt-8">${escapeHtml(update.explanation)}</div>` : ''}
           `);
           break;
         case 'error':
           addOutput('error', `
-            <div class="label">❌ Error</div>
+            <div class="label">❌ ${i18n('error')}</div>
             <div>${escapeHtml(update.message)}</div>
           `);
           break;
@@ -162,7 +126,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     isRunning = true;
     btnRunPrompt.disabled = true;
-    btnRunPrompt.innerHTML = '<div class="spinner"></div> Running...';
+    btnRunPrompt.innerHTML = `<div class="spinner"></div> ${i18n('running')}`;
     clearOutput();
 
     try {
@@ -173,13 +137,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (!response.success && response.error) {
         addOutput('error', `
-          <div class="label">❌ Error</div>
+          <div class="label">❌ ${i18n('error')}</div>
           <div>${escapeHtml(response.error)}</div>
         `);
       }
     } catch (e) {
       addOutput('error', `
-        <div class="label">❌ Error</div>
+        <div class="label">❌ ${i18n('error')}</div>
         <div>${escapeHtml(e.message)}</div>
       `);
     } finally {
@@ -189,7 +153,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <polygon points="5 3 19 12 5 21 5 3"/>
         </svg>
-        Run Agent
+        <span>${i18n('btnRunAgent')}</span>
       `;
     }
   });
@@ -201,7 +165,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     isRunning = true;
     btnRunCode.disabled = true;
-    btnRunCode.innerHTML = '<div class="spinner"></div> Running...';
+    btnRunCode.innerHTML = `<div class="spinner"></div> ${i18n('running')}`;
     clearOutput();
 
     try {
@@ -212,13 +176,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (!response.success && response.error) {
         addOutput('error', `
-          <div class="label">❌ Error</div>
+          <div class="label">❌ ${i18n('error')}</div>
           <div>${escapeHtml(response.error)}</div>
         `);
       }
     } catch (e) {
       addOutput('error', `
-        <div class="label">❌ Error</div>
+        <div class="label">❌ ${i18n('error')}</div>
         <div>${escapeHtml(e.message)}</div>
       `);
     } finally {
@@ -228,7 +192,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <polygon points="5 3 19 12 5 21 5 3"/>
         </svg>
-        Execute
+        <span>${i18n('btnExecute')}</span>
       `;
     }
   });
@@ -239,7 +203,7 @@ document.addEventListener('DOMContentLoaded', () => {
     currentSaveContent = content;
     taskNameInput.value = '';
     taskDescInput.value = '';
-    taskTypeBadge.textContent = type;
+    taskTypeBadge.textContent = i18n(type === 'prompt' ? 'typePrompt' : 'typeCode');
     taskTypeBadge.className = `task-type-badge ${type}`;
     taskContentPreview.textContent = content.substring(0, 300) + (content.length > 300 ? '...' : '');
     saveDialog.classList.remove('hidden');
@@ -252,13 +216,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
   btnSavePrompt.addEventListener('click', () => {
     const prompt = promptInput.value.trim();
-    if (!prompt) return showNotification('Please enter a prompt first', 'error');
+    if (!prompt) return showNotification(i18n('enterPromptFirst'), 'error');
     openSaveDialog('prompt', prompt);
   });
 
   btnSaveCode.addEventListener('click', () => {
     const code = codeInput.value.trim();
-    if (!code) return showNotification('Please enter code first', 'error');
+    if (!code) return showNotification(i18n('enterCodeFirst'), 'error');
     openSaveDialog('code', code);
   });
 
@@ -286,10 +250,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (response.success) {
         closeSaveDialog();
-        showNotification('Task saved successfully!');
+        showNotification(i18n('taskSaved'));
       }
     } catch (e) {
-      showNotification('Failed to save task: ' + e.message, 'error');
+      showNotification(i18n('taskSaveFailed', [e.message]), 'error');
     }
   });
 

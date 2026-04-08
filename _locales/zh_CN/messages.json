@@ -1,0 +1,390 @@
+{
+  "extName": {
+    "message": "Agentab",
+    "description": "Extension name"
+  },
+  "extDescription": {
+    "message": "通过执行 JS 代码控制 Chrome 和网页的 AI 智能体",
+    "description": "Extension description"
+  },
+  "btnTasks": {
+    "message": "已保存任务",
+    "description": "Tasks button title"
+  },
+  "btnSettings": {
+    "message": "设置",
+    "description": "Settings button title"
+  },
+  "promptPlaceholder": {
+    "message": "描述你想要智能体执行的任务...\n\n示例：\n• 找出页面上所有的图片并列出它们的 URL\n• 在搜索框中填写 'chrome 扩展' 并提交\n• 提取页面上所有的邮箱地址\n• 滚动到页面底部并统计所有链接数量",
+    "description": "Prompt input placeholder"
+  },
+  "codePlaceholder": {
+    "message": "输入要执行的 JavaScript 代码...\n\n// 可用的辅助工具：\n// __chromeAgent.waitForElement(selector)\n// __chromeAgent.typeText(selector, text)\n// __chromeAgent.clickElement(selector)\n// __chromeAgent.sleep(ms)\n// __chromeAgent.extractTable(selector)\n// __chromeAgent.fillForm({selector: value})",
+    "description": "Code input placeholder"
+  },
+  "btnSave": {
+    "message": "保存",
+    "description": "Save button"
+  },
+  "btnRunAgent": {
+    "message": "运行智能体",
+    "description": "Run agent button"
+  },
+  "btnExecute": {
+    "message": "执行",
+    "description": "Execute button"
+  },
+  "outputTitle": {
+    "message": "输出",
+    "description": "Output section title"
+  },
+  "btnClear": {
+    "message": "清除",
+    "description": "Clear button title"
+  },
+  "settingsTitle": {
+    "message": "设置",
+    "description": "Settings panel title"
+  },
+  "apiBaseUrlLabel": {
+    "message": "API 地址",
+    "description": "API base URL label"
+  },
+  "apiBaseUrlPlaceholder": {
+    "message": "https://api.openai.com/v1",
+    "description": "API base URL placeholder"
+  },
+  "apiKeyLabel": {
+    "message": "API 密钥",
+    "description": "API key label"
+  },
+  "apiKeyPlaceholder": {
+    "message": "sk-...",
+    "description": "API key placeholder"
+  },
+  "modelLabel": {
+    "message": "模型",
+    "description": "Model label"
+  },
+  "modelPlaceholder": {
+    "message": "gpt-4",
+    "description": "Model placeholder"
+  },
+  "btnSaveSettings": {
+    "message": "保存设置",
+    "description": "Save settings button"
+  },
+  "saveTaskTitle": {
+    "message": "保存任务",
+    "description": "Save task dialog title"
+  },
+  "taskNameLabel": {
+    "message": "任务名称 *",
+    "description": "Task name label"
+  },
+  "taskNamePlaceholder": {
+    "message": "我的任务",
+    "description": "Task name placeholder"
+  },
+  "taskDescLabel": {
+    "message": "描述（可选）",
+    "description": "Task description label"
+  },
+  "taskDescPlaceholder": {
+    "message": "这个任务的作用...",
+    "description": "Task description placeholder"
+  },
+  "typeLabel": {
+    "message": "类型",
+    "description": "Type label"
+  },
+  "typePrompt": {
+    "message": "提示词",
+    "description": "Prompt type"
+  },
+  "typeCode": {
+    "message": "代码",
+    "description": "Code type"
+  },
+  "contentPreviewLabel": {
+    "message": "内容预览",
+    "description": "Content preview label"
+  },
+  "btnCancel": {
+    "message": "取消",
+    "description": "Cancel button"
+  },
+  "btnSaveTask": {
+    "message": "保存任务",
+    "description": "Save task button"
+  },
+  "settingsSaved": {
+    "message": "设置已保存！",
+    "description": "Settings saved notification"
+  },
+  "enterPromptFirst": {
+    "message": "请先输入提示词",
+    "description": "Error message"
+  },
+  "enterCodeFirst": {
+    "message": "请先输入代码",
+    "description": "Error message"
+  },
+  "taskSaved": {
+    "message": "任务保存成功！",
+    "description": "Task saved notification"
+  },
+  "taskSaveFailed": {
+    "message": "保存任务失败: {0}",
+    "description": "Task save failed message"
+  },
+  "running": {
+    "message": "运行中...",
+    "description": "Running status"
+  },
+  "error": {
+    "message": "错误",
+    "description": "Error label"
+  },
+  "execCodeStep": {
+    "message": "执行代码（第 {0} 步）",
+    "description": "Executing code step"
+  },
+  "execResult": {
+    "message": "执行结果",
+    "description": "Execution result"
+  },
+  "execError": {
+    "message": "执行错误",
+    "description": "Execution error"
+  },
+  "taskComplete": {
+    "message": "任务完成",
+    "description": "Task complete"
+  },
+  "unknownError": {
+    "message": "未知错误",
+    "description": "Unknown error"
+  },
+  "tasksPageTitle": {
+    "message": "Agentab - 已保存任务",
+    "description": "Tasks page title"
+  },
+  "tasksTitle": {
+    "message": "已保存任务",
+    "description": "Tasks page heading"
+  },
+  "tasksSubtitle": {
+    "message": "管理你的自动化任务",
+    "description": "Tasks page subtitle"
+  },
+  "searchPlaceholder": {
+    "message": "搜索任务...",
+    "description": "Search placeholder"
+  },
+  "filterAll": {
+    "message": "全部",
+    "description": "Filter all"
+  },
+  "totalTasks": {
+    "message": "总任务数",
+    "description": "Total tasks label"
+  },
+  "promptTasks": {
+    "message": "提示词",
+    "description": "Prompt tasks count"
+  },
+  "codeTasks": {
+    "message": "代码",
+    "description": "Code tasks count"
+  },
+  "totalExecutions": {
+    "message": "执行次数",
+    "description": "Total executions label"
+  },
+  "noTasks": {
+    "message": "暂无任务",
+    "description": "No tasks message"
+  },
+  "noTasksHint": {
+    "message": "从扩展弹窗保存任务后，会在这里显示。",
+    "description": "No tasks hint"
+  },
+  "noResults": {
+    "message": "未找到结果",
+    "description": "No results message"
+  },
+  "noResultsHint": {
+    "message": "请尝试其他搜索词或筛选条件。",
+    "description": "No results hint"
+  },
+  "editTask": {
+    "message": "编辑任务",
+    "description": "Edit task title"
+  },
+  "taskName": {
+    "message": "任务名称",
+    "description": "Task name label"
+  },
+  "description": {
+    "message": "描述",
+    "description": "Description label"
+  },
+  "content": {
+    "message": "内容",
+    "description": "Content label"
+  },
+  "contentPlaceholder": {
+    "message": "输入任务内容...",
+    "description": "Content placeholder"
+  },
+  "btnSaveChanges": {
+    "message": "保存更改",
+    "description": "Save changes button"
+  },
+  "deleteTask": {
+    "message": "删除任务",
+    "description": "Delete task title"
+  },
+  "confirmDelete": {
+    "message": "确定要删除 \"{0}\" 吗？",
+    "description": "Confirm delete message"
+  },
+  "cannotUndo": {
+    "message": "此操作无法撤销。",
+    "description": "Cannot undo message"
+  },
+  "btnDelete": {
+    "message": "删除",
+    "description": "Delete button"
+  },
+  "runTaskTitle": {
+    "message": "运行任务",
+    "description": "Run task tooltip"
+  },
+  "editTaskTitle": {
+    "message": "编辑任务",
+    "description": "Edit task tooltip"
+  },
+  "copyTaskTitle": {
+    "message": "复制任务",
+    "description": "Copy task tooltip"
+  },
+  "deleteTaskTitle": {
+    "message": "删除任务",
+    "description": "Delete task tooltip"
+  },
+  "runningTask": {
+    "message": "正在运行任务: {0}...",
+    "description": "Running task message"
+  },
+  "taskExecSuccess": {
+    "message": "任务 \"{0}\" 执行成功！",
+    "description": "Task execution success"
+  },
+  "taskExecFailed": {
+    "message": "任务执行失败: {0}",
+    "description": "Task execution failed"
+  },
+  "taskUpdated": {
+    "message": "任务更新成功！",
+    "description": "Task updated notification"
+  },
+  "taskDeleted": {
+    "message": "任务已删除",
+    "description": "Task deleted notification"
+  },
+  "taskCopied": {
+    "message": "任务已复制！",
+    "description": "Task copied notification"
+  },
+  "copySuffix": {
+    "message": "（副本）",
+    "description": "Copy suffix"
+  },
+  "createdTime": {
+    "message": "创建时间: {0}",
+    "description": "Created time"
+  },
+  "executionCount": {
+    "message": "次执行",
+    "description": "Execution count suffix"
+  },
+  "justNow": {
+    "message": "刚刚",
+    "description": "Just now"
+  },
+  "minutesAgo": {
+    "message": "{0} 分钟前",
+    "description": "Minutes ago"
+  },
+  "hoursAgo": {
+    "message": "{0} 小时前",
+    "description": "Hours ago"
+  },
+  "daysAgo": {
+    "message": "{0} 天前",
+    "description": "Days ago"
+  },
+  "settingsPageTitle": {
+    "message": "Agentab - 设置",
+    "description": "Settings page title"
+  },
+  "settingsSubtitle": {
+    "message": "配置你的 API 和智能体参数",
+    "description": "Settings page subtitle"
+  },
+  "apiConfigTitle": {
+    "message": "API 配置",
+    "description": "API configuration title"
+  },
+  "apiBaseUrlHint": {
+    "message": "OpenAI 兼容 API 的基础地址",
+    "description": "API base URL hint"
+  },
+  "apiBaseUrlRequired": {
+    "message": "请输入 API 地址",
+    "description": "API base URL required error"
+  },
+  "apiKeyRequired": {
+    "message": "请输入 API 密钥",
+    "description": "API key required error"
+  },
+  "modelRequired": {
+    "message": "请输入模型名称",
+    "description": "Model required error"
+  },
+  "modelHint": {
+    "message": "要使用的模型名称，如 gpt-4、gpt-3.5-turbo",
+    "description": "Model hint"
+  },
+  "btnTestConnection": {
+    "message": "测试连接",
+    "description": "Test connection button"
+  },
+  "saving": {
+    "message": "保存中...",
+    "description": "Saving status"
+  },
+  "testing": {
+    "message": "测试中...",
+    "description": "Testing status"
+  },
+  "settingsSaveFailed": {
+    "message": "保存设置失败",
+    "description": "Settings save failed"
+  },
+  "fillAllFields": {
+    "message": "请填写所有必填字段",
+    "description": "Fill all fields error"
+  },
+  "connectionSuccess": {
+    "message": "连接成功！API 配置正确",
+    "description": "Connection success"
+  },
+  "connectionFailed": {
+    "message": "连接失败: {0}",
+    "description": "Connection failed"
+  }
+}

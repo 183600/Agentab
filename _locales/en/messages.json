@@ -1,0 +1,390 @@
+{
+  "extName": {
+    "message": "Agentab",
+    "description": "Extension name"
+  },
+  "extDescription": {
+    "message": "AI Agent that controls Chrome and web pages by executing JS code",
+    "description": "Extension description"
+  },
+  "btnTasks": {
+    "message": "Saved Tasks",
+    "description": "Tasks button title"
+  },
+  "btnSettings": {
+    "message": "Settings",
+    "description": "Settings button title"
+  },
+  "promptPlaceholder": {
+    "message": "Describe the task you want the agent to execute...\n\nExamples:\n• Find all images on the page and list their URLs\n• Fill 'chrome extension' in the search box and submit\n• Extract all email addresses from the page\n• Scroll to the bottom and count all links",
+    "description": "Prompt input placeholder"
+  },
+  "codePlaceholder": {
+    "message": "Enter JavaScript code to execute...\n\n// Available helper tools:\n// __chromeAgent.waitForElement(selector)\n// __chromeAgent.typeText(selector, text)\n// __chromeAgent.clickElement(selector)\n// __chromeAgent.sleep(ms)\n// __chromeAgent.extractTable(selector)\n// __chromeAgent.fillForm({selector: value})",
+    "description": "Code input placeholder"
+  },
+  "btnSave": {
+    "message": "Save",
+    "description": "Save button"
+  },
+  "btnRunAgent": {
+    "message": "Run Agent",
+    "description": "Run agent button"
+  },
+  "btnExecute": {
+    "message": "Execute",
+    "description": "Execute button"
+  },
+  "outputTitle": {
+    "message": "Output",
+    "description": "Output section title"
+  },
+  "btnClear": {
+    "message": "Clear",
+    "description": "Clear button title"
+  },
+  "settingsTitle": {
+    "message": "Settings",
+    "description": "Settings panel title"
+  },
+  "apiBaseUrlLabel": {
+    "message": "API Base URL",
+    "description": "API base URL label"
+  },
+  "apiBaseUrlPlaceholder": {
+    "message": "https://api.openai.com/v1",
+    "description": "API base URL placeholder"
+  },
+  "apiKeyLabel": {
+    "message": "API Key",
+    "description": "API key label"
+  },
+  "apiKeyPlaceholder": {
+    "message": "sk-...",
+    "description": "API key placeholder"
+  },
+  "modelLabel": {
+    "message": "Model",
+    "description": "Model label"
+  },
+  "modelPlaceholder": {
+    "message": "gpt-4",
+    "description": "Model placeholder"
+  },
+  "btnSaveSettings": {
+    "message": "Save Settings",
+    "description": "Save settings button"
+  },
+  "saveTaskTitle": {
+    "message": "Save Task",
+    "description": "Save task dialog title"
+  },
+  "taskNameLabel": {
+    "message": "Task Name *",
+    "description": "Task name label"
+  },
+  "taskNamePlaceholder": {
+    "message": "My Task",
+    "description": "Task name placeholder"
+  },
+  "taskDescLabel": {
+    "message": "Description (optional)",
+    "description": "Task description label"
+  },
+  "taskDescPlaceholder": {
+    "message": "What this task does...",
+    "description": "Task description placeholder"
+  },
+  "typeLabel": {
+    "message": "Type",
+    "description": "Type label"
+  },
+  "typePrompt": {
+    "message": "Prompt",
+    "description": "Prompt type"
+  },
+  "typeCode": {
+    "message": "Code",
+    "description": "Code type"
+  },
+  "contentPreviewLabel": {
+    "message": "Content Preview",
+    "description": "Content preview label"
+  },
+  "btnCancel": {
+    "message": "Cancel",
+    "description": "Cancel button"
+  },
+  "btnSaveTask": {
+    "message": "Save Task",
+    "description": "Save task button"
+  },
+  "settingsSaved": {
+    "message": "Settings saved!",
+    "description": "Settings saved notification"
+  },
+  "enterPromptFirst": {
+    "message": "Please enter a prompt first",
+    "description": "Error message"
+  },
+  "enterCodeFirst": {
+    "message": "Please enter code first",
+    "description": "Error message"
+  },
+  "taskSaved": {
+    "message": "Task saved successfully!",
+    "description": "Task saved notification"
+  },
+  "taskSaveFailed": {
+    "message": "Failed to save task: {0}",
+    "description": "Task save failed message"
+  },
+  "running": {
+    "message": "Running...",
+    "description": "Running status"
+  },
+  "error": {
+    "message": "Error",
+    "description": "Error label"
+  },
+  "execCodeStep": {
+    "message": "Executing code (Step {0})",
+    "description": "Executing code step"
+  },
+  "execResult": {
+    "message": "Execution Result",
+    "description": "Execution result"
+  },
+  "execError": {
+    "message": "Execution Error",
+    "description": "Execution error"
+  },
+  "taskComplete": {
+    "message": "Task Complete",
+    "description": "Task complete"
+  },
+  "unknownError": {
+    "message": "Unknown error",
+    "description": "Unknown error"
+  },
+  "tasksPageTitle": {
+    "message": "Agentab - Saved Tasks",
+    "description": "Tasks page title"
+  },
+  "tasksTitle": {
+    "message": "Saved Tasks",
+    "description": "Tasks page heading"
+  },
+  "tasksSubtitle": {
+    "message": "Manage your automation tasks",
+    "description": "Tasks page subtitle"
+  },
+  "searchPlaceholder": {
+    "message": "Search tasks...",
+    "description": "Search placeholder"
+  },
+  "filterAll": {
+    "message": "All",
+    "description": "Filter all"
+  },
+  "totalTasks": {
+    "message": "Total Tasks",
+    "description": "Total tasks label"
+  },
+  "promptTasks": {
+    "message": "Prompts",
+    "description": "Prompt tasks count"
+  },
+  "codeTasks": {
+    "message": "Code",
+    "description": "Code tasks count"
+  },
+  "totalExecutions": {
+    "message": "Executions",
+    "description": "Total executions label"
+  },
+  "noTasks": {
+    "message": "No Tasks Yet",
+    "description": "No tasks message"
+  },
+  "noTasksHint": {
+    "message": "Tasks saved from the extension popup will appear here.",
+    "description": "No tasks hint"
+  },
+  "noResults": {
+    "message": "No Results Found",
+    "description": "No results message"
+  },
+  "noResultsHint": {
+    "message": "Try different search terms or filters.",
+    "description": "No results hint"
+  },
+  "editTask": {
+    "message": "Edit Task",
+    "description": "Edit task title"
+  },
+  "taskName": {
+    "message": "Task Name",
+    "description": "Task name label"
+  },
+  "description": {
+    "message": "Description",
+    "description": "Description label"
+  },
+  "content": {
+    "message": "Content",
+    "description": "Content label"
+  },
+  "contentPlaceholder": {
+    "message": "Enter task content...",
+    "description": "Content placeholder"
+  },
+  "btnSaveChanges": {
+    "message": "Save Changes",
+    "description": "Save changes button"
+  },
+  "deleteTask": {
+    "message": "Delete Task",
+    "description": "Delete task title"
+  },
+  "confirmDelete": {
+    "message": "Are you sure you want to delete \"{0}\"?",
+    "description": "Confirm delete message"
+  },
+  "cannotUndo": {
+    "message": "This action cannot be undone.",
+    "description": "Cannot undo message"
+  },
+  "btnDelete": {
+    "message": "Delete",
+    "description": "Delete button"
+  },
+  "runTaskTitle": {
+    "message": "Run Task",
+    "description": "Run task tooltip"
+  },
+  "editTaskTitle": {
+    "message": "Edit Task",
+    "description": "Edit task tooltip"
+  },
+  "copyTaskTitle": {
+    "message": "Copy Task",
+    "description": "Copy task tooltip"
+  },
+  "deleteTaskTitle": {
+    "message": "Delete Task",
+    "description": "Delete task tooltip"
+  },
+  "runningTask": {
+    "message": "Running task: {0}...",
+    "description": "Running task message"
+  },
+  "taskExecSuccess": {
+    "message": "Task \"{0}\" executed successfully!",
+    "description": "Task execution success"
+  },
+  "taskExecFailed": {
+    "message": "Task execution failed: {0}",
+    "description": "Task execution failed"
+  },
+  "taskUpdated": {
+    "message": "Task updated successfully!",
+    "description": "Task updated notification"
+  },
+  "taskDeleted": {
+    "message": "Task deleted",
+    "description": "Task deleted notification"
+  },
+  "taskCopied": {
+    "message": "Task copied!",
+    "description": "Task copied notification"
+  },
+  "copySuffix": {
+    "message": " (Copy)",
+    "description": "Copy suffix"
+  },
+  "createdTime": {
+    "message": "Created: {0}",
+    "description": "Created time"
+  },
+  "executionCount": {
+    "message": "executions",
+    "description": "Execution count suffix"
+  },
+  "justNow": {
+    "message": "Just now",
+    "description": "Just now"
+  },
+  "minutesAgo": {
+    "message": "{0} minutes ago",
+    "description": "Minutes ago"
+  },
+  "hoursAgo": {
+    "message": "{0} hours ago",
+    "description": "Hours ago"
+  },
+  "daysAgo": {
+    "message": "{0} days ago",
+    "description": "Days ago"
+  },
+  "settingsPageTitle": {
+    "message": "Agentab - Settings",
+    "description": "Settings page title"
+  },
+  "settingsSubtitle": {
+    "message": "Configure your API and agent parameters",
+    "description": "Settings page subtitle"
+  },
+  "apiConfigTitle": {
+    "message": "API Configuration",
+    "description": "API configuration title"
+  },
+  "apiBaseUrlHint": {
+    "message": "Base URL for OpenAI-compatible API",
+    "description": "API base URL hint"
+  },
+  "apiBaseUrlRequired": {
+    "message": "Please enter API base URL",
+    "description": "API base URL required error"
+  },
+  "apiKeyRequired": {
+    "message": "Please enter API key",
+    "description": "API key required error"
+  },
+  "modelRequired": {
+    "message": "Please enter model name",
+    "description": "Model required error"
+  },
+  "modelHint": {
+    "message": "Model name to use, e.g. gpt-4, gpt-3.5-turbo",
+    "description": "Model hint"
+  },
+  "btnTestConnection": {
+    "message": "Test Connection",
+    "description": "Test connection button"
+  },
+  "saving": {
+    "message": "Saving...",
+    "description": "Saving status"
+  },
+  "testing": {
+    "message": "Testing...",
+    "description": "Testing status"
+  },
+  "settingsSaveFailed": {
+    "message": "Failed to save settings",
+    "description": "Settings save failed"
+  },
+  "fillAllFields": {
+    "message": "Please fill in all required fields",
+    "description": "Fill all fields error"
+  },
+  "connectionSuccess": {
+    "message": "Connection successful! API is configured correctly",
+    "description": "Connection success"
+  },
+  "connectionFailed": {
+    "message": "Connection failed: {0}",
+    "description": "Connection failed"
+  }
+}

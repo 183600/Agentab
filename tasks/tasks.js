@@ -1,6 +1,9 @@
 // tasks/tasks.js
 
 document.addEventListener('DOMContentLoaded', () => {
+  // Localize document
+  localizeDocument();
+
   // === Elements ===
   const tasksGrid = document.getElementById('tasks-grid');
   const emptyState = document.getElementById('empty-state');
@@ -26,7 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Delete modal
   const deleteModal = document.getElementById('delete-modal');
-  const deleteTaskName = document.getElementById('delete-task-name');
+  const deleteConfirmText = document.getElementById('delete-confirm-text');
   const btnCancelDelete = document.getElementById('btn-cancel-delete');
   const btnConfirmDelete = document.getElementById('btn-confirm-delete');
 
@@ -65,6 +68,16 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // === Get Type Label ===
+  function getTypeLabel(type) {
+    return type === 'prompt' ? i18n('typePrompt') : i18n('typeCode');
+  }
+
+  // === Get Type Icon ===
+  function getTypeIcon(type) {
+    return type === 'prompt' ? '💬' : '⚡';
+  }
+
   // === Render Tasks ===
   function renderTasks() {
     const filtered = getFilteredTasks();
@@ -95,7 +108,7 @@ document.addEventListener('DOMContentLoaded', () => {
             ${task.description ? `<div class="task-desc" title="${escapeHtml(task.description)}">${escapeHtml(task.description)}</div>` : ''}
           </div>
           <span class="task-type ${task.type}">
-            ${task.type === 'prompt' ? '💬' : '⚡'} ${task.type}
+            ${getTypeIcon(task.type)} ${getTypeLabel(task.type)}
           </span>
         </div>
         <div class="task-content-preview">
@@ -103,32 +116,32 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>
         <div class="task-meta">
           <div class="task-meta-info">
-            <span title="Created: ${new Date(task.createdAt).toLocaleString()}">
+            <span title="${i18n('createdTime', [new Date(task.createdAt).toLocaleString()])}">
               📅 ${formatDate(task.createdAt)}
             </span>
-            <span title="Total executions">
-              🔄 ${task.executionCount || 0} runs
+            <span title="${i18n('executionCount')}">
+              🔄 ${task.executionCount || 0} ${i18n('executionCount')}
             </span>
           </div>
           <div class="task-actions">
-            <button class="task-action-btn run" title="Run Task" data-action="run" data-id="${task.id}">
+            <button class="task-action-btn run" title="${i18n('runTaskTitle')}" data-action="run" data-id="${task.id}">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <polygon points="5 3 19 12 5 21 5 3"/>
               </svg>
             </button>
-            <button class="task-action-btn" title="Edit Task" data-action="edit" data-id="${task.id}">
+            <button class="task-action-btn" title="${i18n('editTaskTitle')}" data-action="edit" data-id="${task.id}">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
                 <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
               </svg>
             </button>
-            <button class="task-action-btn" title="Duplicate Task" data-action="duplicate" data-id="${task.id}">
+            <button class="task-action-btn" title="${i18n('copyTaskTitle')}" data-action="duplicate" data-id="${task.id}">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
                 <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/>
               </svg>
             </button>
-            <button class="task-action-btn delete" title="Delete Task" data-action="delete" data-id="${task.id}">
+            <button class="task-action-btn delete" title="${i18n('deleteTaskTitle')}" data-action="delete" data-id="${task.id}">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
               </svg>
@@ -167,7 +180,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // === Run Task ===
   async function runTask(task) {
-    showToast(`Running task: ${task.name}...`, 'info');
+    showToast(i18n('runningTask', [task.name]), 'info');
     try {
       const response = await chrome.runtime.sendMessage({
         action: 'execute_task',
@@ -175,13 +188,13 @@ document.addEventListener('DOMContentLoaded', () => {
       });
 
       if (response.success) {
-        showToast(`Task "${task.name}" executed successfully!`, 'success');
+        showToast(i18n('taskExecSuccess', [task.name]), 'success');
         await loadTasks(); // Refresh to update execution count
       } else {
-        showToast(`Task failed: ${response.error}`, 'error');
+        showToast(i18n('taskExecFailed', [response.error]), 'error');
       }
     } catch (e) {
-      showToast(`Error: ${e.message}`, 'error');
+      showToast(`${i18n('error')}: ${e.message}`, 'error');
     }
   }
 
@@ -245,18 +258,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (response.success) {
         closeEditModal();
-        showToast('Task updated successfully!', 'success');
+        showToast(i18n('taskUpdated'), 'success');
         await loadTasks();
       }
     } catch (e) {
-      showToast(`Error: ${e.message}`, 'error');
+      showToast(`${i18n('error')}: ${e.message}`, 'error');
     }
   });
 
   // === Delete Modal ===
   function openDeleteModal(task) {
     deleteTargetId = task.id;
-    deleteTaskName.textContent = task.name;
+    deleteConfirmText.innerHTML = i18n('confirmDelete', [task.name]);
     deleteModal.classList.remove('hidden');
   }
 
@@ -278,11 +291,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (response.success) {
         closeDeleteModal();
-        showToast('Task deleted', 'success');
+        showToast(i18n('taskDeleted'), 'success');
         await loadTasks();
       }
     } catch (e) {
-      showToast(`Error: ${e.message}`, 'error');
+      showToast(`${i18n('error')}: ${e.message}`, 'error');
     }
   });
 
@@ -292,7 +305,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const response = await chrome.runtime.sendMessage({
         action: 'save_task',
         task: {
-          name: `${task.name} (copy)`,
+          name: `${task.name}${i18n('copySuffix')}`,
           type: task.type,
           content: task.content,
           description: task.description
@@ -300,11 +313,11 @@ document.addEventListener('DOMContentLoaded', () => {
       });
 
       if (response.success) {
-        showToast('Task duplicated!', 'success');
+        showToast(i18n('taskCopied'), 'success');
         await loadTasks();
       }
     } catch (e) {
-      showToast(`Error: ${e.message}`, 'error');
+      showToast(`${i18n('error')}: ${e.message}`, 'error');
     }
   }
 
@@ -380,10 +393,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const hours = Math.floor(diff / 3600000);
     const days = Math.floor(diff / 86400000);
 
-    if (minutes < 1) return 'Just now';
-    if (minutes < 60) return `${minutes}m ago`;
-    if (hours < 24) return `${hours}h ago`;
-    if (days < 7) return `${days}d ago`;
+    if (minutes < 1) return i18n('justNow');
+    if (minutes < 60) return i18n('minutesAgo', [minutes]);
+    if (hours < 24) return i18n('hoursAgo', [hours]);
+    if (days < 7) return i18n('daysAgo', [days]);
     return date.toLocaleDateString();
   }
 
