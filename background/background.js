@@ -2,6 +2,14 @@
 
 import { StorageManager } from '../lib/storage.js';
 
+// Open side panel when clicking the extension icon
+chrome.action.onClicked.addListener((tab) => {
+  chrome.sidePanel.open({ tabId: tab.id });
+});
+
+// Set side panel behavior
+chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true });
+
 // ===== LLM Agent =====
 
 class AgentExecutor {
