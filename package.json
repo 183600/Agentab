@@ -1,0 +1,56 @@
+{
+  "name": "agentab",
+  "version": "1.0.0",
+  "description": "将任意标签页变为 AI 智能体的 Chrome 扩展",
+  "type": "module",
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "test:ui": "vitest --ui",
+    "test:e2e": "vitest run --config vitest.e2e.config.js",
+    "test:all": "npm run test && npm run test:e2e",
+    "lint": "eslint lib/**/*.js background/**/*.js content/**/*.js sidepanel/**/*.js popup/**/*.js settings/**/*.js tasks/**/*.js history/**/*.js scripts/**/*.js",
+    "lint:fix": "eslint --fix lib/**/*.js background/**/*.js content/**/*.js sidepanel/**/*.js popup/**/*.js settings/**/*.js tasks/**/*.js history/**/*.js scripts/**/*.js",
+    "format": "prettier --write \"**/*.{js,html,css,json,md}\"",
+    "format:check": "prettier --check \"**/*.{js,html,css,json,md}\"",
+    "security": "node scripts/security-audit.js",
+    "build": "echo 'No build step required for this extension'",
+    "validate": "npm run lint && npm run security && npm run test",
+    "precommit": "npm run lint && npm run security",
+    "clean": "rm -rf coverage node_modules/.cache",
+    "stats": "node scripts/project-stats.js"
+  },
+  "devDependencies": {
+    "@vitest/coverage-v8": "^1.2.0",
+    "@vitest/ui": "^1.2.0",
+    "better-npm-audit": "^3.10.0",
+    "eslint": "^8.56.0",
+    "jsdom": "^29.0.2",
+    "prettier": "^3.2.0",
+    "puppeteer": "^22.0.0",
+    "vitest": "^1.2.0"
+  },
+  "keywords": [
+    "chrome-extension",
+    "ai",
+    "agent",
+    "automation",
+    "llm",
+    "openai",
+    "browser-automation"
+  ],
+  "author": "Agentab Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/183600/Agentab.git"
+  },
+  "bugs": {
+    "url": "https://github.com/183600/Agentab/issues"
+  },
+  "homepage": "https://github.com/183600/Agentab#readme",
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

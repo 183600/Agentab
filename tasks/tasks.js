@@ -161,7 +161,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   // === Event Delegation for Task Actions ===
-  tasksGrid.addEventListener('click', async (e) => {
+  tasksGrid.addEventListener('click', async e => {
     const btn = e.target.closest('[data-action]');
     if (!btn) return;
 
@@ -330,12 +330,12 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   // === Search (with debounce) ===
-  const debouncedSearch = debounce((value) => {
+  const debouncedSearch = debounce(value => {
     currentSearch = value.toLowerCase().trim();
     renderTasks();
   }, 300);
 
-  searchInput.addEventListener('input', (e) => {
+  searchInput.addEventListener('input', e => {
     debouncedSearch(e.target.value);
   });
 
@@ -351,7 +351,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // === Close modals on overlay click ===
   [editModal, deleteModal].forEach(modal => {
-    modal.addEventListener('click', (e) => {
+    modal.addEventListener('click', e => {
       if (e.target === modal) {
         modal.classList.add('hidden');
       }
@@ -359,7 +359,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 
   // === Close modals on Escape ===
-  document.addEventListener('keydown', (e) => {
+  document.addEventListener('keydown', e => {
     if (e.key === 'Escape') {
       editModal.classList.add('hidden');
       deleteModal.classList.add('hidden');
@@ -367,7 +367,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 
   // === Tab key in editor ===
-  editContent.addEventListener('keydown', (e) => {
+  editContent.addEventListener('keydown', e => {
     if (e.key === 'Tab') {
       e.preventDefault();
       const start = editContent.selectionStart;
@@ -403,7 +403,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     importFileInput.click();
   });
 
-  importFileInput.addEventListener('change', async (e) => {
+  importFileInput.addEventListener('change', async e => {
     const file = e.target.files[0];
     if (!file) return;
 

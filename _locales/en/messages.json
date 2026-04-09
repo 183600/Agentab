@@ -566,5 +566,81 @@
   "importFailed": {
     "message": "Import failed",
     "description": "Import failed"
+  },
+  "snippetsTitle": {
+    "message": "Code Snippets",
+    "description": "Snippets panel title"
+  },
+  "searchSnippets": {
+    "message": "Search snippets...",
+    "description": "Search snippets placeholder"
+  },
+  "noSnippetsFound": {
+    "message": "No snippets found",
+    "description": "No snippets found message"
+  },
+  "snippetsCodeModeOnly": {
+    "message": "Code snippets can only be used in code mode",
+    "description": "Snippets code mode only message"
+  },
+  "snippetInserted": {
+    "message": "Inserted: {0}",
+    "description": "Snippet inserted notification"
+  },
+  "templatesTitle": {
+    "message": "Task Templates",
+    "description": "Templates panel title"
+  },
+  "searchTemplates": {
+    "message": "Search templates...",
+    "description": "Search templates placeholder"
+  },
+  "noTemplatesFound": {
+    "message": "No templates found",
+    "description": "No templates found message"
+  },
+  "templateApplied": {
+    "message": "Applied: {0}",
+    "description": "Template applied notification"
+  },
+  "advancedSettingsTitle": {
+    "message": "Advanced Settings",
+    "description": "Advanced settings section title"
+  },
+  "maxIterationsLabel": {
+    "message": "Max Iterations",
+    "description": "Max iterations label"
+  },
+  "maxIterationsHint": {
+    "message": "Maximum steps for agent execution (1-50)",
+    "description": "Max iterations hint"
+  },
+  "timeoutLabel": {
+    "message": "API Timeout (seconds)",
+    "description": "API timeout label"
+  },
+  "timeoutHint": {
+    "message": "API request timeout (10-300 seconds)",
+    "description": "API timeout hint"
+  },
+  "enableCacheLabel": {
+    "message": "Enable Smart Cache",
+    "description": "Enable cache checkbox label"
+  },
+  "enableCacheHint": {
+    "message": "Cache API responses and page analysis results for better performance",
+    "description": "Enable cache hint"
+  },
+  "enableRecoveryLabel": {
+    "message": "Enable Auto Recovery",
+    "description": "Enable recovery checkbox label"
+  },
+  "enableRecoveryHint": {
+    "message": "Automatically retry failed API requests",
+    "description": "Enable recovery hint"
+  },
+  "modelSelectHint": {
+    "message": "Select a preset model or enter a custom model name",
+    "description": "Model select hint"
   }
 }

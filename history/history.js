@@ -84,84 +84,104 @@ document.addEventListener('DOMContentLoaded', async () => {
     emptyState.classList.add('hidden');
 
     if (filtered.length === 0) {
-      historyList.innerHTML = `
-        <div class="empty-state">
-          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-            <circle cx="11" cy="11" r="8"/>
-            <path d="M21 21l-4.35-4.35"/>
-          </svg>
-          <h3>${i18n('noResults')}</h3>
-          <p>${i18n('noResultsHint')}</p>
-        </div>
-      `;
+      historyList.innerHTML = '';
+
+      const emptyDiv = document.createElement('div');
+      emptyDiv.className = 'empty-state';
+
+      const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      svg.setAttribute('width', '48');
+      svg.setAttribute('height', '48');
+      svg.setAttribute('viewBox', '0 0 24 24');
+      svg.setAttribute('fill', 'none');
+      svg.setAttribute('stroke', 'currentColor');
+      svg.setAttribute('stroke-width', '1.5');
+      svg.innerHTML = '<circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>';
+
+      const h3 = document.createElement('h3');
+      h3.textContent = i18n('noResults');
+
+      const p = document.createElement('p');
+      p.textContent = i18n('noResultsHint');
+
+      emptyDiv.appendChild(svg);
+      emptyDiv.appendChild(h3);
+      emptyDiv.appendChild(p);
+      historyList.appendChild(emptyDiv);
       historyList.classList.remove('hidden');
       return;
     }
 
     historyList.classList.remove('hidden');
-    historyList.innerHTML = filtered.map(item => renderHistoryItem(item)).join('');
+    historyList.innerHTML = '';
+    filtered.forEach(item => {
+      const historyItem = createHistoryItemElement(item);
+      historyList.appendChild(historyItem);
+    });
   }
 
-  function renderHistoryItem(item) {
+  function createHistoryItemElement(item) {
+    const div = document.createElement('div');
+    div.className = 'history-item';
+    div.dataset.id = item.timestamp;
+
     const typeIcon = item.type === 'prompt'
-      ? `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
-        </svg>`
-      : `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>
-        </svg>`;
+      ? `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>`
+      : `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>`;
 
     const lastResult = item.results?.[item.results.length - 1];
     const isSuccess = lastResult?.type === 'complete' || lastResult?.type === 'execution';
     const statusClass = isSuccess ? 'success' : 'error';
     const statusIcon = isSuccess
-      ? `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/>
-          <polyline points="22 4 12 14.01 9 11.01"/>
-        </svg>`
-      : `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="12" cy="12" r="10"/>
-          <line x1="15" y1="9" x2="9" y2="15"/>
-          <line x1="9" y1="9" x2="15" y2="15"/>
-        </svg>`;
+      ? `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>`
+      : `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>`;
 
-    return `
-      <div class="history-item" data-id="${item.timestamp}">
-        <div class="history-icon ${item.type}">
-          ${typeIcon}
+    div.innerHTML = `
+      <div class="history-icon ${item.type}">
+        ${typeIcon}
+      </div>
+      <div class="history-content">
+        <div class="history-header">
+          <span class="history-type ${item.type}">
+            ${item.type === 'prompt' ? i18n('typePrompt') : i18n('typeCode')}
+          </span>
+          <span class="history-time">${formatDate(item.timestamp)}</span>
         </div>
-        <div class="history-content">
-          <div class="history-header">
-            <span class="history-type ${item.type}">
-              ${item.type === 'prompt' ? i18n('typePrompt') : i18n('typeCode')}
-            </span>
-            <span class="history-time">${formatDate(item.timestamp)}</span>
-          </div>
-          <div class="history-preview">${escapeHtml(item.input?.substring(0, 150) || '')}${(item.input?.length || 0) > 150 ? '...' : ''}</div>
-          <div class="history-meta">
-            <span class="history-meta-item">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="12" cy="12" r="10"/>
-                <line x1="2" y1="12" x2="22" y2="12"/>
-                <path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/>
-              </svg>
-              ${escapeHtml(item.tabTitle?.substring(0, 30) || 'Unknown')}${(item.tabTitle?.length || 0) > 30 ? '...' : ''}
-            </span>
-            <span class="history-meta-item">
-              ${item.results?.length || 0} ${i18n('stepsCount')}
-            </span>
-            <span class="history-status ${statusClass}">
-              ${statusIcon}
-              ${isSuccess ? i18n('statusSuccess') : i18n('statusFailed')}
-            </span>
-          </div>
+        <div class="history-preview"></div>
+        <div class="history-meta">
+          <span class="history-meta-item">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="2" y1="12" x2="22" y2="12"/>
+              <path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/>
+            </svg>
+            <span class="tab-title"></span>
+          </span>
+          <span class="history-meta-item">
+            ${item.results?.length || 0} ${i18n('stepsCount')}
+          </span>
+          <span class="history-status ${statusClass}">
+            ${statusIcon}
+            ${isSuccess ? i18n('statusSuccess') : i18n('statusFailed')}
+          </span>
         </div>
       </div>
     `;
+
+    // Safely set text content
+    const previewEl = div.querySelector('.history-preview');
+    const inputText = item.input?.substring(0, 150) || '';
+    previewEl.textContent = inputText + ((item.input?.length || 0) > 150 ? '...' : '');
+
+    const tabTitleEl = div.querySelector('.tab-title');
+    const tabTitleText = item.tabTitle?.substring(0, 30) || 'Unknown';
+    tabTitleEl.textContent = tabTitleText + ((item.tabTitle?.length || 0) > 30 ? '...' : '');
+
+    return div;
   }
 
   // === Event Handlers ===
-  historyList.addEventListener('click', (e) => {
+  historyList.addEventListener('click', e => {
     const item = e.target.closest('.history-item');
     if (!item) return;
 
@@ -173,12 +193,12 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 
   // Search (with debounce)
-  const debouncedSearch = debounce((value) => {
+  const debouncedSearch = debounce(value => {
     currentSearch = value.toLowerCase().trim();
     renderHistory();
   }, 300);
 
-  searchInput.addEventListener('input', (e) => {
+  searchInput.addEventListener('input', e => {
     debouncedSearch(e.target.value);
   });
 
@@ -259,9 +279,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   function renderResultItem(result, index) {
     const typeClass = result.type === 'complete' ? 'complete' :
-                      result.type === 'error' ? 'error' : 'execution';
+      result.type === 'error' ? 'error' : 'execution';
     const typeIcon = result.type === 'complete' ? '✅' :
-                     result.type === 'error' ? '❌' : '⚡';
+      result.type === 'error' ? '❌' : '⚡';
 
     let content = '';
     if (result.type === 'execution') {
@@ -314,7 +334,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Close modals on overlay click
   [detailModal, deleteModal].forEach(modal => {
-    modal.addEventListener('click', (e) => {
+    modal.addEventListener('click', e => {
       if (e.target === modal) {
         modal.classList.add('hidden');
       }
@@ -322,7 +342,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 
   // Close modals on Escape
-  document.addEventListener('keydown', (e) => {
+  document.addEventListener('keydown', e => {
     if (e.key === 'Escape') {
       detailModal.classList.add('hidden');
       deleteModal.classList.add('hidden');
@@ -330,7 +350,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 
   // Back button
-  document.getElementById('btn-back').addEventListener('click', (e) => {
+  document.getElementById('btn-back').addEventListener('click', e => {
     e.preventDefault();
     window.close();
   });

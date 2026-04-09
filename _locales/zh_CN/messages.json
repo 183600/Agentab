@@ -566,5 +566,81 @@
   "importFailed": {
     "message": "导入失败",
     "description": "Import failed"
+  },
+  "snippetsTitle": {
+    "message": "代码片段",
+    "description": "Snippets panel title"
+  },
+  "searchSnippets": {
+    "message": "搜索片段...",
+    "description": "Search snippets placeholder"
+  },
+  "noSnippetsFound": {
+    "message": "没有找到片段",
+    "description": "No snippets found message"
+  },
+  "snippetsCodeModeOnly": {
+    "message": "代码片段只能在代码模式下使用",
+    "description": "Snippets code mode only message"
+  },
+  "snippetInserted": {
+    "message": "已插入: {0}",
+    "description": "Snippet inserted notification"
+  },
+  "templatesTitle": {
+    "message": "任务模板",
+    "description": "Templates panel title"
+  },
+  "searchTemplates": {
+    "message": "搜索模板...",
+    "description": "Search templates placeholder"
+  },
+  "noTemplatesFound": {
+    "message": "没有找到模板",
+    "description": "No templates found message"
+  },
+  "templateApplied": {
+    "message": "已应用: {0}",
+    "description": "Template applied notification"
+  },
+  "advancedSettingsTitle": {
+    "message": "高级设置",
+    "description": "Advanced settings section title"
+  },
+  "maxIterationsLabel": {
+    "message": "最大迭代次数",
+    "description": "Max iterations label"
+  },
+  "maxIterationsHint": {
+    "message": "智能体执行的最大步骤数 (1-50)",
+    "description": "Max iterations hint"
+  },
+  "timeoutLabel": {
+    "message": "API 超时时间 (秒)",
+    "description": "API timeout label"
+  },
+  "timeoutHint": {
+    "message": "API 请求超时时间 (10-300秒)",
+    "description": "API timeout hint"
+  },
+  "enableCacheLabel": {
+    "message": "启用智能缓存",
+    "description": "Enable cache checkbox label"
+  },
+  "enableCacheHint": {
+    "message": "缓存 API 响应和页面分析结果以提高性能",
+    "description": "Enable cache hint"
+  },
+  "enableRecoveryLabel": {
+    "message": "启用自动恢复",
+    "description": "Enable recovery checkbox label"
+  },
+  "enableRecoveryHint": {
+    "message": "自动重试失败的 API 请求",
+    "description": "Enable recovery hint"
+  },
+  "modelSelectHint": {
+    "message": "选择预设模型或输入自定义模型名称",
+    "description": "Model select hint"
   }
 }

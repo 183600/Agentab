@@ -139,6 +139,22 @@
       </div>
     </div>
 
+    <!-- Progress Section -->
+    <div id="progress-section" class="progress-section hidden">
+      <div class="progress-header">
+        <span class="progress-icon">🔄</span>
+        <span class="progress-label" id="progress-label">准备中...</span>
+        <span class="progress-percentage" id="progress-percentage">0%</span>
+      </div>
+      <div class="progress-bar-wrapper">
+        <div class="progress-bar-fill" id="progress-bar"></div>
+      </div>
+      <div class="progress-text">
+        <span id="progress-step">Step 0/10</span>
+        <span id="progress-time">0s</span>
+      </div>
+    </div>
+
     <!-- Output Section -->
     <div id="output-section" class="output-section hidden">
       <div class="output-header">
@@ -191,6 +207,6 @@
 
   <script src="../lib/i18n.js"></script>
   <script src="../lib/utils.js"></script>
-  <script src="sidepanel.js"></script>
+  <script type="module" src="sidepanel.js"></script>
 </body>
 </html>

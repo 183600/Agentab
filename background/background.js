@@ -2,18 +2,79 @@
 
 import { StorageManager } from '../lib/storage.js';
 import { AgentExecutor } from '../lib/agent.js';
-import { ErrorHandler, ValidationError } from '../lib/errors.js';
+import { ErrorHandler, ValidationError, ApiError } from '../lib/errors.js';
 import { InputValidator } from '../lib/validator.js';
+import { PageAnalyzer } from '../lib/page-analyzer.js';
+import { initCacheCleanup } from '../lib/smart-cache.js';
+import { initMigration } from '../lib/migration.js';
 
 // Setup error boundary
 ErrorHandler.setupErrorBoundary?.();
 
+// Initialize data migration (runs on install/update)
+initMigration().then(result => {
+  if (result.migrated) {
+    console.log('[Background] Data migration completed');
+  }
+}).catch(error => {
+  console.error('[Background] Migration error:', error);
+});
+
+// Initialize PageAnalyzer cache cleanup
+PageAnalyzer.initCleanup();
+
+// Initialize SmartCache periodic cleanup (uses Chrome Alarms API)
+initCacheCleanup();
+
 // Initialize agent
 const agent = new AgentExecutor();
 
+// ===== Extension Lifecycle Events =====
+
+// Handle extension install/update
+chrome.runtime.onInstalled.addListener(async details => {
+  console.log('[Background] Extension event:', details.reason);
+
+  if (details.reason === 'install') {
+    console.log('[Background] First install - initializing default data');
+
+    // Set initial schema version
+    await chrome.storage.local.set({ schemaVersion: 1 });
+
+    // Initialize default settings
+    const defaultSettings = {
+      settings: {
+        ui: {
+          theme: 'light',
+          animationEnabled: true,
+          syntaxHighlightEnabled: true
+        },
+        features: {},
+        agent: {
+          maxIterations: 10
+        }
+      }
+    };
+    await chrome.storage.local.set(defaultSettings);
+
+  } else if (details.reason === 'update') {
+    console.log('[Background] Extension updated from', details.previousVersion);
+
+    // Run migration for updates
+    const { MigrationManager } = await import('../lib/migration.js');
+    const result = await MigrationManager.migrate({ backup: true });
+
+    if (result.success && result.fromVersion !== result.toVersion) {
+      console.log(`[Background] Migrated data: v${result.fromVersion} -> v${result.toVersion}`);
+    } else if (!result.success) {
+      console.error('[Background] Migration failed:', result.errors);
+    }
+  }
+});
+
 // ===== Side Panel Setup =====
 
-chrome.action.onClicked.addListener((tab) => {
+chrome.action.onClicked.addListener(tab => {
   chrome.sidePanel.open({ tabId: tab.id });
 });
 
@@ -21,17 +82,51 @@ chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true });
 
 // ===== Message Handling =====
 
+/**
+ * Validate message sender to prevent cross-extension attacks
+ * @param {Object} sender - Message sender info
+ * @returns {boolean} True if sender is valid
+ */
+function isValidSender(sender) {
+  // Messages must come from our own extension or from content scripts
+  // in tabs where we've injected (sender.id matches our extension ID)
+  if (sender.id && sender.id !== chrome.runtime.id) {
+    return false;
+  }
+
+  // Internal messages (no tab context) are valid
+  if (!sender.tab) {
+    return true;
+  }
+
+  // Validate tab origin - reject restricted pages
+  const url = sender.tab.url || '';
+  const restrictedProtocols = ['chrome:', 'chrome-extension:', 'about:', 'edge:', 'brave:'];
+  if (restrictedProtocols.some(proto => url.startsWith(proto))) {
+    return false;
+  }
+
+  return true;
+}
+
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  // Security: Validate sender
+  if (!isValidSender(sender)) {
+    console.warn('[Security] Rejected message from invalid sender:', sender);
+    sendResponse({ error: 'Invalid sender', code: 'SECURITY_ERROR' });
+    return false;
+  }
+
   handleMessage(message, sender)
     .then(sendResponse)
     .catch(error => {
       const normalized = ErrorHandler.normalize(error);
-      sendResponse({ 
+      sendResponse({
         error: normalized.message,
-        code: normalized.code 
+        code: normalized.code
       });
     });
-  
+
   return true; // Keep channel open for async
 });
 
@@ -45,49 +140,52 @@ async function handleMessage(message, sender) {
   switch (message.action) {
     case 'execute_prompt':
       return handleExecutePrompt(message, sender);
-    
+
     case 'execute_code':
       return handleExecuteCode(message, sender);
-    
+
     case 'stop_agent':
       return handleStopAgent();
-    
+
     case 'execute_task':
       return handleExecuteTask(message, sender);
-    
+
     case 'save_task':
       return handleSaveTask(message);
-    
+
     case 'get_tasks':
       return handleGetTasks();
-    
+
     case 'delete_task':
       return handleDeleteTask(message);
-    
+
     case 'update_task':
       return handleUpdateTask(message);
-    
+
     case 'get_settings':
       return handleGetSettings();
-    
+
     case 'save_settings':
       return handleSaveSettings(message);
-    
+
     case 'get_history':
       return handleGetHistory();
-    
+
     case 'clear_history':
       return handleClearHistory();
-    
+
     case 'test_api_connection':
       return handleTestApiConnection();
-    
+
+    case 'test_api_connection_with_params':
+      return handleTestApiConnectionWithParams(message);
+
     case 'export_tasks':
       return handleExportTasks();
-    
+
     case 'import_tasks':
       return handleImportTasks(message);
-    
+
     default:
       throw new Error(`Unknown action: ${message.action}`);
   }
@@ -95,7 +193,7 @@ async function handleMessage(message, sender) {
 
 // ===== Action Handlers =====
 
-async function handleExecutePrompt(message, sender) {
+async function handleExecutePrompt(message, _sender) {
   // Validate prompt
   const validation = InputValidator.validatePrompt(message.prompt);
   if (!validation.valid) {
@@ -108,7 +206,7 @@ async function handleExecutePrompt(message, sender) {
   }
 
   const updates = [];
-  const results = await agent.runPrompt(tab.id, validation.value, (update) => {
+  const results = await agent.runPrompt(tab.id, validation.value, update => {
     updates.push(update);
     // Send real-time updates
     broadcastUpdate(update);
@@ -126,7 +224,7 @@ async function handleExecutePrompt(message, sender) {
   return { success: true, results, updates };
 }
 
-async function handleExecuteCode(message, sender) {
+async function handleExecuteCode(message, _sender) {
   // Validate code
   const validation = InputValidator.validateCode(message.code);
   if (!validation.valid) {
@@ -139,7 +237,7 @@ async function handleExecuteCode(message, sender) {
   }
 
   const updates = [];
-  const results = await agent.runCode(tab.id, validation.value, (update) => {
+  const results = await agent.runCode(tab.id, validation.value, update => {
     updates.push(update);
     broadcastUpdate(update);
   });
@@ -164,7 +262,7 @@ async function handleStopAgent() {
 async function handleExecuteTask(message, sender) {
   const tasks = await StorageManager.getTasks();
   const task = tasks.find(t => t.id === message.taskId);
-  
+
   if (!task) {
     throw new Error('Task not found');
   }
@@ -284,6 +382,59 @@ async function handleTestApiConnection() {
   return result;
 }
 
+/**
+ * Test API connection with provided parameters (without storing)
+ * This is safer than testing in the settings page where the key could be exposed
+ * @param {Object} message - Message with apiBaseUrl, apiKey, model
+ * @returns {Promise<Object>}
+ */
+async function handleTestApiConnectionWithParams(message) {
+  const { apiBaseUrl, apiKey, model } = message;
+
+  // Validate inputs
+  if (!apiBaseUrl || !apiKey || !model) {
+    throw new ValidationError('All API parameters are required for testing');
+  }
+
+  const urlValidation = InputValidator.validateUrl(apiBaseUrl);
+  if (!urlValidation.valid) {
+    throw new ValidationError(`Invalid API URL: ${urlValidation.error}`);
+  }
+
+  const keyValidation = InputValidator.validateApiKey(apiKey);
+  if (!keyValidation.valid) {
+    throw new ValidationError(`Invalid API key: ${keyValidation.error}`);
+  }
+
+  try {
+    const response = await fetch(`${urlValidation.value}/chat/completions`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${keyValidation.value}`
+      },
+      body: JSON.stringify({
+        model: model.trim(),
+        messages: [{ role: 'user', content: 'Hello' }],
+        max_tokens: 5
+      })
+    });
+
+    if (response.ok) {
+      return { success: true, message: 'Connection successful' };
+    }
+
+    const errorData = await response.json().catch(() => ({}));
+    const errorMsg = errorData.error?.message || response.statusText;
+    throw new ApiError(errorMsg, response.status, errorData);
+  } catch (error) {
+    if (error instanceof ApiError) {
+      throw error;
+    }
+    throw new ApiError(`Connection failed: ${error.message}`);
+  }
+}
+
 async function handleExportTasks() {
   const tasks = await StorageManager.getTasks();
   const exportData = {
@@ -299,7 +450,6 @@ async function handleImportTasks(message) {
     throw new ValidationError('Invalid import data format');
   }
 
-  const existingTasks = await StorageManager.getTasks();
   const importedTasks = [];
   const errors = [];
 
@@ -352,16 +502,33 @@ chrome.runtime.onInstalled.addListener(() => {
 
 chrome.contextMenus.onClicked.addListener(async (info, tab) => {
   if (info.menuItemId === 'chrome-agent-execute' && info.selectionText) {
-    // Validate selection text
-    const validation = InputValidator.validatePrompt(info.selectionText);
-    if (!validation.valid) {
-      console.error('Invalid selection:', validation.error);
-      return;
-    }
+    try {
+      // Validate selection text
+      const validation = InputValidator.validatePrompt(info.selectionText);
+      if (!validation.valid) {
+        console.error('Invalid selection:', validation.error);
+        // Notify user of validation error
+        broadcastUpdate({
+          type: 'error',
+          message: `Invalid selection: ${validation.error}`
+        });
+        return;
+      }
 
-    await agent.runPrompt(tab.id, validation.value, (update) => {
-      broadcastUpdate(update);
-    });
+      await agent.runPrompt(tab.id, validation.value, update => {
+        broadcastUpdate(update);
+      });
+    } catch (error) {
+      // Log and broadcast error
+      const normalized = ErrorHandler.normalize(error);
+      ErrorHandler.log(error, { context: 'context_menu', selectionText: info.selectionText });
+
+      broadcastUpdate({
+        type: 'error',
+        message: normalized.message,
+        code: normalized.code
+      });
+    }
   }
 });
 
@@ -376,3 +543,16 @@ setInterval(() => {
     });
   }
 }, 20000);
+
+// ===== Cleanup on Service Worker Suspend =====
+
+// Note: Service Workers don't have a reliable "beforeunload" event
+// We handle cleanup through the PageAnalyzer's automatic interval
+// and tab removal/navigation listeners
+
+// Self-message handler for testing cleanup
+self.addEventListener('message', event => {
+  if (event.data === 'cleanup') {
+    PageAnalyzer.stopCleanup();
+  }
+});

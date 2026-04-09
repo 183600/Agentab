@@ -15,11 +15,15 @@
     "storage",
     "tabs",
     "contextMenus",
-    "sidePanel"
+    "sidePanel",
+    "alarms"
   ],
   "host_permissions": [
     "<all_urls>"
   ],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' https:; default-src 'self'"
+  },
   "action": {
     "default_title": "Agentab",
     "default_icon": {

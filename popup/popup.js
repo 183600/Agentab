@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const outputSection = document.getElementById('output-section');
   const outputContent = document.getElementById('output-content');
   const btnClearOutput = document.getElementById('btn-clear-output');
-  
+
   // Save dialog elements
   const saveDialog = document.getElementById('save-dialog');
   const taskNameInput = document.getElementById('task-name');
@@ -72,7 +72,7 @@ document.addEventListener('DOMContentLoaded', () => {
   btnClearOutput.addEventListener('click', clearOutput);
 
   // === Handle Agent Updates ===
-  chrome.runtime.onMessage.addListener((message) => {
+  chrome.runtime.onMessage.addListener(message => {
     if (message.action === 'agent_update') {
       const update = message.update;
       switch (update.type) {
@@ -268,7 +268,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // === Tab key support for code editor ===
-  codeInput.addEventListener('keydown', (e) => {
+  codeInput.addEventListener('keydown', e => {
     if (e.key === 'Tab') {
       e.preventDefault();
       const start = codeInput.selectionStart;
@@ -279,7 +279,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // === Keyboard shortcuts ===
-  document.addEventListener('keydown', (e) => {
+  document.addEventListener('keydown', e => {
     if (e.ctrlKey || e.metaKey) {
       if (e.key === 'Enter') {
         e.preventDefault();
