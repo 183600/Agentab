@@ -7,6 +7,8 @@ import { InputValidator } from '../lib/validator.js';
 import { PageAnalyzer } from '../lib/page-analyzer.js';
 import { initCacheCleanup } from '../lib/smart-cache.js';
 import { initMigration } from '../lib/migration.js';
+import { MultiTabCoordinator } from '../lib/multi-tab.js';
+import { logger } from '../lib/logger.js';
 
 // Setup error boundary
 ErrorHandler.setupErrorBoundary?.();
@@ -15,11 +17,11 @@ ErrorHandler.setupErrorBoundary?.();
 initMigration()
   .then(result => {
     if (result.migrated) {
-      console.log('[Background] Data migration completed');
+      logger.info('Data migration completed');
     }
   })
   .catch(error => {
-    console.error('[Background] Migration error:', error);
+    logger.error('Migration error', { error: error.message });
   });
 
 // Initialize PageAnalyzer cache cleanup
@@ -28,8 +30,22 @@ PageAnalyzer.initCleanup();
 // Initialize SmartCache periodic cleanup (uses Chrome Alarms API)
 initCacheCleanup();
 
-// Initialize agent
-const agent = new AgentExecutor();
+// Initialize agent with streaming support
+const agent = new AgentExecutor({
+  enableStreaming: true // Enable streaming by default for better UX
+});
+
+// Initialize multi-tab coordinator
+const multiTabCoordinator = new MultiTabCoordinator({
+  maxConcurrentTabs: 5,
+  taskTimeout: 60000,
+  onProgress: (taskId, tabId, progress) => {
+    console.log(`[MultiTab] Task ${taskId} progress on tab ${tabId}:`, progress);
+  },
+  onComplete: (taskId, results) => {
+    console.log(`[MultiTab] Task ${taskId} completed:`, results.summary);
+  }
+});
 
 // ===== Extension Lifecycle Events =====
 
@@ -186,6 +202,15 @@ async function handleMessage(message, sender) {
 
     case 'import_tasks':
       return handleImportTasks(message);
+
+    case 'multi_tab_execute':
+      return handleMultiTabExecute(message);
+
+    case 'multi_tab_status':
+      return handleMultiTabStatus(message);
+
+    case 'multi_tab_cancel':
+      return handleMultiTabCancel(message);
 
     default:
       throw new Error(`Unknown action: ${message.action}`);
@@ -491,6 +516,43 @@ function broadcastUpdate(update) {
     .catch(() => {
       // Ignore if no listeners (popup closed)
     });
+}
+
+// ===== Multi-Tab Handlers =====
+
+async function handleMultiTabExecute(message) {
+  const { task } = message;
+
+  if (!task || !task.content) {
+    throw new ValidationError('Task content is required', 'task', task);
+  }
+
+  const result = await multiTabCoordinator.executeOnTabs(task);
+  return { success: true, result };
+}
+
+async function handleMultiTabStatus(message) {
+  const { taskId } = message;
+
+  if (taskId) {
+    const status = multiTabCoordinator.getTaskStatus(taskId);
+    return { success: true, status };
+  }
+
+  // Return all active tasks
+  const activeTasks = multiTabCoordinator.getActiveTasks();
+  return { success: true, activeTasks };
+}
+
+async function handleMultiTabCancel(message) {
+  const { taskId } = message;
+
+  if (!taskId) {
+    throw new ValidationError('Task ID is required', 'taskId', taskId);
+  }
+
+  const result = await multiTabCoordinator.cancelTask(taskId);
+  return { success: true, cancelled: result };
 }
 
 // ===== Context Menu =====

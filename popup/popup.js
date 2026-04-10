@@ -350,6 +350,8 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // === Utility ===
+  // Note: Local escapeHtml for backward compatibility.
+  // Consider migrating popup.js to ES6 module to use shared version from ui-components.js
   function escapeHtml(text) {
     if (text === null || text === undefined) return '';
     const div = document.createElement('div');

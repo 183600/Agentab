@@ -35,6 +35,22 @@
     "message": "执行",
     "description": "Execute button"
   },
+  "btnSelectElement": {
+    "message": "选择元素",
+    "description": "Select element button"
+  },
+  "cannotSelectOnChromePages": {
+    "message": "无法在 Chrome 内部页面选择元素",
+    "description": "Error message when trying to select element on chrome:// pages"
+  },
+  "elementSelectorInserted": {
+    "message": "元素选择器已插入到代码编辑器",
+    "description": "Success message when selector is inserted"
+  },
+  "elementSelectionFailed": {
+    "message": "元素选择失败，请重试",
+    "description": "Error message when element selection fails"
+  },
   "outputTitle": {
     "message": "输出",
     "description": "Output section title"

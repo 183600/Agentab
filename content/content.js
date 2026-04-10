@@ -54,6 +54,18 @@
           handleHighlightElement(message.selector, sendResponse);
           break;
 
+        case 'start_element_selector':
+          handleStartElementSelector(message.options, sendResponse);
+          break;
+
+        case 'stop_element_selector':
+          handleStopElementSelector(sendResponse);
+          break;
+
+        case 'get_interactive_elements':
+          handleGetInteractiveElements(sendResponse);
+          break;
+
         case 'ping':
           // Health check
           sendResponse({ success: true, timestamp: Date.now() });
@@ -412,6 +424,269 @@
 
     document.documentElement.appendChild(script);
     script.remove();
+  }
+
+  // === Element Selector State ===
+  let elementSelectorActive = false;
+  let elementSelectorOverlay = null;
+  let elementSelectorInfoPanel = null;
+  let elementSelectorTooltip = null;
+  let elementSelectorCallback = null;
+
+  /**
+   * Generate CSS selector for an element
+   */
+  function generateElementSelector(element) {
+    if (element.id) {
+      return `#${CSS.escape(element.id)}`;
+    }
+
+    if (element.className && typeof element.className === 'string') {
+      const classes = element.className.split(/\s+/).filter(c => c && !c.startsWith(':'));
+      if (classes.length > 0) {
+        const classSelector = classes.map(c => `.${CSS.escape(c)}`).join('');
+        const matches = document.querySelectorAll(classSelector);
+        if (matches.length === 1) {
+          return classSelector;
+        }
+      }
+    }
+
+    if (element.name) {
+      const nameSelector = `${element.tagName.toLowerCase()}[name="${CSS.escape(element.name)}"]`;
+      const matches = document.querySelectorAll(nameSelector);
+      if (matches.length === 1) {
+        return nameSelector;
+      }
+    }
+
+    const path = [];
+    let current = element;
+    while (current && current !== document.body) {
+      let selector = current.tagName.toLowerCase();
+      const parent = current.parentElement;
+      if (parent) {
+        const siblings = Array.from(parent.children).filter(c => c.tagName === current.tagName);
+        if (siblings.length > 1) {
+          const index = siblings.indexOf(current) + 1;
+          selector += `:nth-child(${index})`;
+        }
+      }
+      path.unshift(selector);
+      current = parent;
+    }
+    return path.join(' > ');
+  }
+
+  /**
+   * Get element info
+   */
+  function getElementInfo(element) {
+    const rect = element.getBoundingClientRect();
+    return {
+      tagName: element.tagName.toLowerCase(),
+      selector: generateElementSelector(element),
+      id: element.id || null,
+      className: element.className || null,
+      name: element.name || null,
+      type: element.type || null,
+      value: element.value || null,
+      placeholder: element.placeholder || null,
+      text: element.textContent?.slice(0, 100) || null,
+      href: element.href || null,
+      src: element.src || null,
+      boundingBox: {
+        x: Math.round(rect.x),
+        y: Math.round(rect.y),
+        width: Math.round(rect.width),
+        height: Math.round(rect.height)
+      },
+      isVisible: rect.width > 0 && rect.height > 0,
+      isInteractive: ['a', 'button', 'input', 'select', 'textarea'].includes(element.tagName.toLowerCase()) || 
+                     element.onclick !== null || 
+                     element.hasAttribute('onclick') ||
+                     element.getAttribute('role') === 'button'
+    };
+  }
+
+  /**
+   * Handle start element selector
+   */
+  function handleStartElementSelector(options, sendResponse) {
+    if (elementSelectorActive) {
+      sendResponse({ success: false, error: 'Selector already active' });
+      return;
+    }
+
+    elementSelectorActive = true;
+    elementSelectorCallback = sendResponse;
+
+    // Create overlay
+    elementSelectorOverlay = document.createElement('div');
+    elementSelectorOverlay.style.cssText = `
+      position: fixed;
+      pointer-events: none;
+      z-index: 2147483646;
+      border: 2px solid #007acc;
+      background: rgba(0, 122, 204, 0.1);
+      transition: all 0.1s ease;
+      display: none;
+    `;
+    document.body.appendChild(elementSelectorOverlay);
+
+    // Show tooltip
+    elementSelectorTooltip = document.createElement('div');
+    elementSelectorTooltip.textContent = 'Click an element to select it, or press Esc to cancel';
+    elementSelectorTooltip.style.cssText = `
+      position: fixed;
+      top: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 2147483647;
+      padding: 8px 16px;
+      background: #333;
+      color: #fff;
+      border-radius: 6px;
+      font-size: 13px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    `;
+    document.body.appendChild(elementSelectorTooltip);
+
+    // Add event listeners
+    document.addEventListener('mouseover', handleElementHover, true);
+    document.addEventListener('click', handleElementClick, true);
+    document.addEventListener('keydown', handleElementKeydown, true);
+    document.body.style.cursor = 'crosshair';
+
+    console.log('[Content] Element selector started');
+    sendResponse({ success: true });
+  }
+
+  /**
+   * Handle stop element selector
+   */
+  function handleStopElementSelector(sendResponse) {
+    if (!elementSelectorActive) {
+      sendResponse({ success: false, error: 'Selector not active' });
+      return;
+    }
+
+    cleanupElementSelector();
+    sendResponse({ success: true });
+  }
+
+  /**
+   * Cleanup element selector
+   */
+  function cleanupElementSelector() {
+    elementSelectorActive = false;
+    document.removeEventListener('mouseover', handleElementHover, true);
+    document.removeEventListener('click', handleElementClick, true);
+    document.removeEventListener('keydown', handleElementKeydown, true);
+    document.body.style.cursor = '';
+
+    if (elementSelectorOverlay) {
+      elementSelectorOverlay.remove();
+      elementSelectorOverlay = null;
+    }
+    if (elementSelectorTooltip) {
+      elementSelectorTooltip.remove();
+      elementSelectorTooltip = null;
+    }
+    if (elementSelectorInfoPanel) {
+      elementSelectorInfoPanel.remove();
+      elementSelectorInfoPanel = null;
+    }
+
+    console.log('[Content] Element selector stopped');
+  }
+
+  /**
+   * Handle element hover
+   */
+  function handleElementHover(e) {
+    if (!elementSelectorActive || !elementSelectorOverlay) return;
+
+    const element = e.target;
+    if (element === elementSelectorOverlay || element === elementSelectorTooltip) return;
+
+    const rect = element.getBoundingClientRect();
+    elementSelectorOverlay.style.top = `${rect.top}px`;
+    elementSelectorOverlay.style.left = `${rect.left}px`;
+    elementSelectorOverlay.style.width = `${rect.width}px`;
+    elementSelectorOverlay.style.height = `${rect.height}px`;
+    elementSelectorOverlay.style.display = 'block';
+  }
+
+  /**
+   * Handle element click
+   */
+  function handleElementClick(e) {
+    if (!elementSelectorActive) return;
+
+    e.preventDefault();
+    e.stopPropagation();
+
+    const element = e.target;
+    if (element === elementSelectorOverlay || element === elementSelectorTooltip) return;
+
+    const info = getElementInfo(element);
+    cleanupElementSelector();
+
+    // Send response
+    if (elementSelectorCallback) {
+      elementSelectorCallback({ success: true, element: info });
+      elementSelectorCallback = null;
+    }
+
+    console.log('[Content] Element selected:', info.selector);
+  }
+
+  /**
+   * Handle element keydown
+   */
+  function handleElementKeydown(e) {
+    if (!elementSelectorActive) return;
+
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      cleanupElementSelector();
+
+      if (elementSelectorCallback) {
+        elementSelectorCallback({ success: false, error: 'Cancelled' });
+        elementSelectorCallback = null;
+      }
+    }
+  }
+
+  /**
+   * Handle get interactive elements
+   */
+  function handleGetInteractiveElements(sendResponse) {
+    const selectors = [
+      'a[href]',
+      'button',
+      'input',
+      'select',
+      'textarea',
+      '[onclick]',
+      '[role="button"]',
+      '[role="link"]',
+      '[tabindex]'
+    ];
+
+    const elements = document.querySelectorAll(selectors.join(', '));
+    const results = [];
+
+    for (const element of elements) {
+      const rect = element.getBoundingClientRect();
+      if (rect.width > 0 && rect.height > 0) {
+        results.push(getElementInfo(element));
+      }
+    }
+
+    sendResponse({ success: true, elements: results });
   }
 
   // Initialize

@@ -9,23 +9,69 @@ import {
   setupAgentMessageListener,
   addAnimationStyles
 } from '../lib/ui-components.js';
-import { snippetLibrary, getCategoriesWithLabels } from '../lib/snippets.js';
-import { templateLibrary, getTemplateCategoriesWithMeta } from '../lib/templates.js';
-import { AutocompleteUI, autocompleteEngine } from '../lib/autocomplete.js';
 import { uiLogger } from '../lib/logger.js';
+import { integrateFeatures } from '../lib/feature-integration.js';
+import { debounce, throttle } from '../lib/utils.js';
+import { withBoundary, ErrorBoundary } from '../lib/error-boundary.js';
+import { CommandPalette, DEFAULT_COMMANDS, addCommandPaletteStyles } from '../lib/command-palette.js';
+import { getGlobalStateSync, StateKeys } from '../lib/state-sync.js';
+import { getToast, addLoadingStateStyles } from '../lib/loading-state.js';
+
+// Lazy-loaded modules - loaded on demand to improve initial load performance
+let snippetLibrary = null;
+let getCategoriesWithLabels = null;
+let templateLibrary = null;
+let getTemplateCategoriesWithMeta = null;
+let AutocompleteUI = null;
+let autocompleteEngine = null;
+
+// Cache for loaded modules
+const lazyModules = {
+  snippets: null,
+  templates: null,
+  autocomplete: null
+};
 
 /**
- * Debounce function to limit execution rate
- * @param {Function} fn - Function to debounce
- * @param {number} delay - Delay in milliseconds
- * @returns {Function}
+ * Lazy load snippets module
  */
-function debounce(fn, delay = 300) {
-  let timeout;
-  return (...args) => {
-    clearTimeout(timeout);
-    timeout = setTimeout(() => fn(...args), delay);
-  };
+async function loadSnippetsModule() {
+  if (lazyModules.snippets) return lazyModules.snippets;
+  
+  const module = await import('../lib/snippets.js');
+  snippetLibrary = module.snippetLibrary;
+  getCategoriesWithLabels = module.getCategoriesWithLabels;
+  lazyModules.snippets = module;
+  uiLogger.debug('Snippets module loaded');
+  return module;
+}
+
+/**
+ * Lazy load templates module
+ */
+async function loadTemplatesModule() {
+  if (lazyModules.templates) return lazyModules.templates;
+  
+  const module = await import('../lib/templates.js');
+  templateLibrary = module.templateLibrary;
+  getTemplateCategoriesWithMeta = module.getTemplateCategoriesWithMeta;
+  lazyModules.templates = module;
+  uiLogger.debug('Templates module loaded');
+  return module;
+}
+
+/**
+ * Lazy load autocomplete module
+ */
+async function loadAutocompleteModule() {
+  if (lazyModules.autocomplete) return lazyModules.autocomplete;
+  
+  const module = await import('../lib/autocomplete.js');
+  AutocompleteUI = module.AutocompleteUI;
+  autocompleteEngine = module.autocompleteEngine;
+  lazyModules.autocomplete = module;
+  uiLogger.debug('Autocomplete module loaded');
+  return module;
 }
 
 /**
@@ -157,6 +203,34 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Initialize animations
   addAnimationStyles();
+  
+  // Initialize loading state styles
+  addLoadingStateStyles();
+  
+  // Initialize toast notification system
+  const toast = getToast();
+
+  // === Global State Sync ===
+  const stateSync = getGlobalStateSync({
+    onStateChange: change => {
+      uiLogger.debug('State changed', { key: change.key, type: change.type });
+    }
+  });
+
+  // Subscribe to theme changes
+  stateSync.subscribe(StateKeys.UI_THEME, change => {
+    const theme = change.value;
+    if (theme && document.documentElement.getAttribute('data-theme') !== theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      // Update theme icon if elements exist
+      const iconSun = document.querySelector('.icon-sun');
+      const iconMoon = document.querySelector('.icon-moon');
+      if (iconSun && iconMoon) {
+        iconSun.classList.toggle('hidden', theme === 'dark');
+        iconMoon.classList.toggle('hidden', theme === 'light');
+      }
+    }
+  });
 
   // === Theme Management ===
   const btnTheme = document.getElementById('btn-theme');
@@ -167,6 +241,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     const theme = document.documentElement.getAttribute('data-theme') || 'light';
     iconSun.classList.toggle('hidden', theme === 'dark');
     iconMoon.classList.toggle('hidden', theme === 'light');
+    // Sync to state
+    stateSync.set(StateKeys.UI_THEME, theme, { sync: true });
   }
 
   btnTheme.addEventListener('click', async () => {
@@ -279,6 +355,85 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Setup message listener
   setupAgentMessageListener(agentUI);
 
+  // === Command Palette Integration ===
+  addCommandPaletteStyles();
+  
+  // Create command palette with default commands
+  const commandPalette = new CommandPalette({
+    container: document.body,
+    commands: DEFAULT_COMMANDS.map(cmd => {
+      // Map default commands to actual handlers
+      const handlers = {
+        'run-prompt': () => runPrompt(),
+        'run-code': () => runCode(),
+        'stop-agent': () => stopAgent(),
+        'clear-output': () => agentUI.clearOutput(),
+        'save-task': () => {
+          const activeTab = tabManager.getCurrentTab();
+          const content = activeTab === 'prompt' ? promptEditor.getValue().trim() : codeEditor.getValue().trim();
+          if (content) saveDialog.open(activeTab, content);
+        },
+        'switch-prompt': () => tabManager.switchTo('prompt'),
+        'switch-code': () => tabManager.switchTo('code'),
+        'open-tasks': () => chrome.tabs.create({ url: chrome.runtime.getURL('tasks/tasks.html') }),
+        'open-settings': () => chrome.tabs.create({ url: chrome.runtime.getURL('settings/settings.html') }),
+        'open-history': () => chrome.tabs.create({ url: chrome.runtime.getURL('history/history.html') }),
+        'toggle-theme': () => {
+          toggleTheme();
+          updateThemeUI();
+        },
+        'new-task': () => {
+          tabManager.switchTo('prompt');
+          promptEditor.setValue('');
+        }
+      };
+      
+      return {
+        ...cmd,
+        handler: handlers[cmd.id] || (() => uiLogger.warn(`Command ${cmd.id} not implemented`))
+      };
+    }),
+    onSelect: cmd => uiLogger.info('Command selected', { id: cmd.id }),
+    onOpen: () => uiLogger.debug('Command palette opened'),
+    onClose: () => uiLogger.debug('Command palette closed')
+  });
+  
+  // Add keyboard shortcut for command palette (Ctrl+Shift+P)
+  document.addEventListener('keydown', e => {
+    if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === 'p') {
+      e.preventDefault();
+      commandPalette.toggle();
+    }
+  });
+  
+  uiLogger.info('Command palette initialized');
+
+  // === Feature Integration (V4) ===
+  let featureIntegrator = null;
+  try {
+    featureIntegrator = await integrateFeatures({
+      container: document.body,
+      agentUI,
+      tabManager,
+      codeEditor,
+      promptEditor,
+      outputElement: document.getElementById('output-content'),
+      onRunPrompt: () => runPrompt(),
+      onRunCode: () => runCode(),
+      onSave: () => {
+        const activeTab = tabManager.getCurrentTab();
+        const content =
+          activeTab === 'prompt' ? promptEditor.getValue().trim() : codeEditor.getValue().trim();
+        if (content) {
+          saveDialog.open(activeTab, content);
+        }
+      }
+    });
+    uiLogger.info('V4 features integrated successfully');
+  } catch (e) {
+    uiLogger.warn('Failed to integrate V4 features', { error: e.message });
+  }
+
   // === Elements ===
   const btnRunPrompt = document.getElementById('btn-run-prompt');
   const btnRunCode = document.getElementById('btn-run-code');
@@ -289,6 +444,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const btnTasks = document.getElementById('btn-tasks');
   const btnHistory = document.getElementById('btn-history');
   const btnSettings = document.getElementById('btn-settings');
+  const btnSelectElement = document.getElementById('btn-select-element');
 
   // === Keyboard Shortcuts ===
   new KeyboardShortcuts({
@@ -345,32 +501,38 @@ document.addEventListener('DOMContentLoaded', async () => {
     agentUI.setRunningState(true, { run: btnRunPrompt, stop: btnStopPrompt });
     agentUI.clearOutput();
 
-    try {
-      const response = await chrome.runtime.sendMessage({
-        action: 'execute_prompt',
-        prompt
-      });
+    const { success, result, error } = await withBoundary(
+      async () => {
+        const response = await chrome.runtime.sendMessage({
+          action: 'execute_prompt',
+          prompt
+        });
 
-      if (!response.success && response.error) {
-        agentUI.addOutput(
-          'error',
-          `
-          <div class="label">❌ ${i18n('error')}</div>
-          <div>${escapeHtml(response.error)}</div>
-        `
-        );
+        if (!response.success && response.error) {
+          throw new Error(response.error);
+        }
+
+        return response;
+      },
+      {
+        context: 'runPrompt',
+        onCatch: err => {
+          uiLogger.error('Prompt execution failed', { error: err.message });
+        }
       }
-    } catch (e) {
+    );
+
+    if (!success && error) {
       agentUI.addOutput(
         'error',
         `
         <div class="label">❌ ${i18n('error')}</div>
-        <div>${escapeHtml(e.message)}</div>
+        <div>${escapeHtml(error.message || error)}</div>
       `
       );
-    } finally {
-      agentUI.setRunningState(false, { run: btnRunPrompt, stop: btnStopPrompt });
     }
+
+    agentUI.setRunningState(false, { run: btnRunPrompt, stop: btnStopPrompt });
   }
 
   btnRunPrompt.addEventListener('click', runPrompt);
@@ -389,7 +551,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       `
       );
     } catch (e) {
-      console.error('Failed to stop agent:', e);
+      uiLogger.error('Failed to stop agent', { error: e.message });
     }
   }
 
@@ -403,32 +565,38 @@ document.addEventListener('DOMContentLoaded', async () => {
     agentUI.setRunningState(true, { run: btnRunCode, stop: btnStopCode });
     agentUI.clearOutput();
 
-    try {
-      const response = await chrome.runtime.sendMessage({
-        action: 'execute_code',
-        code
-      });
+    const { success, error } = await withBoundary(
+      async () => {
+        const response = await chrome.runtime.sendMessage({
+          action: 'execute_code',
+          code
+        });
 
-      if (!response.success && response.error) {
-        agentUI.addOutput(
-          'error',
-          `
-          <div class="label">❌ ${i18n('error')}</div>
-          <div>${escapeHtml(response.error)}</div>
-        `
-        );
+        if (!response.success && response.error) {
+          throw new Error(response.error);
+        }
+
+        return response;
+      },
+      {
+        context: 'runCode',
+        onCatch: err => {
+          uiLogger.error('Code execution failed', { error: err.message });
+        }
       }
-    } catch (e) {
+    );
+
+    if (!success && error) {
       agentUI.addOutput(
         'error',
         `
         <div class="label">❌ ${i18n('error')}</div>
-        <div>${escapeHtml(e.message)}</div>
+        <div>${escapeHtml(error.message || error)}</div>
       `
       );
-    } finally {
-      agentUI.setRunningState(false, { run: btnRunCode, stop: btnStopCode });
     }
+
+    agentUI.setRunningState(false, { run: btnRunCode, stop: btnStopCode });
   }
 
   btnRunCode.addEventListener('click', runCode);
@@ -459,6 +627,46 @@ document.addEventListener('DOMContentLoaded', async () => {
   btnSettings.addEventListener('click', () => {
     chrome.tabs.create({ url: chrome.runtime.getURL('settings/settings.html') });
   });
+
+  // === Element Selector ===
+  if (btnSelectElement) {
+    btnSelectElement.addEventListener('click', async () => {
+      try {
+        // Get current active tab
+        const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+
+        if (!tab || tab.url.startsWith('chrome://')) {
+          agentUI.showNotification(i18n('cannotSelectOnChromePages'), 'error');
+          return;
+        }
+
+        // Inject and execute element selector
+        await chrome.scripting.executeScript({
+          target: { tabId: tab.id },
+          files: ['lib/element-selector.js']
+        });
+
+        // Start selection mode
+        const response = await chrome.tabs.sendMessage(tab.id, {
+          action: 'startElementSelection'
+        });
+
+        if (response && response.selector) {
+          // Generate code snippet with the selector
+          const code = `// Selected element: ${response.tagName}${response.id ? ` #${response.id}` : ''}\nconst element = document.querySelector('${response.selector}');\nconsole.log('Element:', element);`;
+
+          // Insert into code editor
+          const currentValue = codeEditor.getValue();
+          codeEditor.setValue(currentValue ? `${currentValue}\n\n${code}` : code);
+
+          agentUI.showNotification(i18n('elementSelectorInserted'), 'success');
+        }
+      } catch (error) {
+        uiLogger.error('Element selection failed', { error: error.message });
+        agentUI.showNotification(i18n('elementSelectionFailed'), 'error');
+      }
+    });
+  }
 
   // === Snippets Panel ===
   let snippetsPanel = null;

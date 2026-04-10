@@ -35,6 +35,22 @@
     "message": "Execute",
     "description": "Execute button"
   },
+  "btnSelectElement": {
+    "message": "Select Element",
+    "description": "Select element button"
+  },
+  "cannotSelectOnChromePages": {
+    "message": "Cannot select elements on Chrome internal pages",
+    "description": "Error message when trying to select element on chrome:// pages"
+  },
+  "elementSelectorInserted": {
+    "message": "Element selector inserted into code editor",
+    "description": "Success message when selector is inserted"
+  },
+  "elementSelectionFailed": {
+    "message": "Element selection failed, please try again",
+    "description": "Error message when element selection fails"
+  },
   "outputTitle": {
     "message": "Output",
     "description": "Output section title"

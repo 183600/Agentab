@@ -15,7 +15,7 @@ import {
 describe('escapeHtml', () => {
   it('should escape HTML special characters', () => {
     expect(escapeHtml('<script>alert("xss")</script>')).toBe(
-      '&lt;script&gt;alert("xss")&lt;/script&gt;'
+      '&lt;script&gt;alert(&quot;xss&quot;)&lt;/script&gt;'
     );
   });
 
