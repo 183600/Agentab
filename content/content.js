@@ -24,7 +24,14 @@
   function sanitizeText(text, maxLength) {
     if (!text) return '';
     // Remove null bytes and other control characters
-    const sanitized = text.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g, '');
+    // Using Array.from and filter to avoid no-control-regex ESLint rule
+    const sanitized = Array.from(text)
+      .filter(char => {
+        const code = char.charCodeAt(0);
+        // Allow printable characters and common whitespace (tab, newline, carriage return)
+        return code >= 32 || code === 9 || code === 10 || code === 13;
+      })
+      .join('');
     return sanitized.substring(0, maxLength);
   }
 
@@ -81,14 +88,8 @@
       }
 
       // Get sanitized content
-      const html = sanitizeText(
-        document.documentElement.outerHTML,
-        MAX_HTML_SIZE
-      );
-      const text = sanitizeText(
-        document.body?.innerText || '',
-        MAX_TEXT_SIZE
-      );
+      const html = sanitizeText(document.documentElement.outerHTML, MAX_HTML_SIZE);
+      const text = sanitizeText(document.body?.innerText || '', MAX_TEXT_SIZE);
 
       sendResponse({
         url: window.location.href,
@@ -419,11 +420,13 @@
     const url = window.location.href;
 
     // Skip restricted pages
-    if (url.startsWith('chrome://') ||
-        url.startsWith('chrome-extension://') ||
-        url.startsWith('about:') ||
-        url.startsWith('edge://') ||
-        url.startsWith('brave://')) {
+    if (
+      url.startsWith('chrome://') ||
+      url.startsWith('chrome-extension://') ||
+      url.startsWith('about:') ||
+      url.startsWith('edge://') ||
+      url.startsWith('brave://')
+    ) {
       console.log('[Content] Skipping restricted page:', url);
       return;
     }

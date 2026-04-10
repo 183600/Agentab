@@ -39,14 +39,16 @@ vi.mock('../lib/enhanced-api-client.js', () => ({
 
 vi.mock('../lib/page-analyzer.js', () => ({
   PageAnalyzer: {
-    getPromptContext: vi.fn(() => Promise.resolve({
-      url: 'https://example.com',
-      title: 'Test Page',
-      forms: [],
-      buttons: [],
-      links: [],
-      bodyText: 'Test content'
-    }))
+    getPromptContext: vi.fn(() =>
+      Promise.resolve({
+        url: 'https://example.com',
+        title: 'Test Page',
+        forms: [],
+        buttons: [],
+        links: [],
+        bodyText: 'Test content'
+      })
+    )
   }
 }));
 
@@ -88,9 +90,9 @@ describe('AgentExecutor', () => {
     it('should set isRunning to false first', () => {
       agent.isRunning = true;
       agent.abortController = new AbortController();
-      
+
       agent.stop();
-      
+
       expect(agent.isRunning).toBe(false);
       expect(agent.abortController).toBeNull();
     });
@@ -99,16 +101,16 @@ describe('AgentExecutor', () => {
       const controller = new AbortController();
       agent.abortController = controller;
       agent.isRunning = true;
-      
+
       agent.stop();
-      
+
       expect(controller.signal.aborted).toBe(true);
     });
 
     it('should handle null abortController gracefully', () => {
       agent.abortController = null;
       agent.isRunning = true;
-      
+
       expect(() => agent.stop()).not.toThrow();
       expect(agent.isRunning).toBe(false);
     });
@@ -141,10 +143,10 @@ describe('AgentExecutor', () => {
     it('should clean old executions', () => {
       // Add an old execution
       agent.rateLimit.executions.push(Date.now() - 70000);
-      
+
       // Check rate limit should clean it
       agent.isRateLimited();
-      
+
       expect(agent.rateLimit.executions.length).toBe(0);
     });
   });
@@ -153,7 +155,7 @@ describe('AgentExecutor', () => {
     it('should parse JSON from code block', () => {
       const response = '```json\n{"action": "execute", "code": "test"}\n```';
       const result = agent.parseResponse(response);
-      
+
       expect(result).toEqual({
         action: 'execute',
         code: 'test'
@@ -163,7 +165,7 @@ describe('AgentExecutor', () => {
     it('should parse JSON without json marker in code block', () => {
       const response = '```\n{"action": "complete", "result": "done"}\n```';
       const result = agent.parseResponse(response);
-      
+
       expect(result).toEqual({
         action: 'complete',
         result: 'done'
@@ -173,7 +175,7 @@ describe('AgentExecutor', () => {
     it('should parse raw JSON string', () => {
       const response = '{"action": "error", "error": "test error"}';
       const result = agent.parseResponse(response);
-      
+
       expect(result).toEqual({
         action: 'error',
         error: 'test error'
@@ -183,7 +185,7 @@ describe('AgentExecutor', () => {
     it('should find JSON in text', () => {
       const response = 'Here is the result: {"action": "execute", "code": "return 1"} done';
       const result = agent.parseResponse(response);
-      
+
       expect(result).toEqual({
         action: 'execute',
         code: 'return 1'
@@ -192,7 +194,7 @@ describe('AgentExecutor', () => {
 
     it('should throw on invalid JSON', () => {
       const response = 'This is not JSON';
-      
+
       expect(() => agent.parseResponse(response)).toThrow('Could not parse LLM response as JSON');
     });
   });
@@ -204,14 +206,14 @@ describe('AgentExecutor', () => {
         title: 'Test Title'
       };
       const prompt = agent.getSystemPrompt(pageInfo);
-      
+
       expect(prompt).toContain('https://test.com');
       expect(prompt).toContain('Test Title');
     });
 
     it('should include response format instructions', () => {
       const prompt = agent.getSystemPrompt({ url: '', title: '' });
-      
+
       expect(prompt).toContain('execute');
       expect(prompt).toContain('complete');
       expect(prompt).toContain('error');
@@ -224,18 +226,18 @@ describe('AgentExecutor', () => {
       for (let i = 0; i < 30; i++) {
         agent.recordExecution();
       }
-      
+
       const result = await agent.executeCode(1, 'return 1');
-      
+
       expect(result.success).toBe(false);
       expect(result.error).toContain('Rate limit exceeded');
     });
 
     it('should validate code before execution', async () => {
       const maliciousCode = 'eval("alert(1)")';
-      
+
       const result = await agent.executeCode(1, maliciousCode);
-      
+
       expect(result.success).toBe(false);
       expect(result.error).toBeDefined();
     });

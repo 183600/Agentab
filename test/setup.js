@@ -7,7 +7,7 @@ const mockChromeStorage = {
   local: {
     data: {},
     QUOTA_BYTES: 5242880,
-    get: vi.fn((keys) => {
+    get: vi.fn(keys => {
       const result = {};
       if (typeof keys === 'string') {
         result[keys] = mockChromeStorage.local.data[keys];
@@ -21,11 +21,11 @@ const mockChromeStorage = {
       }
       return Promise.resolve(result);
     }),
-    set: vi.fn((items) => {
+    set: vi.fn(items => {
       Object.assign(mockChromeStorage.local.data, items);
       return Promise.resolve();
     }),
-    remove: vi.fn((keys) => {
+    remove: vi.fn(keys => {
       if (typeof keys === 'string') {
         delete mockChromeStorage.local.data[keys];
       } else if (Array.isArray(keys)) {
@@ -54,7 +54,7 @@ const mockChromeRuntime = {
 
 const mockChromeTabs = {
   query: vi.fn(() => Promise.resolve([{ id: 1, url: 'https://example.com' }])),
-  get: vi.fn((id) => Promise.resolve({ id, url: 'https://example.com' })),
+  get: vi.fn(id => Promise.resolve({ id, url: 'https://example.com' })),
   update: vi.fn(() => Promise.resolve()),
   captureVisibleTab: vi.fn(() => Promise.resolve('data:image/png;base64,mock')),
   onRemoved: {
@@ -84,7 +84,7 @@ const mockChromeAlarms = {
 };
 
 const mockChromeI18n = {
-  getMessage: vi.fn((key) => key),
+  getMessage: vi.fn(key => key),
   getAcceptLanguages: vi.fn(() => Promise.resolve(['en', 'zh-CN']))
 };
 
@@ -133,6 +133,10 @@ global.performance = {
 // Mock Web Crypto API using vi.stubGlobal to handle Node.js read-only properties
 const mockCryptoKey = { type: 'secret', algorithm: { name: 'AES-GCM' } };
 
+// Store for encryption/decryption roundtrip
+const encryptedDataStore = new Map();
+let encryptionCounter = 0;
+
 const mockCrypto = {
   subtle: {
     digest: vi.fn(async (algorithm, data) => {
@@ -144,15 +148,33 @@ const mockCrypto = {
       }
       return hash.buffer;
     }),
-    encrypt: vi.fn(async () => {
-      // Return mock encrypted data (iv + ciphertext)
-      const result = new Uint8Array(16 + 32);
-      result.set(new Uint8Array(16), 0); // IV
+    encrypt: vi.fn(async (algorithm, key, data) => {
+      // Store original data for later decryption
+      const id = ++encryptionCounter;
+      const encoder = new TextEncoder();
+      const originalData = new Uint8Array(data);
+      encryptedDataStore.set(id, originalData);
+
+      // Return encrypted data with id embedded (mock format)
+      const result = new Uint8Array(4 + originalData.length);
+      const idView = new DataView(result.buffer, 0, 4);
+      idView.setUint32(0, id, true);
+      result.set(originalData, 4);
       return result.buffer;
     }),
-    decrypt: vi.fn(async () => {
-      // Return mock decrypted data
-      return new TextEncoder().encode('decrypted-data').buffer;
+    decrypt: vi.fn(async (algorithm, key, data) => {
+      // Retrieve original data using embedded id
+      const encryptedArray = new Uint8Array(data);
+      if (encryptedArray.length >= 4) {
+        const idView = new DataView(encryptedArray.buffer, 0, 4);
+        const id = idView.getUint32(0, true);
+        const originalData = encryptedDataStore.get(id);
+        if (originalData) {
+          return originalData.buffer;
+        }
+      }
+      // Fallback: return data as-is (for compatibility)
+      return data;
     }),
     generateKey: vi.fn(async () => mockCryptoKey),
     importKey: vi.fn(async () => mockCryptoKey),
@@ -160,7 +182,7 @@ const mockCrypto = {
     deriveKey: vi.fn(async () => mockCryptoKey),
     deriveBits: vi.fn(async () => new ArrayBuffer(32))
   },
-  getRandomValues: vi.fn((arr) => {
+  getRandomValues: vi.fn(arr => {
     for (let i = 0; i < arr.length; i++) {
       arr[i] = Math.floor(Math.random() * 256);
     }
@@ -178,4 +200,10 @@ beforeEach(() => {
 });
 
 // Export mocks for use in tests
-export { mockChromeStorage, mockChromeRuntime, mockChromeTabs, mockChromeScripting, mockChromeAlarms };
+export {
+  mockChromeStorage,
+  mockChromeRuntime,
+  mockChromeTabs,
+  mockChromeScripting,
+  mockChromeAlarms
+};

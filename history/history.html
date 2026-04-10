@@ -1,164 +1,164 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title data-i18n="historyPageTitle">Agentab - 执行历史</title>
-  <link rel="stylesheet" href="history.css">
-</head>
-<body>
-  <div class="container">
-    <!-- Header -->
-    <header class="page-header">
-      <div class="header-left">
-        <a href="#" class="back-btn" id="btn-back">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M19 12H5M12 19l-7-7 7-7"/>
-          </svg>
-        </a>
-        <div class="header-text">
-          <h1 data-i18n="historyTitle">执行历史</h1>
-          <p data-i18n="historySubtitle">查看所有任务执行记录</p>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title data-i18n="historyPageTitle">Agentab - 执行历史</title>
+    <link rel="stylesheet" href="history.css" />
+  </head>
+  <body>
+    <div class="container">
+      <!-- Header -->
+      <header class="page-header">
+        <div class="header-left">
+          <a href="#" class="back-btn" id="btn-back">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M19 12H5M12 19l-7-7 7-7" />
+            </svg>
+          </a>
+          <div class="header-text">
+            <h1 data-i18n="historyTitle">执行历史</h1>
+            <p data-i18n="historySubtitle">查看所有任务执行记录</p>
+          </div>
         </div>
-      </div>
-      <div class="header-actions">
-        <button class="btn btn-danger" id="btn-clear-history">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <polyline points="3 6 5 6 21 6"/>
-            <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
-          </svg>
-          <span data-i18n="btnClearHistory">清除历史</span>
-        </button>
-      </div>
-    </header>
+        <div class="header-actions">
+          <button class="btn btn-danger" id="btn-clear-history">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="3 6 5 6 21 6" />
+              <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" />
+            </svg>
+            <span data-i18n="btnClearHistory">清除历史</span>
+          </button>
+        </div>
+      </header>
 
-    <!-- Stats -->
-    <div class="stats-grid">
-      <div class="stat-card">
-        <div class="stat-icon blue">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
-          </svg>
+      <!-- Stats -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon blue">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+            </svg>
+          </div>
+          <div class="stat-info">
+            <div class="stat-value" id="total-executions">0</div>
+            <div class="stat-label" data-i18n="totalExecutions">总执行次数</div>
+          </div>
         </div>
-        <div class="stat-info">
-          <div class="stat-value" id="total-executions">0</div>
-          <div class="stat-label" data-i18n="totalExecutions">总执行次数</div>
+        <div class="stat-card">
+          <div class="stat-icon green">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 11.08V12a10 10 0 11-5.93-9.14" />
+              <polyline points="22 4 12 14.01 9 11.01" />
+            </svg>
+          </div>
+          <div class="stat-info">
+            <div class="stat-value" id="success-count">0</div>
+            <div class="stat-label" data-i18n="successCount">成功</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon red">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10" />
+              <line x1="15" y1="9" x2="9" y2="15" />
+              <line x1="9" y1="9" x2="15" y2="15" />
+            </svg>
+          </div>
+          <div class="stat-info">
+            <div class="stat-value" id="error-count">0</div>
+            <div class="stat-label" data-i18n="errorCount">失败</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon purple">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
+            </svg>
+          </div>
+          <div class="stat-info">
+            <div class="stat-value" id="prompt-count">0</div>
+            <div class="stat-label" data-i18n="promptTasks">提示词</div>
+          </div>
         </div>
       </div>
-      <div class="stat-card">
-        <div class="stat-icon green">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/>
-            <polyline points="22 4 12 14.01 9 11.01"/>
-          </svg>
-        </div>
-        <div class="stat-info">
-          <div class="stat-value" id="success-count">0</div>
-          <div class="stat-label" data-i18n="successCount">成功</div>
-        </div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-icon red">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="12" cy="12" r="10"/>
-            <line x1="15" y1="9" x2="9" y2="15"/>
-            <line x1="9" y1="9" x2="15" y2="15"/>
-          </svg>
-        </div>
-        <div class="stat-info">
-          <div class="stat-value" id="error-count">0</div>
-          <div class="stat-label" data-i18n="errorCount">失败</div>
-        </div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-icon purple">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
-          </svg>
-        </div>
-        <div class="stat-info">
-          <div class="stat-value" id="prompt-count">0</div>
-          <div class="stat-label" data-i18n="promptTasks">提示词</div>
-        </div>
-      </div>
-    </div>
 
-    <!-- Filters -->
-    <div class="filters-bar">
-      <div class="search-box">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="11" cy="11" r="8"/>
-          <path d="M21 21l-4.35-4.35"/>
+      <!-- Filters -->
+      <div class="filters-bar">
+        <div class="search-box">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8" />
+            <path d="M21 21l-4.35-4.35" />
+          </svg>
+          <input type="text" id="search-input" data-i18n-placeholder="searchHistory" placeholder="搜索历史记录..." />
+        </div>
+        <div class="filter-tabs">
+          <button class="filter-tab active" data-filter="all" data-i18n="filterAll">全部</button>
+          <button class="filter-tab" data-filter="prompt" data-i18n="typePrompt">提示词</button>
+          <button class="filter-tab" data-filter="code" data-i18n="typeCode">代码</button>
+        </div>
+      </div>
+
+      <!-- History List -->
+      <div class="history-list" id="history-list"></div>
+
+      <!-- Empty State -->
+      <div class="empty-state hidden" id="empty-state">
+        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
-        <input type="text" id="search-input" data-i18n-placeholder="searchHistory" placeholder="搜索历史记录...">
+        <h3 data-i18n="noHistory">暂无历史记录</h3>
+        <p data-i18n="noHistoryHint">执行任务后，历史记录会显示在这里。</p>
       </div>
-      <div class="filter-tabs">
-        <button class="filter-tab active" data-filter="all" data-i18n="filterAll">全部</button>
-        <button class="filter-tab" data-filter="prompt" data-i18n="typePrompt">提示词</button>
-        <button class="filter-tab" data-filter="code" data-i18n="typeCode">代码</button>
-      </div>
-    </div>
 
-    <!-- History List -->
-    <div class="history-list" id="history-list"></div>
-
-    <!-- Empty State -->
-    <div class="empty-state hidden" id="empty-state">
-      <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-        <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-      </svg>
-      <h3 data-i18n="noHistory">暂无历史记录</h3>
-      <p data-i18n="noHistoryHint">执行任务后，历史记录会显示在这里。</p>
-    </div>
-
-    <!-- History Detail Modal -->
-    <div class="modal-overlay hidden" id="detail-modal">
-      <div class="modal">
-        <div class="modal-header">
-          <h3 data-i18n="historyDetail">执行详情</h3>
-          <button class="icon-btn small" id="btn-close-modal">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <line x1="18" y1="6" x2="6" y2="18"/>
-              <line x1="6" y1="6" x2="18" y2="18"/>
-            </svg>
-          </button>
-        </div>
-        <div class="modal-body" id="detail-content"></div>
-        <div class="modal-footer">
-          <button class="btn btn-secondary" id="btn-close-detail" data-i18n="btnClose">关闭</button>
-          <button class="btn btn-primary" id="btn-rerun" data-i18n="btnRerun">重新执行</button>
+      <!-- History Detail Modal -->
+      <div class="modal-overlay hidden" id="detail-modal">
+        <div class="modal">
+          <div class="modal-header">
+            <h3 data-i18n="historyDetail">执行详情</h3>
+            <button class="icon-btn small" id="btn-close-modal">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            </button>
+          </div>
+          <div class="modal-body" id="detail-content"></div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary" id="btn-close-detail" data-i18n="btnClose">关闭</button>
+            <button class="btn btn-primary" id="btn-rerun" data-i18n="btnRerun">重新执行</button>
+          </div>
         </div>
       </div>
-    </div>
 
-    <!-- Delete Confirmation Modal -->
-    <div class="modal-overlay hidden" id="delete-modal">
-      <div class="modal modal-small">
-        <div class="modal-header">
-          <h3 data-i18n="clearHistoryTitle">清除历史记录</h3>
-          <button class="icon-btn small" id="btn-close-delete-modal">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <line x1="18" y1="6" x2="6" y2="18"/>
-              <line x1="6" y1="6" x2="18" y2="18"/>
-            </svg>
-          </button>
-        </div>
-        <div class="modal-body">
-          <p data-i18n="confirmClearHistory">确定要清除所有历史记录吗？此操作无法撤销。</p>
-        </div>
-        <div class="modal-footer">
-          <button class="btn btn-secondary" id="btn-cancel-clear" data-i18n="btnCancel">取消</button>
-          <button class="btn btn-danger" id="btn-confirm-clear" data-i18n="btnClear">清除</button>
+      <!-- Delete Confirmation Modal -->
+      <div class="modal-overlay hidden" id="delete-modal">
+        <div class="modal modal-small">
+          <div class="modal-header">
+            <h3 data-i18n="clearHistoryTitle">清除历史记录</h3>
+            <button class="icon-btn small" id="btn-close-delete-modal">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            </button>
+          </div>
+          <div class="modal-body">
+            <p data-i18n="confirmClearHistory">确定要清除所有历史记录吗？此操作无法撤销。</p>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary" id="btn-cancel-clear" data-i18n="btnCancel">取消</button>
+            <button class="btn btn-danger" id="btn-confirm-clear" data-i18n="btnClear">清除</button>
+          </div>
         </div>
       </div>
+
+      <!-- Toast Container -->
+      <div id="toast-container"></div>
     </div>
 
-    <!-- Toast Container -->
-    <div id="toast-container"></div>
-  </div>
-
-  <script src="../lib/i18n.js"></script>
-  <script src="../lib/utils.js"></script>
-  <script src="history.js"></script>
-</body>
+    <script src="../lib/i18n.js"></script>
+    <script src="../lib/utils.js"></script>
+    <script src="history.js"></script>
+  </body>
 </html>

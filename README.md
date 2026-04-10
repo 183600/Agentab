@@ -32,24 +32,28 @@
 ## ✨ 功能特性
 
 ### 🧠 AI 智能体模式
+
 - 使用**自然语言**描述任务——Agentab 会自动处理其余工作
 - 多步推理循环：智能体思考 → 执行 → 观察 → 循环
 - 自动分析页面结构（表单、按钮、链接、文本）
 - 每个任务最多支持 **10 次迭代**
 
 ### ⚡ 直接代码模式
+
 - 在任意页面上直接编写和执行 **JavaScript**
 - 完整的 DOM 访问权限，支持 `async/await`
 - 通过 `__chromeAgent` 使用内置辅助工具
 - 实时执行结果反馈
 
 ### 💾 任务管理
+
 - 将任务保存为**提示词**类型或**代码**类型
 - 完整的任务列表，支持搜索和筛选
 - 编辑、复制、删除任务
 - 追踪执行次数和最后运行时间
 
 ### 🔌 灵活的 LLM 支持
+
 - 支持**任何兼容 OpenAI 的 API**
 - 支持 OpenAI、Azure OpenAI、Ollama、LM Studio、DeepSeek 等
 - 可配置 Base URL、API Key 和模型名称
@@ -88,11 +92,11 @@ cd agentab
 2. 点击 ⚙️ 设置按钮
 3. 填写你的 API 信息：
 
-| 字段 | 示例 |
-|------|------|
+| 字段         | 示例                        |
+| ------------ | --------------------------- |
 | API Base URL | `https://api.openai.com/v1` |
-| API Key | `sk-xxxxxxxxxxxxxxxx` |
-| Model | `gpt-4o` |
+| API Key      | `sk-xxxxxxxxxxxxxxxx`       |
+| Model        | `gpt-4o`                    |
 
 ---
 
@@ -105,20 +109,25 @@ cd agentab
 ```
 找出页面上所有的邮箱地址并列出来
 ```
+
 ```
 用用户名 "demo" 和密码 "demo123" 填写登录表单
 ```
+
 ```
 滚动到页面底部并点击"加载更多"按钮
 ```
+
 ```
 提取页面上每个商品的标题、价格和评分
 ```
+
 ```
 获取导航菜单中的所有链接，以 JSON 数组形式返回
 ```
 
 智能体会：
+
 1. 🔍 分析当前页面结构
 2. 🧠 生成 JavaScript 代码来完成任务
 3. ⚡ 在页面上执行代码
@@ -133,8 +142,10 @@ cd agentab
 
 ```javascript
 // 从页面提取所有图片 URL
-const images = Array.from(document.querySelectorAll('img'))
-  .map(img => ({ src: img.src, alt: img.alt }));
+const images = Array.from(document.querySelectorAll('img')).map(img => ({
+  src: img.src,
+  alt: img.alt
+}));
 return images;
 ```
 
@@ -192,9 +203,9 @@ const table = __chromeAgent.extractTable('#data-table');
 
 // 批量填写表单字段
 __chromeAgent.fillForm({
-  '#name':  'John Doe',
+  '#name': 'John Doe',
   '#email': 'john@example.com',
-  '#role':  'developer'
+  '#role': 'developer'
 });
 ```
 
@@ -232,24 +243,24 @@ agentab/
 
 ### 支持的 LLM 提供商
 
-| 提供商 | Base URL | 备注 |
-|--------|----------|------|
-| OpenAI | `https://api.openai.com/v1` | 默认 |
-| Azure OpenAI | `https://{resource}.openai.azure.com/openai/deployments/{deployment}` | |
-| Ollama | `http://localhost:11434/v1` | 本地，免费 |
-| LM Studio | `http://localhost:1234/v1` | 本地，免费 |
-| DeepSeek | `https://api.deepseek.com/v1` | 高性价比 |
-| Groq | `https://api.groq.com/openai/v1` | 快速推理 |
-| OpenRouter | `https://openrouter.ai/api/v1` | 多模型 |
+| 提供商       | Base URL                                                              | 备注       |
+| ------------ | --------------------------------------------------------------------- | ---------- |
+| OpenAI       | `https://api.openai.com/v1`                                           | 默认       |
+| Azure OpenAI | `https://{resource}.openai.azure.com/openai/deployments/{deployment}` |            |
+| Ollama       | `http://localhost:11434/v1`                                           | 本地，免费 |
+| LM Studio    | `http://localhost:1234/v1`                                            | 本地，免费 |
+| DeepSeek     | `https://api.deepseek.com/v1`                                         | 高性价比   |
+| Groq         | `https://api.groq.com/openai/v1`                                      | 快速推理   |
+| OpenRouter   | `https://openrouter.ai/api/v1`                                        | 多模型     |
 
 ### 推荐模型
 
-| 使用场景 | 模型 |
-|----------|------|
-| 最佳精度 | `gpt-4o` |
-| 均衡选择 | `gpt-4o-mini` |
+| 使用场景    | 模型                  |
+| ----------- | --------------------- |
+| 最佳精度    | `gpt-4o`              |
+| 均衡选择    | `gpt-4o-mini`         |
 | 本地 / 免费 | `llama3.2` via Ollama |
-| 快速且便宜 | `deepseek-chat` |
+| 快速且便宜  | `deepseek-chat`       |
 
 ---
 
@@ -268,12 +279,12 @@ agentab/
 
 ## 🧩 键盘快捷键
 
-| 快捷键 | 操作 |
-|--------|------|
-| `Ctrl / Cmd + Enter` | 运行当前提示词或代码 |
-| `Tab` | 插入 2 空格缩进（在代码编辑器中） |
-| `Esc` | 关闭弹窗或对话框 |
-| 右键选中文字 | 将选中内容作为智能体提示词运行 |
+| 快捷键               | 操作                              |
+| -------------------- | --------------------------------- |
+| `Ctrl / Cmd + Enter` | 运行当前提示词或代码              |
+| `Tab`                | 插入 2 空格缩进（在代码编辑器中） |
+| `Esc`                | 关闭弹窗或对话框                  |
+| 右键选中文字         | 将选中内容作为智能体提示词运行    |
 
 ---
 
@@ -305,6 +316,7 @@ git push origin feature/my-feature
 ```
 
 请遵循以下准则：
+
 - 保持代码整洁并添加注释
 - 在 Chrome 120+ 上测试
 - 不要引入外部依赖
@@ -352,8 +364,8 @@ copies or substantial portions of the Software.
 
 **由 Agentab 团队用 ❤️ 制作**
 
-[报告 Bug](https://github.com/yourname/agentab/issues) · 
-[请求功能](https://github.com/yourname/agentab/issues) · 
-[Chrome 应用商店](#) *(即将上线)*
+[报告 Bug](https://github.com/yourname/agentab/issues) ·
+[请求功能](https://github.com/yourname/agentab/issues) ·
+[Chrome 应用商店](#) _(即将上线)_
 
 </div>

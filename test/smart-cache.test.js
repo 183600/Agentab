@@ -41,20 +41,20 @@ describe('SmartCache', () => {
   describe('TTL expiration', () => {
     it('should expire values after TTL', async () => {
       cache.set('key1', 'value1', 100); // 100ms TTL
-      
+
       expect(cache.get('key1')).toBe('value1');
-      
+
       await new Promise(resolve => setTimeout(resolve, 150));
-      
+
       expect(cache.get('key1')).toBeNull();
     });
 
     it('should support custom TTL', async () => {
       cache.set('key1', 'value1', 500); // 500ms TTL
-      
+
       await new Promise(resolve => setTimeout(resolve, 300));
       expect(cache.get('key1')).toBe('value1');
-      
+
       await new Promise(resolve => setTimeout(resolve, 300));
       expect(cache.get('key1')).toBeNull();
     });
@@ -66,13 +66,13 @@ describe('SmartCache', () => {
       for (let i = 0; i < 5; i++) {
         cache.set(`key${i}`, `value${i}`);
       }
-      
+
       // Access key0 to make it recently used
       cache.get('key0');
-      
+
       // Add one more item, should evict key1 (least recently used)
       cache.set('key5', 'value5');
-      
+
       expect(cache.get('key0')).toBe('value0'); // Should still exist
       expect(cache.get('key1')).toBeNull(); // Should be evicted
     });
@@ -81,11 +81,11 @@ describe('SmartCache', () => {
   describe('statistics', () => {
     it('should track hits and misses', () => {
       cache.set('key1', 'value1');
-      
+
       cache.get('key1'); // hit
       cache.get('key1'); // hit
       cache.get('nonexistent'); // miss
-      
+
       const stats = cache.getStats();
       expect(stats.hits).toBe(2);
       expect(stats.misses).toBe(1);
@@ -93,10 +93,10 @@ describe('SmartCache', () => {
 
     it('should calculate hit rate', () => {
       cache.set('key1', 'value1');
-      
+
       cache.get('key1'); // hit
       cache.get('nonexistent'); // miss
-      
+
       const stats = cache.getStats();
       expect(stats.hitRate).toBe('50.00%');
     });
@@ -105,18 +105,18 @@ describe('SmartCache', () => {
   describe('getOrSet pattern', () => {
     it('should return cached value if exists', async () => {
       cache.set('key1', 'cached');
-      
+
       const result = await cache.getOrSet('key1', () => 'new value');
       expect(result).toBe('cached');
     });
 
     it('should compute and cache value if not exists', async () => {
       const computeFn = vi.fn(() => 'computed');
-      
+
       const result = await cache.getOrSet('key1', computeFn);
       expect(result).toBe('computed');
       expect(computeFn).toHaveBeenCalledTimes(1);
-      
+
       // Second call should use cache
       const result2 = await cache.getOrSet('key1', computeFn);
       expect(result2).toBe('computed');
@@ -148,19 +148,19 @@ describe('RequestDeduplicator', () => {
 
   it('should deduplicate concurrent requests', async () => {
     let callCount = 0;
-    
+
     const fn = async () => {
       callCount++;
       await new Promise(resolve => setTimeout(resolve, 50));
       return 'result';
     };
-    
+
     // Start two concurrent requests
     const [result1, result2] = await Promise.all([
       dedup.execute('key1', fn),
       dedup.execute('key1', fn)
     ]);
-    
+
     expect(result1).toBe('result');
     expect(result2).toBe('result');
     expect(callCount).toBe(1); // Should only call once
@@ -168,17 +168,14 @@ describe('RequestDeduplicator', () => {
 
   it('should not deduplicate different keys', async () => {
     let callCount = 0;
-    
+
     const fn = async () => {
       callCount++;
       return 'result';
     };
-    
-    await Promise.all([
-      dedup.execute('key1', fn),
-      dedup.execute('key2', fn)
-    ]);
-    
+
+    await Promise.all([dedup.execute('key1', fn), dedup.execute('key2', fn)]);
+
     expect(callCount).toBe(2);
   });
 

@@ -135,10 +135,7 @@ describe('SettingsManager', () => {
     });
 
     it('should deep merge nested objects', () => {
-      const result = SettingsManager.deepMerge(
-        { api: { url: 'a' } },
-        { api: { model: 'b' } }
-      );
+      const result = SettingsManager.deepMerge({ api: { url: 'a' } }, { api: { model: 'b' } });
       expect(result.api.url).toBe('a');
       expect(result.api.model).toBe('b');
     });

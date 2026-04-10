@@ -12,13 +12,15 @@ import { initMigration } from '../lib/migration.js';
 ErrorHandler.setupErrorBoundary?.();
 
 // Initialize data migration (runs on install/update)
-initMigration().then(result => {
-  if (result.migrated) {
-    console.log('[Background] Data migration completed');
-  }
-}).catch(error => {
-  console.error('[Background] Migration error:', error);
-});
+initMigration()
+  .then(result => {
+    if (result.migrated) {
+      console.log('[Background] Data migration completed');
+    }
+  })
+  .catch(error => {
+    console.error('[Background] Migration error:', error);
+  });
 
 // Initialize PageAnalyzer cache cleanup
 PageAnalyzer.initCleanup();
@@ -56,7 +58,6 @@ chrome.runtime.onInstalled.addListener(async details => {
       }
     };
     await chrome.storage.local.set(defaultSettings);
-
   } else if (details.reason === 'update') {
     console.log('[Background] Extension updated from', details.previousVersion);
 
@@ -411,7 +412,7 @@ async function handleTestApiConnectionWithParams(message) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${keyValidation.value}`
+        Authorization: `Bearer ${keyValidation.value}`
       },
       body: JSON.stringify({
         model: model.trim(),
@@ -482,12 +483,14 @@ async function getActiveTab() {
 }
 
 function broadcastUpdate(update) {
-  chrome.runtime.sendMessage({
-    action: 'agent_update',
-    update
-  }).catch(() => {
-    // Ignore if no listeners (popup closed)
-  });
+  chrome.runtime
+    .sendMessage({
+      action: 'agent_update',
+      update
+    })
+    .catch(() => {
+      // Ignore if no listeners (popup closed)
+    });
 }
 
 // ===== Context Menu =====

@@ -58,7 +58,7 @@ describe('PageAnalyzer', () => {
   describe('analyze()', () => {
     it('should return analysis result', async () => {
       const mockTabId = 1;
-      
+
       // Mock chrome.tabs.get
       global.chrome.tabs.get = vi.fn().mockResolvedValue({
         id: mockTabId,
@@ -67,20 +67,22 @@ describe('PageAnalyzer', () => {
       });
 
       // Mock chrome.scripting.executeScript
-      global.chrome.scripting.executeScript = vi.fn().mockResolvedValue([{
-        result: {
-          url: 'https://example.com',
-          title: 'Test Page',
-          bodyText: 'Hello World',
-          forms: [],
-          links: [],
-          buttons: [],
-          inputs: [],
-          images: [],
-          tables: [],
-          meta: {}
+      global.chrome.scripting.executeScript = vi.fn().mockResolvedValue([
+        {
+          result: {
+            url: 'https://example.com',
+            title: 'Test Page',
+            bodyText: 'Hello World',
+            forms: [],
+            links: [],
+            buttons: [],
+            inputs: [],
+            images: [],
+            tables: [],
+            meta: {}
+          }
         }
-      }]);
+      ]);
 
       const result = await PageAnalyzer.analyze(mockTabId, false);
 
@@ -92,27 +94,29 @@ describe('PageAnalyzer', () => {
   describe('getPromptContext()', () => {
     it('should return simplified context', async () => {
       const mockTabId = 1;
-      
+
       global.chrome.tabs.get = vi.fn().mockResolvedValue({
         id: mockTabId,
         url: 'https://example.com',
         title: 'Test Page'
       });
 
-      global.chrome.scripting.executeScript = vi.fn().mockResolvedValue([{
-        result: {
-          url: 'https://example.com',
-          title: 'Test Page',
-          bodyText: 'Hello World',
-          forms: [{ action: '/submit' }],
-          links: [{ href: '/link' }],
-          buttons: [{ text: 'Click' }],
-          inputs: [],
-          images: [],
-          tables: [],
-          meta: {}
+      global.chrome.scripting.executeScript = vi.fn().mockResolvedValue([
+        {
+          result: {
+            url: 'https://example.com',
+            title: 'Test Page',
+            bodyText: 'Hello World',
+            forms: [{ action: '/submit' }],
+            links: [{ href: '/link' }],
+            buttons: [{ text: 'Click' }],
+            inputs: [],
+            images: [],
+            tables: [],
+            meta: {}
+          }
         }
-      }]);
+      ]);
 
       const context = await PageAnalyzer.getPromptContext(mockTabId);
 
@@ -128,31 +132,35 @@ describe('PageAnalyzer', () => {
   describe('findElement()', () => {
     it('should find element by selector', async () => {
       const mockTabId = 1;
-      
-      global.chrome.scripting.executeScript = vi.fn().mockResolvedValue([{
-        result: {
-          found: true,
-          element: {
-            tagName: 'BUTTON',
-            text: 'Click me'
+
+      global.chrome.scripting.executeScript = vi.fn().mockResolvedValue([
+        {
+          result: {
+            found: true,
+            element: {
+              tagName: 'BUTTON',
+              text: 'Click me'
+            }
           }
         }
-      }]);
+      ]);
 
       const result = await PageAnalyzer.findElement(mockTabId, 'button');
-      
+
       expect(result.found).toBe(true);
     });
 
     it('should return not found for missing element', async () => {
       const mockTabId = 1;
-      
-      global.chrome.scripting.executeScript = vi.fn().mockResolvedValue([{
-        result: { found: false }
-      }]);
+
+      global.chrome.scripting.executeScript = vi.fn().mockResolvedValue([
+        {
+          result: { found: false }
+        }
+      ]);
 
       const result = await PageAnalyzer.findElement(mockTabId, '.nonexistent');
-      
+
       expect(result.found).toBe(false);
     });
   });
@@ -160,13 +168,15 @@ describe('PageAnalyzer', () => {
   describe('highlightElement()', () => {
     it('should highlight element', async () => {
       const mockTabId = 1;
-      
-      global.chrome.scripting.executeScript = vi.fn().mockResolvedValue([{
-        result: true
-      }]);
+
+      global.chrome.scripting.executeScript = vi.fn().mockResolvedValue([
+        {
+          result: true
+        }
+      ]);
 
       const result = await PageAnalyzer.highlightElement(mockTabId, 'button');
-      
+
       expect(result).toBe(true);
     });
   });
@@ -174,13 +184,15 @@ describe('PageAnalyzer', () => {
   describe('getVisibleText()', () => {
     it('should get visible text', async () => {
       const mockTabId = 1;
-      
-      global.chrome.scripting.executeScript = vi.fn().mockResolvedValue([{
-        result: 'Hello World'
-      }]);
+
+      global.chrome.scripting.executeScript = vi.fn().mockResolvedValue([
+        {
+          result: 'Hello World'
+        }
+      ]);
 
       const text = await PageAnalyzer.getVisibleText(mockTabId);
-      
+
       expect(text).toBe('Hello World');
     });
   });

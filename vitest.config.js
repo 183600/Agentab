@@ -8,17 +8,16 @@ export default defineConfig({
     // Global test APIs
     globals: true,
 
+    // Ensure modules are properly mocked
+    deps: {
+      inline: [/lib\/logger\.js/]
+    },
+
     // Coverage configuration
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html', 'lcov'],
-      exclude: [
-        'node_modules/**',
-        'test/**',
-        '**/*.test.js',
-        '**/*.spec.js',
-        'lib/workers/**'
-      ],
+      exclude: ['node_modules/**', 'test/**', '**/*.test.js', '**/*.spec.js', 'lib/workers/**'],
       // Don't collect coverage by default for faster tests
       enabled: false
     },

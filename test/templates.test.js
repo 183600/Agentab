@@ -1,7 +1,12 @@
 // test/templates.test.js - Tests for templates.js
 
 import { describe, it, expect, beforeEach } from 'vitest';
-import { TaskTemplate, TemplateLibrary, getTemplateCategoriesWithMeta, templateLibrary } from '../lib/templates.js';
+import {
+  TaskTemplate,
+  TemplateLibrary,
+  getTemplateCategoriesWithMeta,
+  templateLibrary
+} from '../lib/templates.js';
 
 describe('TaskTemplate', () => {
   describe('constructor', () => {
@@ -226,7 +231,7 @@ describe('TemplateLibrary', () => {
       // Clear built-in templates
       emptyLibrary.templates.clear();
       emptyLibrary.categories.clear();
-      
+
       expect(emptyLibrary.getAll()).toEqual([]);
     });
 
@@ -407,7 +412,7 @@ describe('getTemplateCategoriesWithMeta', () => {
 
   it('should have icon for categories', () => {
     const meta = getTemplateCategoriesWithMeta();
-    
+
     for (const [category, data] of Object.entries(meta)) {
       expect(data.icon).toBeDefined();
       expect(data.label).toBeDefined();

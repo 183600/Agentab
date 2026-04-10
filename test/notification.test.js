@@ -38,7 +38,7 @@ describe('NotificationManager', () => {
       type: NotificationType.INFO,
       message: 'Test message'
     });
-    
+
     expect(id).toBeDefined();
     expect(manager.notifications.has(id)).toBe(true);
   });
@@ -49,9 +49,9 @@ describe('NotificationManager', () => {
       message: 'Test message',
       duration: 0
     });
-    
+
     manager.dismiss(id);
-    
+
     // Wait for animation
     setTimeout(() => {
       expect(manager.notifications.has(id)).toBe(false);
@@ -63,43 +63,45 @@ describe('NotificationManager', () => {
     manager.show({ type: NotificationType.INFO, message: '2' });
     manager.show({ type: NotificationType.INFO, message: '3' });
     manager.show({ type: NotificationType.INFO, message: '4' });
-    
+
     expect(manager.notifications.size).toBe(3);
   });
 
   it('should create success notification', () => {
     const id = manager.success('Success message');
     const notification = manager.notifications.get(id);
-    
+
     expect(notification.element.classList.contains('notification-success')).toBe(true);
   });
 
   it('should create error notification', () => {
     const id = manager.error('Error message');
     const notification = manager.notifications.get(id);
-    
+
     expect(notification.element.classList.contains('notification-error')).toBe(true);
   });
 
   it('should create loading notification without auto-dismiss', () => {
     const id = manager.loading('Loading...');
     const notification = manager.notifications.get(id);
-    
+
     expect(notification.timer).toBeNull();
   });
 
   it('should update progress', () => {
     const id = manager.loading('Processing...');
     manager.updateProgress(id, 50);
-    
-    const progressBar = manager.notifications.get(id).element.querySelector('.notification-progress-bar');
+
+    const progressBar = manager.notifications
+      .get(id)
+      .element.querySelector('.notification-progress-bar');
     expect(progressBar.style.width).toBe('50%');
   });
 
   it('should update message', () => {
     const id = manager.show({ type: NotificationType.INFO, message: 'Old message', duration: 0 });
     manager.updateMessage(id, 'New message');
-    
+
     const messageEl = manager.notifications.get(id).element.querySelector('.notification-message');
     expect(messageEl.textContent).toBe('New message');
   });
@@ -122,7 +124,7 @@ describe('ErrorDisplay', () => {
   it('should show error display', () => {
     const error = new ValidationError('Invalid input', 'username', 'test');
     display.show(error);
-    
+
     expect(container.classList.contains('hidden')).toBe(false);
     expect(container.textContent).toContain('Validation failed');
   });
@@ -130,23 +132,23 @@ describe('ErrorDisplay', () => {
   it('should show suggestion when available', () => {
     const error = new TimeoutError('Operation timed out', 30000);
     display.show(error);
-    
+
     expect(container.textContent).toContain('Try again');
   });
 
   it('should show technical details', () => {
     const error = new ApiError('API failed', 500, { error: 'Server error' });
     display.show(error, { showDetails: true });
-    
+
     expect(container.innerHTML).toContain('Technical Details');
   });
 
   it('should hide on dismiss', () => {
     const error = new ValidationError('Invalid');
     display.show(error);
-    
+
     container.querySelector('.error-dismiss').click();
-    
+
     expect(container.classList.contains('hidden')).toBe(true);
   });
 });
@@ -171,7 +173,7 @@ describe('ProgressIndicator', () => {
       steps: ['Step 1', 'Step 2', 'Step 3'],
       totalSteps: 3
     });
-    
+
     expect(container.classList.contains('hidden')).toBe(false);
     expect(container.textContent).toContain('Processing');
   });
@@ -179,10 +181,10 @@ describe('ProgressIndicator', () => {
   it('should update progress', () => {
     progress.start({ totalSteps: 4 });
     progress.update(2, 'Processing step 2');
-    
+
     const progressBar = container.querySelector('.progress-bar');
     expect(progressBar.style.width).toBe('50%');
-    
+
     const percentText = container.querySelector('.progress-percent');
     expect(percentText.textContent).toBe('50%');
   });
@@ -190,7 +192,7 @@ describe('ProgressIndicator', () => {
   it('should complete progress', () => {
     progress.start({ totalSteps: 3 });
     progress.complete('Done!');
-    
+
     const progressBar = container.querySelector('.progress-bar');
     expect(progressBar.style.width).toBe('100%');
   });
@@ -199,7 +201,7 @@ describe('ProgressIndicator', () => {
     progress.start({ totalSteps: 3 });
     progress.update(1);
     progress.error('Failed at step 1');
-    
+
     const messageEl = container.querySelector('.progress-message');
     expect(messageEl.classList.contains('error')).toBe(true);
   });
@@ -214,7 +216,7 @@ describe('notify convenience functions', () => {
   it('should create notification via notify object', () => {
     const id = notify.success('Test success');
     expect(id).toBeDefined();
-    
+
     notify.dismiss(id);
   });
 
@@ -222,9 +224,9 @@ describe('notify convenience functions', () => {
     notify.info('1');
     notify.info('2');
     notify.info('3');
-    
+
     notify.dismissAll();
-    
+
     const manager = getNotificationManager();
     expect(manager.notifications.size).toBe(0);
   });
@@ -241,7 +243,7 @@ describe('showError integration', () => {
   it('should show error with display info', () => {
     const error = new ValidationError('Invalid email', 'email', 'not-an-email');
     const id = manager.showError(error);
-    
+
     const notification = manager.notifications.get(id);
     expect(notification.element.textContent).toContain('Validation failed');
   });
@@ -250,10 +252,10 @@ describe('showError integration', () => {
     const error = new TimeoutError('Request timed out');
     const onRetry = vi.fn();
     const id = manager.showError(error, { onRetry });
-    
+
     const notification = manager.notifications.get(id);
     const retryButton = notification.element.querySelector('.notification-action-primary');
-    
+
     expect(retryButton).toBeDefined();
     expect(retryButton.textContent).toBe('Retry');
   });

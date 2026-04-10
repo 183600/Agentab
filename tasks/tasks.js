@@ -68,7 +68,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   function getFilteredTasks() {
     return allTasks.filter(task => {
       const matchesFilter = currentFilter === 'all' || task.type === currentFilter;
-      const matchesSearch = !currentSearch ||
+      const matchesSearch =
+        !currentSearch ||
         task.name.toLowerCase().includes(currentSearch) ||
         task.description?.toLowerCase().includes(currentSearch) ||
         task.content.toLowerCase().includes(currentSearch);
@@ -108,7 +109,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     noResults.classList.add('hidden');
     tasksGrid.classList.remove('hidden');
 
-    tasksGrid.innerHTML = filtered.map(task => `
+    tasksGrid.innerHTML = filtered
+      .map(
+        task => `
       <div class="task-card" data-id="${task.id}">
         <div class="task-card-header">
           <div class="task-info">
@@ -157,7 +160,9 @@ document.addEventListener('DOMContentLoaded', async () => {
           </div>
         </div>
       </div>
-    `).join('');
+    `
+      )
+      .join('');
   }
 
   // === Event Delegation for Task Actions ===
@@ -218,8 +223,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     typeCode.classList.toggle('active', task.type === 'code');
 
     // Set textarea font based on type
-    editContent.style.fontFamily = task.type === 'code'
-      ? "var(--font-mono)" : "var(--font)";
+    editContent.style.fontFamily = task.type === 'code' ? 'var(--font-mono)' : 'var(--font)';
 
     editModal.classList.remove('hidden');
     editName.focus();
@@ -234,8 +238,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     btn.addEventListener('click', () => {
       typePrompt.classList.toggle('active', btn === typePrompt);
       typeCode.classList.toggle('active', btn === typeCode);
-      editContent.style.fontFamily = btn === typeCode
-        ? "var(--font-mono)" : "var(--font)";
+      editContent.style.fontFamily = btn === typeCode ? 'var(--font-mono)' : 'var(--font)';
     });
   });
 
@@ -372,7 +375,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       e.preventDefault();
       const start = editContent.selectionStart;
       const end = editContent.selectionEnd;
-      editContent.value = editContent.value.substring(0, start) + '  ' + editContent.value.substring(end);
+      editContent.value =
+        editContent.value.substring(0, start) + '  ' + editContent.value.substring(end);
       editContent.selectionStart = editContent.selectionEnd = start + 2;
     }
   });

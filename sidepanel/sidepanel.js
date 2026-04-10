@@ -270,10 +270,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Setup autocomplete for code editor
   try {
-    new AutocompleteUI(
-      document.getElementById('code-input'),
-      autocompleteEngine
-    );
+    new AutocompleteUI(document.getElementById('code-input'), autocompleteEngine);
     uiLogger.info('Autocomplete enabled for code editor');
   } catch (e) {
     uiLogger.warn('Failed to initialize autocomplete', { error: e.message });
@@ -313,11 +310,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     },
     onSave: () => {
       const activeTab = tabManager.getCurrentTab();
-      const content = activeTab === 'prompt' ? promptEditor.getValue().trim() : codeEditor.getValue().trim();
+      const content =
+        activeTab === 'prompt' ? promptEditor.getValue().trim() : codeEditor.getValue().trim();
       if (content) {
         saveDialog.open(activeTab, content);
       } else {
-        agentUI.showNotification(activeTab === 'prompt' ? i18n('enterPromptFirst') : i18n('enterCodeFirst'), 'error');
+        agentUI.showNotification(
+          activeTab === 'prompt' ? i18n('enterPromptFirst') : i18n('enterCodeFirst'),
+          'error'
+        );
       }
     },
     onFocusPrompt: () => {
@@ -351,16 +352,22 @@ document.addEventListener('DOMContentLoaded', async () => {
       });
 
       if (!response.success && response.error) {
-        agentUI.addOutput('error', `
+        agentUI.addOutput(
+          'error',
+          `
           <div class="label">❌ ${i18n('error')}</div>
           <div>${escapeHtml(response.error)}</div>
-        `);
+        `
+        );
       }
     } catch (e) {
-      agentUI.addOutput('error', `
+      agentUI.addOutput(
+        'error',
+        `
         <div class="label">❌ ${i18n('error')}</div>
         <div>${escapeHtml(e.message)}</div>
-      `);
+      `
+      );
     } finally {
       agentUI.setRunningState(false, { run: btnRunPrompt, stop: btnStopPrompt });
     }
@@ -374,10 +381,13 @@ document.addEventListener('DOMContentLoaded', async () => {
       await chrome.runtime.sendMessage({ action: 'stop_agent' });
       agentUI.setRunningState(false, { run: btnRunPrompt, stop: btnStopPrompt });
       agentUI.setRunningState(false, { run: btnRunCode, stop: btnStopCode });
-      agentUI.addOutput('error', `
+      agentUI.addOutput(
+        'error',
+        `
         <div class="label">⏹️ ${i18n('stopped')}</div>
         <div>${i18n('agentStopped')}</div>
-      `);
+      `
+      );
     } catch (e) {
       console.error('Failed to stop agent:', e);
     }
@@ -400,16 +410,22 @@ document.addEventListener('DOMContentLoaded', async () => {
       });
 
       if (!response.success && response.error) {
-        agentUI.addOutput('error', `
+        agentUI.addOutput(
+          'error',
+          `
           <div class="label">❌ ${i18n('error')}</div>
           <div>${escapeHtml(response.error)}</div>
-        `);
+        `
+        );
       }
     } catch (e) {
-      agentUI.addOutput('error', `
+      agentUI.addOutput(
+        'error',
+        `
         <div class="label">❌ ${i18n('error')}</div>
         <div>${escapeHtml(e.message)}</div>
-      `);
+      `
+      );
     } finally {
       agentUI.setRunningState(false, { run: btnRunCode, stop: btnStopCode });
     }
@@ -514,17 +530,19 @@ document.addEventListener('DOMContentLoaded', async () => {
     const categoriesMeta = getCategoriesWithLabels();
     const categories = snippetLibrary.getCategories();
 
-    categoriesEl.innerHTML = categories.map(cat => {
-      const meta = categoriesMeta[cat] || { label: cat, icon: '📁' };
-      const count = snippetLibrary.getByCategory(cat).length;
-      return `
+    categoriesEl.innerHTML = categories
+      .map(cat => {
+        const meta = categoriesMeta[cat] || { label: cat, icon: '📁' };
+        const count = snippetLibrary.getByCategory(cat).length;
+        return `
         <button class="snippet-category-btn" data-category="${cat}">
           <span class="category-icon">${meta.icon}</span>
           <span class="category-label">${meta.label}</span>
           <span class="category-count">${count}</span>
         </button>
       `;
-    }).join('');
+      })
+      .join('');
 
     // Add click handlers
     categoriesEl.querySelectorAll('.snippet-category-btn').forEach(btn => {
@@ -552,7 +570,9 @@ document.addEventListener('DOMContentLoaded', async () => {
       return;
     }
 
-    listEl.innerHTML = snippets.map((snippet, _index) => `
+    listEl.innerHTML = snippets
+      .map(
+        (snippet, _index) => `
       <div class="snippet-item"
            data-id="${snippet.id}"
            tabindex="-1"
@@ -569,7 +589,9 @@ document.addEventListener('DOMContentLoaded', async () => {
           </svg>
         </button>
       </div>
-    `).join('');
+    `
+      )
+      .join('');
 
     // Add insert handlers
     listEl.querySelectorAll('.snippet-item').forEach(item => {
@@ -636,9 +658,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     const after = textarea.value.substring(end);
 
     // Insert with newline padding
-    const insert = (start > 0 && before[start - 1] !== '\n' ? '\n' : '') +
-                   code +
-                   (after[0] !== '\n' && after.length > 0 ? '\n' : '');
+    const insert =
+      (start > 0 && before[start - 1] !== '\n' ? '\n' : '') +
+      code +
+      (after[0] !== '\n' && after.length > 0 ? '\n' : '');
 
     textarea.value = before + insert + after;
     textarea.selectionStart = textarea.selectionEnd = start + insert.length;
@@ -731,17 +754,19 @@ document.addEventListener('DOMContentLoaded', async () => {
     const categoriesMeta = getTemplateCategoriesWithMeta();
     const categories = templateLibrary.getCategories();
 
-    categoriesEl.innerHTML = categories.map(cat => {
-      const meta = categoriesMeta[cat] || { label: cat, icon: '📁' };
-      const count = templateLibrary.getByCategory(cat).length;
-      return `
+    categoriesEl.innerHTML = categories
+      .map(cat => {
+        const meta = categoriesMeta[cat] || { label: cat, icon: '📁' };
+        const count = templateLibrary.getByCategory(cat).length;
+        return `
         <button class="template-category-btn" data-category="${cat}">
           <span class="category-icon">${meta.icon}</span>
           <span class="category-label">${meta.label}</span>
           <span class="category-count">${count}</span>
         </button>
       `;
-    }).join('');
+      })
+      .join('');
 
     categoriesEl.querySelectorAll('.template-category-btn').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -767,7 +792,9 @@ document.addEventListener('DOMContentLoaded', async () => {
       return;
     }
 
-    listEl.innerHTML = templates.map((template, _index) => `
+    listEl.innerHTML = templates
+      .map(
+        (template, _index) => `
       <div class="template-item"
            data-id="${template.id}"
            tabindex="-1"
@@ -784,7 +811,9 @@ document.addEventListener('DOMContentLoaded', async () => {
           </svg>
         </button>
       </div>
-    `).join('');
+    `
+      )
+      .join('');
 
     listEl.querySelectorAll('.template-item').forEach(item => {
       const useBtn = item.querySelector('.template-use-btn');

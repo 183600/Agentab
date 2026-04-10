@@ -38,7 +38,7 @@
 }
 
 /* Dark Theme */
-[data-theme="dark"] {
+[data-theme='dark'] {
   --bg-primary: #0f172a;
   --bg-secondary: #1e293b;
   --bg-tertiary: #334155;
@@ -75,7 +75,8 @@
   box-sizing: border-box;
 }
 
-html, body {
+html,
+body {
   height: 100%;
 }
 
@@ -87,7 +88,9 @@ body {
   font-size: 13px;
   color: var(--text-primary);
   background: var(--bg-primary);
-  transition: background-color var(--transition-slow), color var(--transition-slow);
+  transition:
+    background-color var(--transition-slow),
+    color var(--transition-slow);
 }
 
 .app {
@@ -199,7 +202,7 @@ body {
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
   transition: left 0.5s ease;
 }
 
@@ -500,7 +503,9 @@ textarea::placeholder {
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* Gradient Spinner */
@@ -564,9 +569,9 @@ textarea::placeholder {
   color: var(--text-secondary);
 }
 
-.form-group input[type="text"],
-.form-group input[type="password"],
-.form-group input[type="url"] {
+.form-group input[type='text'],
+.form-group input[type='password'],
+.form-group input[type='url'] {
   width: 100%;
   padding: 9px 12px;
   border: 1px solid var(--border);
@@ -606,8 +611,12 @@ textarea::placeholder {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .dialog-overlay.hidden {
@@ -674,13 +683,13 @@ textarea::placeholder {
 }
 
 .task-type-badge.prompt,
-.task-type-badge[data-type="prompt"] {
+.task-type-badge[data-type='prompt'] {
   background: var(--accent-light);
   color: var(--accent);
 }
 
 .task-type-badge.code,
-.task-type-badge[data-type="code"] {
+.task-type-badge[data-type='code'] {
   background: var(--success-bg);
   color: var(--success);
 }
@@ -728,8 +737,13 @@ textarea::placeholder {
 }
 
 @keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.4; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
 }
 
 /* Utility */
@@ -745,8 +759,12 @@ textarea::placeholder {
   font-size: 11px;
 }
 
-.mt-8 { margin-top: 8px; }
-.mb-8 { margin-bottom: 8px; }
+.mt-8 {
+  margin-top: 8px;
+}
+.mb-8 {
+  margin-bottom: 8px;
+}
 
 /* Logo Icon */
 .logo-icon {
@@ -826,7 +844,7 @@ kbd {
   font-size: 11px;
   font-weight: 500;
   color: var(--text-primary);
-  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 /* Status Bar */
@@ -858,8 +876,15 @@ kbd {
 }
 
 @keyframes pulse {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.5; transform: scale(1.2); }
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(1.2);
+  }
 }
 
 /* Snippets Panel */
@@ -1277,8 +1302,12 @@ kbd {
 }
 
 @keyframes rotate {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .progress-label {

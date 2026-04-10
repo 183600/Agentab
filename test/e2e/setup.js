@@ -31,7 +31,7 @@ export async function setupBrowser() {
   // Get extension ID
   const targets = await browser.targets();
   const extensionTarget = targets.find(target => target.type() === 'service_worker');
-  
+
   if (extensionTarget) {
     const extensionUrl = extensionTarget.url();
     const matches = extensionUrl.match(/chrome-extension:\/\/([^/]+)/);
@@ -41,7 +41,7 @@ export async function setupBrowser() {
   }
 
   page = await browser.newPage();
-  
+
   return { browser, page, extensionId };
 }
 
@@ -50,7 +50,7 @@ export async function setupBrowser() {
  */
 export async function getExtensionPage(pageName = 'popup') {
   const pages = await browser.pages();
-  
+
   // Find extension page
   for (const p of pages) {
     const url = p.url();
@@ -63,7 +63,7 @@ export async function getExtensionPage(pageName = 'popup') {
       }
     }
   }
-  
+
   return null;
 }
 
@@ -72,16 +72,17 @@ export async function getExtensionPage(pageName = 'popup') {
  */
 export async function openPopup() {
   const targets = await browser.targets();
-  const extensionTarget = targets.find(target => 
-    target.type() === 'page' && 
-    target.url().includes('chrome-extension://') &&
-    target.url().includes('popup.html')
+  const extensionTarget = targets.find(
+    target =>
+      target.type() === 'page' &&
+      target.url().includes('chrome-extension://') &&
+      target.url().includes('popup.html')
   );
-  
+
   if (extensionTarget) {
     return await extensionTarget.page();
   }
-  
+
   return null;
 }
 
@@ -97,15 +98,19 @@ export async function navigateToTestPage(url = 'https://example.com') {
  * Execute content script helper
  */
 export async function executeHelper(helperName, ...args) {
-  return await page.evaluate(async (name, arguments_) => {
-    if (typeof window.__chromeAgent !== 'undefined') {
-      const helper = window.__chromeAgent[name];
-      if (typeof helper === 'function') {
-        return await helper(...arguments_);
+  return await page.evaluate(
+    async (name, arguments_) => {
+      if (typeof window.__chromeAgent !== 'undefined') {
+        const helper = window.__chromeAgent[name];
+        if (typeof helper === 'function') {
+          return await helper(...arguments_);
+        }
       }
-    }
-    return null;
-  }, helperName, args);
+      return null;
+    },
+    helperName,
+    args
+  );
 }
 
 /**

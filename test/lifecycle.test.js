@@ -1,6 +1,17 @@
 // test/lifecycle.test.js - Tests for Service Worker Lifecycle Manager
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+
+// Mock logger before importing any modules that use it
+vi.mock('../lib/logger.js', () => ({
+  logger: {
+    debug: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn()
+  }
+}));
+
 import { ServiceWorkerLifecycle, LifecycleState, getLifecycle } from '../lib/lifecycle.js';
 
 // Mock chrome APIs
@@ -66,10 +77,7 @@ describe('ServiceWorkerLifecycle', () => {
 
     it('should set up alarms', async () => {
       await lifecycle.init();
-      expect(mockAlarms.create).toHaveBeenCalledWith(
-        'lifecycle-keepalive',
-        expect.any(Object)
-      );
+      expect(mockAlarms.create).toHaveBeenCalledWith('lifecycle-keepalive', expect.any(Object));
     });
   });
 

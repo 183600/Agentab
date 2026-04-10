@@ -1,175 +1,190 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title data-i18n="tasksPageTitle">Agentab - 已保存任务</title>
-  <link rel="stylesheet" href="tasks.css">
-</head>
-<body>
-  <div class="container">
-    <!-- Header -->
-    <header class="page-header">
-      <div class="header-content">
-        <div class="header-left">
-          <div>
-            <h1 data-i18n="tasksTitle">已保存任务</h1>
-            <p class="subtitle" data-i18n="tasksSubtitle">管理你的自动化任务</p>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title data-i18n="tasksPageTitle">Agentab - 已保存任务</title>
+    <link rel="stylesheet" href="tasks.css" />
+  </head>
+  <body>
+    <div class="container">
+      <!-- Header -->
+      <header class="page-header">
+        <div class="header-content">
+          <div class="header-left">
+            <div>
+              <h1 data-i18n="tasksTitle">已保存任务</h1>
+              <p class="subtitle" data-i18n="tasksSubtitle">管理你的自动化任务</p>
+            </div>
+          </div>
+          <div class="header-actions">
+            <div class="search-box">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8" />
+                <path d="M21 21l-4.35-4.35" />
+              </svg>
+              <input type="text" id="search-input" data-i18n-placeholder="searchPlaceholder" />
+            </div>
+            <div class="filter-group">
+              <button class="filter-btn active" data-filter="all" data-i18n="filterAll">全部</button>
+              <button class="filter-btn" data-filter="prompt">
+                <span class="dot prompt"></span> <span data-i18n="typePrompt">提示词</span>
+              </button>
+              <button class="filter-btn" data-filter="code">
+                <span class="dot code"></span> <span data-i18n="typeCode">代码</span>
+              </button>
+            </div>
+            <div class="action-buttons">
+              <button class="btn btn-secondary" id="btn-import-tasks" title="导入任务">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
+                  <polyline points="17 8 12 3 7 8" />
+                  <line x1="12" y1="3" x2="12" y2="15" />
+                </svg>
+                <span data-i18n="btnImport">导入</span>
+              </button>
+              <button class="btn btn-secondary" id="btn-export-tasks" title="导出任务">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
+                  <polyline points="7 10 12 15 17 10" />
+                  <line x1="12" y1="15" x2="12" y2="3" />
+                </svg>
+                <span data-i18n="btnExport">导出</span>
+              </button>
+            </div>
           </div>
         </div>
-        <div class="header-actions">
-          <div class="search-box">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+      </header>
+
+      <!-- Stats Bar -->
+      <div class="stats-bar">
+        <div class="stat">
+          <span class="stat-value" id="total-tasks">0</span>
+          <span class="stat-label" data-i18n="totalTasks">总任务数</span>
+        </div>
+        <div class="stat">
+          <span class="stat-value" id="prompt-tasks">0</span>
+          <span class="stat-label" data-i18n="promptTasks">提示词</span>
+        </div>
+        <div class="stat">
+          <span class="stat-value" id="code-tasks">0</span>
+          <span class="stat-label" data-i18n="codeTasks">代码</span>
+        </div>
+        <div class="stat">
+          <span class="stat-value" id="total-executions">0</span>
+          <span class="stat-label" data-i18n="totalExecutions">执行次数</span>
+        </div>
+      </div>
+
+      <!-- Tasks Grid -->
+      <div id="tasks-grid" class="tasks-grid">
+        <!-- Tasks will be rendered here -->
+      </div>
+
+      <!-- Empty State -->
+      <div id="empty-state" class="empty-state hidden">
+        <div class="empty-icon">📋</div>
+        <h3 data-i18n="noTasks">暂无任务</h3>
+        <p data-i18n="noTasksHint">从扩展弹窗保存任务后，会在这里显示。</p>
+      </div>
+
+      <!-- No Results -->
+      <div id="no-results" class="empty-state hidden">
+        <div class="empty-icon">🔍</div>
+        <h3 data-i18n="noResults">未找到结果</h3>
+        <p data-i18n="noResultsHint">请尝试其他搜索词或筛选条件。</p>
+      </div>
+    </div>
+
+    <!-- Edit Task Modal -->
+    <div
+      id="edit-modal"
+      class="modal-overlay hidden"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="edit-modal-title"
+    >
+      <div class="modal">
+        <div class="modal-header">
+          <h2 id="edit-modal-title" data-i18n="editTask">编辑任务</h2>
+          <button class="close-btn" id="btn-close-modal" aria-label="Close dialog">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
             </svg>
-            <input type="text" id="search-input" data-i18n-placeholder="searchPlaceholder">
-          </div>
-          <div class="filter-group">
-            <button class="filter-btn active" data-filter="all" data-i18n="filterAll">全部</button>
-            <button class="filter-btn" data-filter="prompt">
-              <span class="dot prompt"></span> <span data-i18n="typePrompt">提示词</span>
-            </button>
-            <button class="filter-btn" data-filter="code">
-              <span class="dot code"></span> <span data-i18n="typeCode">代码</span>
-            </button>
-          </div>
-          <div class="action-buttons">
-            <button class="btn btn-secondary" id="btn-import-tasks" title="导入任务">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
-                <polyline points="17 8 12 3 7 8"/>
-                <line x1="12" y1="3" x2="12" y2="15"/>
-              </svg>
-              <span data-i18n="btnImport">导入</span>
-            </button>
-            <button class="btn btn-secondary" id="btn-export-tasks" title="导出任务">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
-                <polyline points="7 10 12 15 17 10"/>
-                <line x1="12" y1="15" x2="12" y2="3"/>
-              </svg>
-              <span data-i18n="btnExport">导出</span>
-            </button>
-          </div>
+          </button>
         </div>
-      </div>
-    </header>
-
-    <!-- Stats Bar -->
-    <div class="stats-bar">
-      <div class="stat">
-        <span class="stat-value" id="total-tasks">0</span>
-        <span class="stat-label" data-i18n="totalTasks">总任务数</span>
-      </div>
-      <div class="stat">
-        <span class="stat-value" id="prompt-tasks">0</span>
-        <span class="stat-label" data-i18n="promptTasks">提示词</span>
-      </div>
-      <div class="stat">
-        <span class="stat-value" id="code-tasks">0</span>
-        <span class="stat-label" data-i18n="codeTasks">代码</span>
-      </div>
-      <div class="stat">
-        <span class="stat-value" id="total-executions">0</span>
-        <span class="stat-label" data-i18n="totalExecutions">执行次数</span>
-      </div>
-    </div>
-
-    <!-- Tasks Grid -->
-    <div id="tasks-grid" class="tasks-grid">
-      <!-- Tasks will be rendered here -->
-    </div>
-
-    <!-- Empty State -->
-    <div id="empty-state" class="empty-state hidden">
-      <div class="empty-icon">📋</div>
-      <h3 data-i18n="noTasks">暂无任务</h3>
-      <p data-i18n="noTasksHint">从扩展弹窗保存任务后，会在这里显示。</p>
-    </div>
-
-    <!-- No Results -->
-    <div id="no-results" class="empty-state hidden">
-      <div class="empty-icon">🔍</div>
-      <h3 data-i18n="noResults">未找到结果</h3>
-      <p data-i18n="noResultsHint">请尝试其他搜索词或筛选条件。</p>
-    </div>
-  </div>
-
-  <!-- Edit Task Modal -->
-  <div id="edit-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="edit-modal-title">
-    <div class="modal">
-      <div class="modal-header">
-        <h2 id="edit-modal-title" data-i18n="editTask">编辑任务</h2>
-        <button class="close-btn" id="btn-close-modal" aria-label="Close dialog">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-          </svg>
-        </button>
-      </div>
-      <div class="modal-body">
-        <input type="hidden" id="edit-task-id">
-        <div class="form-group">
-          <label for="edit-name" data-i18n="taskName">任务名称</label>
-          <input type="text" id="edit-name" data-i18n-placeholder="taskNamePlaceholder">
-        </div>
-        <div class="form-group">
-          <label for="edit-description" data-i18n="description">描述</label>
-          <input type="text" id="edit-description" data-i18n-placeholder="taskDescPlaceholder">
-        </div>
-        <div class="form-group">
-          <label data-i18n="typeLabel">类型</label>
-          <div class="type-selector">
-            <button class="type-option active" data-type="prompt" id="type-prompt">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
-              </svg>
-              <span data-i18n="typePrompt">提示词</span>
-            </button>
-            <button class="type-option" data-type="code" id="type-code">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>
-              </svg>
-              <span data-i18n="typeCode">代码</span>
-            </button>
+        <div class="modal-body">
+          <input type="hidden" id="edit-task-id" />
+          <div class="form-group">
+            <label for="edit-name" data-i18n="taskName">任务名称</label>
+            <input type="text" id="edit-name" data-i18n-placeholder="taskNamePlaceholder" />
+          </div>
+          <div class="form-group">
+            <label for="edit-description" data-i18n="description">描述</label>
+            <input type="text" id="edit-description" data-i18n-placeholder="taskDescPlaceholder" />
+          </div>
+          <div class="form-group">
+            <label data-i18n="typeLabel">类型</label>
+            <div class="type-selector">
+              <button class="type-option active" data-type="prompt" id="type-prompt">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
+                </svg>
+                <span data-i18n="typePrompt">提示词</span>
+              </button>
+              <button class="type-option" data-type="code" id="type-code">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="16 18 22 12 16 6" />
+                  <polyline points="8 6 2 12 8 18" />
+                </svg>
+                <span data-i18n="typeCode">代码</span>
+              </button>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="edit-content" data-i18n="content">内容</label>
+            <textarea id="edit-content" rows="10" data-i18n-placeholder="contentPlaceholder"></textarea>
           </div>
         </div>
-        <div class="form-group">
-          <label for="edit-content" data-i18n="content">内容</label>
-          <textarea id="edit-content" rows="10" data-i18n-placeholder="contentPlaceholder"></textarea>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" id="btn-cancel-edit" data-i18n="btnCancel">取消</button>
+          <button class="btn btn-primary" id="btn-save-edit" data-i18n="btnSaveChanges">保存更改</button>
         </div>
       </div>
-      <div class="modal-footer">
-        <button class="btn btn-secondary" id="btn-cancel-edit" data-i18n="btnCancel">取消</button>
-        <button class="btn btn-primary" id="btn-save-edit" data-i18n="btnSaveChanges">保存更改</button>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div
+      id="delete-modal"
+      class="modal-overlay hidden"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="delete-modal-title"
+    >
+      <div class="modal small">
+        <div class="modal-header">
+          <h2 id="delete-modal-title" data-i18n="deleteTask">删除任务</h2>
+        </div>
+        <div class="modal-body">
+          <p id="delete-confirm-text"></p>
+          <p class="text-muted" data-i18n="cannotUndo">此操作无法撤销。</p>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" id="btn-cancel-delete" data-i18n="btnCancel">取消</button>
+          <button class="btn btn-danger" id="btn-confirm-delete" data-i18n="btnDelete">删除</button>
+        </div>
       </div>
     </div>
-  </div>
 
-  <!-- Delete Confirmation Modal -->
-  <div id="delete-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="delete-modal-title">
-    <div class="modal small">
-      <div class="modal-header">
-        <h2 id="delete-modal-title" data-i18n="deleteTask">删除任务</h2>
-      </div>
-      <div class="modal-body">
-        <p id="delete-confirm-text"></p>
-        <p class="text-muted" data-i18n="cannotUndo">此操作无法撤销。</p>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-secondary" id="btn-cancel-delete" data-i18n="btnCancel">取消</button>
-        <button class="btn btn-danger" id="btn-confirm-delete" data-i18n="btnDelete">删除</button>
-      </div>
-    </div>
-  </div>
+    <!-- Toast Container -->
+    <div id="toast-container" class="toast-container"></div>
 
-  <!-- Toast Container -->
-  <div id="toast-container" class="toast-container"></div>
+    <!-- Hidden file input for import -->
+    <input type="file" id="import-file-input" accept=".json" style="display: none" />
 
-  <!-- Hidden file input for import -->
-  <input type="file" id="import-file-input" accept=".json" style="display: none;">
-
-  <script src="../lib/i18n.js"></script>
-  <script src="../lib/utils.js"></script>
-  <script src="tasks.js"></script>
-</body>
+    <script src="../lib/i18n.js"></script>
+    <script src="../lib/utils.js"></script>
+    <script src="tasks.js"></script>
+  </body>
 </html>

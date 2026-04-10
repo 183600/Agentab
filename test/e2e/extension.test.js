@@ -37,9 +37,12 @@ describe('Extension Loading', () => {
     await page.goto('https://example.com', { waitUntil: 'networkidle2' });
 
     // Wait for content script to be injected
-    await page.waitForFunction(() => {
-      return typeof window.__chromeAgent !== 'undefined';
-    }, { timeout: 10000 });
+    await page.waitForFunction(
+      () => {
+        return typeof window.__chromeAgent !== 'undefined';
+      },
+      { timeout: 10000 }
+    );
 
     const hasAgent = await page.evaluate(() => {
       return typeof window.__chromeAgent !== 'undefined';
@@ -58,9 +61,12 @@ describe('Content Script Helpers', () => {
     await page.goto('https://example.com', { waitUntil: 'networkidle2' });
 
     // Wait for content script
-    await page.waitForFunction(() => {
-      return typeof window.__chromeAgent !== 'undefined';
-    }, { timeout: 10000 });
+    await page.waitForFunction(
+      () => {
+        return typeof window.__chromeAgent !== 'undefined';
+      },
+      { timeout: 10000 }
+    );
   }, 30000);
 
   afterAll(async () => {
@@ -137,9 +143,12 @@ describe('DOM Manipulation', () => {
     `);
 
     // Wait for content script
-    await page.waitForFunction(() => {
-      return typeof window.__chromeAgent !== 'undefined';
-    }, { timeout: 10000 });
+    await page.waitForFunction(
+      () => {
+        return typeof window.__chromeAgent !== 'undefined';
+      },
+      { timeout: 10000 }
+    );
   }, 30000);
 
   afterAll(async () => {
@@ -226,9 +235,12 @@ describe('Form Interaction Flow', () => {
       </html>
     `);
 
-    await page.waitForFunction(() => {
-      return typeof window.__chromeAgent !== 'undefined';
-    }, { timeout: 10000 });
+    await page.waitForFunction(
+      () => {
+        return typeof window.__chromeAgent !== 'undefined';
+      },
+      { timeout: 10000 }
+    );
   }, 30000);
 
   afterAll(async () => {
@@ -279,9 +291,12 @@ describe('Form Interaction Flow', () => {
     });
 
     // Wait for result
-    await page.waitForFunction(() => {
-      return document.getElementById('result').textContent === 'Form submitted!';
-    }, { timeout: 5000 });
+    await page.waitForFunction(
+      () => {
+        return document.getElementById('result').textContent === 'Form submitted!';
+      },
+      { timeout: 5000 }
+    );
 
     const result = await page.$eval('#result', el => el.textContent);
     expect(result).toBe('Form submitted!');
@@ -307,9 +322,12 @@ describe('Dynamic Content Handling', () => {
       </html>
     `);
 
-    await page.waitForFunction(() => {
-      return typeof window.__chromeAgent !== 'undefined';
-    }, { timeout: 10000 });
+    await page.waitForFunction(
+      () => {
+        return typeof window.__chromeAgent !== 'undefined';
+      },
+      { timeout: 10000 }
+    );
   }, 30000);
 
   afterAll(async () => {
@@ -391,9 +409,12 @@ describe('Data Extraction', () => {
       </html>
     `);
 
-    await page.waitForFunction(() => {
-      return typeof window.__chromeAgent !== 'undefined';
-    }, { timeout: 10000 });
+    await page.waitForFunction(
+      () => {
+        return typeof window.__chromeAgent !== 'undefined';
+      },
+      { timeout: 10000 }
+    );
   }, 30000);
 
   afterAll(async () => {
@@ -412,8 +433,7 @@ describe('Data Extraction', () => {
 
   it('should extract list items', async () => {
     const items = await page.evaluate(() => {
-      return Array.from(document.querySelectorAll('#list li'))
-        .map(li => li.textContent);
+      return Array.from(document.querySelectorAll('#list li')).map(li => li.textContent);
     });
 
     expect(items).toHaveLength(3);
@@ -448,9 +468,12 @@ describe('Error Handling', () => {
       </html>
     `);
 
-    await page.waitForFunction(() => {
-      return typeof window.__chromeAgent !== 'undefined';
-    }, { timeout: 10000 });
+    await page.waitForFunction(
+      () => {
+        return typeof window.__chromeAgent !== 'undefined';
+      },
+      { timeout: 10000 }
+    );
   }, 30000);
 
   afterAll(async () => {

@@ -43,6 +43,7 @@ Agentab 采用模块化设计，分为以下几个主要层次：
 ### Background Layer
 
 **background.js** - Service Worker
+
 - 消息路由和处理
 - 任务调度
 - 扩展生命周期管理
@@ -51,18 +52,21 @@ Agentab 采用模块化设计，分为以下几个主要层次：
 ### Core Layer
 
 **agent.js** - AgentExecutor
+
 - AI 智能体循环
 - 代码执行沙箱
 - 响应解析
 - 速率限制
 
 **api-client.js** - LlmApiClient
+
 - LLM API 通信
 - 重试和超时处理
 - 错误恢复
 - 模型列表
 
 **page-analyzer.js** - PageAnalyzer
+
 - 页面结构分析
 - 表单、按钮、链接识别
 - 缓存管理
@@ -70,42 +74,50 @@ Agentab 采用模块化设计，分为以下几个主要层次：
 ### Infrastructure Layer
 
 **storage.js** - StorageManager
+
 - 任务存储
 - 历史记录
 - 设置管理
 - API 密钥加密存储
 
 **crypto.js** - CryptoManager
+
 - AES-GCM 加密
 - PBKDF2 密钥派生
 - 安全密钥生成
 
 **validator.js** - InputValidator
+
 - 输入验证和清理
 - XSS 防护
 - SQL 注入防护
 
 **errors.js** - ErrorHandler
+
 - 统一错误处理
 - 错误标准化
 - 错误恢复建议
 
 **logger.js** - Logger
+
 - 分级日志
 - 性能追踪
 - 子日志器
 
 **performance.js** - PerformanceMetrics
+
 - 指标收集
 - 统计计算
 - 性能报告
 
 **sandbox.js** - SandboxExecutor
+
 - 代码安全执行
 - 危险模式检测
 - 执行超时
 
 **smart-cache.js** - SmartCache
+
 - LRU 缓存
 - TTL 支持
 - 请求去重
@@ -228,7 +240,7 @@ Page Context
 ### 自定义验证器
 
 ```javascript
-InputValidator.registerValidator('custom', (value) => {
+InputValidator.registerValidator('custom', value => {
   // 自定义验证逻辑
   return { valid: true, value: processedValue };
 });

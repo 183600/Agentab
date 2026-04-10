@@ -364,7 +364,9 @@ textarea::placeholder {
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* Settings Panel */
@@ -417,9 +419,9 @@ textarea::placeholder {
   color: var(--text-secondary);
 }
 
-.form-group input[type="text"],
-.form-group input[type="password"],
-.form-group input[type="url"] {
+.form-group input[type='text'],
+.form-group input[type='password'],
+.form-group input[type='url'] {
   width: 100%;
   padding: 9px 12px;
   border: 1px solid var(--border);
@@ -507,13 +509,13 @@ textarea::placeholder {
 }
 
 .task-type-badge.prompt,
-.task-type-badge[data-type="prompt"] {
+.task-type-badge[data-type='prompt'] {
   background: var(--accent-light);
   color: var(--accent);
 }
 
 .task-type-badge.code,
-.task-type-badge[data-type="code"] {
+.task-type-badge[data-type='code'] {
   background: var(--success-bg);
   color: var(--success);
 }
@@ -561,8 +563,13 @@ textarea::placeholder {
 }
 
 @keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.4; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
 }
 
 /* Utility */
@@ -578,5 +585,9 @@ textarea::placeholder {
   font-size: 11px;
 }
 
-.mt-8 { margin-top: 8px; }
-.mb-8 { margin-bottom: 8px; }
+.mt-8 {
+  margin-top: 8px;
+}
+.mb-8 {
+  margin-bottom: 8px;
+}

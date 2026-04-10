@@ -87,9 +87,9 @@ describe('TaskScheduler', () => {
     });
 
     it('should throw for non-existent schedule', async () => {
-      await expect(
-        scheduler.updateSchedule('non-existent', { name: 'Test' })
-      ).rejects.toThrow('Schedule not found');
+      await expect(scheduler.updateSchedule('non-existent', { name: 'Test' })).rejects.toThrow(
+        'Schedule not found'
+      );
     });
   });
 

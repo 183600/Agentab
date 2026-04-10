@@ -78,7 +78,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     try {
       const parsed = new URL(url);
       if (!['http:', 'https:'].includes(parsed.protocol)) {
-        return { valid: false, message: i18n('invalidUrlProtocol') || 'URL 必须使用 http 或 https 协议' };
+        return {
+          valid: false,
+          message: i18n('invalidUrlProtocol') || 'URL 必须使用 http 或 https 协议'
+        };
       }
       return { valid: true, message: '' };
     } catch {
@@ -159,7 +162,12 @@ document.addEventListener('DOMContentLoaded', async () => {
       updatePresetFromModel(response.settings.model);
 
       // Load advanced settings from storage
-      const advancedSettings = await chrome.storage.local.get(['maxIterations', 'apiTimeout', 'enableCache', 'enableRecovery']);
+      const advancedSettings = await chrome.storage.local.get([
+        'maxIterations',
+        'apiTimeout',
+        'enableCache',
+        'enableRecovery'
+      ]);
       maxIterationsInput.value = advancedSettings.maxIterations || 10;
       timeoutInput.value = advancedSettings.apiTimeout || 60;
       enableCacheCheckbox.checked = advancedSettings.enableCache !== false;

@@ -29,7 +29,8 @@ const sampleTasks = [
     name: 'Fill Form',
     description: 'Auto-fill login form',
     type: 'code',
-    content: "document.querySelector('#username').value = 'test';\ndocument.querySelector('#password').value = 'pass';",
+    content:
+      "document.querySelector('#username').value = 'test';\ndocument.querySelector('#password').value = 'pass';",
     createdAt: '2024-01-02T00:00:00.000Z',
     updatedAt: '2024-01-02T00:00:00.000Z',
     runCount: 3
@@ -79,20 +80,24 @@ describe('TaskExporter', () => {
     });
 
     it('should escape commas in content', () => {
-      const tasks = [{
-        ...sampleTasks[0],
-        content: 'Find, all, emails'
-      }];
+      const tasks = [
+        {
+          ...sampleTasks[0],
+          content: 'Find, all, emails'
+        }
+      ];
       const csv = TaskExporter.toCSV(tasks);
 
       expect(csv).toContain('"Find, all, emails"');
     });
 
     it('should escape quotes in content', () => {
-      const tasks = [{
-        ...sampleTasks[0],
-        content: 'Find "important" emails'
-      }];
+      const tasks = [
+        {
+          ...sampleTasks[0],
+          content: 'Find "important" emails'
+        }
+      ];
       const csv = TaskExporter.toCSV(tasks);
 
       expect(csv).toContain('"Find ""important"" emails"');

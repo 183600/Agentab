@@ -15,7 +15,11 @@ const syntaxWorkerFunctions = {
         { regex: /(\/\/.*$)/gm, class: 'comment' },
         { regex: /(\/\*[\s\S]*?\*\/)/g, class: 'comment' },
         { regex: /("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*'|`(?:[^`\\]|\\.)*`)/g, class: 'string' },
-        { regex: /\b(const|let|var|function|return|if|else|for|while|class|import|export|async|await|try|catch)\b/g, class: 'keyword' },
+        {
+          regex:
+            /\b(const|let|var|function|return|if|else|for|while|class|import|export|async|await|try|catch)\b/g,
+          class: 'keyword'
+        },
         { regex: /\b(true|false|null|undefined)\b/g, class: 'literal' },
         { regex: /\b(\d+\.?\d*)\b/g, class: 'number' }
       ],
@@ -37,7 +41,8 @@ const syntaxWorkerFunctions = {
       ]
     };
 
-    const escapeHtml = str => str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    const escapeHtml = str =>
+      str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     let escaped = escapeHtml(code);
     const tokenPatterns = patterns[lang] || patterns.javascript;
 
@@ -60,7 +65,8 @@ const syntaxWorkerFunctions = {
     };
 
     if (lang === 'javascript') {
-      const funcMatches = code.match(/(?:function\s+(\w+)|(?:const|let|var)\s+(\w+)\s*=\s*(?:async\s*)?\()/g) || [];
+      const funcMatches =
+        code.match(/(?:function\s+(\w+)|(?:const|let|var)\s+(\w+)\s*=\s*(?:async\s*)?\()/g) || [];
       analysis.functions = funcMatches.map(m => m.replace(/.*?(\w+).*/, '$1'));
 
       const classMatches = code.match(/class\s+(\w+)/g) || [];
@@ -107,7 +113,8 @@ const analysisWorkerFunctions = {
       });
     }
 
-    const buttonRegex = /<button[^>]*>([\s\S]*?)<\/button>|<input[^>]*type=["'](?:submit|button)["'][^>]*>/gi;
+    const buttonRegex =
+      /<button[^>]*>([\s\S]*?)<\/button>|<input[^>]*type=["'](?:submit|button)["'][^>]*>/gi;
     while ((match = buttonRegex.exec(html)) !== null) {
       structure.buttons.push({
         html: match[0].substring(0, 100),
@@ -157,10 +164,14 @@ const analysisWorkerFunctions = {
     const titleMatch = html.match(/<title[^>]*>([\s\S]*?)<\/title>/i);
     if (titleMatch) metadata.title = titleMatch[1].trim();
 
-    const descMatch = html.match(/<meta[^>]*name=["']description["'][^>]*content=["']([^"']*)["']/i);
+    const descMatch = html.match(
+      /<meta[^>]*name=["']description["'][^>]*content=["']([^"']*)["']/i
+    );
     if (descMatch) metadata.description = descMatch[1];
 
-    const keywordsMatch = html.match(/<meta[^>]*name=["']keywords["'][^>]*content=["']([^"']*)["']/i);
+    const keywordsMatch = html.match(
+      /<meta[^>]*name=["']keywords["'][^>]*content=["']([^"']*)["']/i
+    );
     if (keywordsMatch) {
       metadata.keywords = keywordsMatch[1].split(',').map(k => k.trim());
     }
@@ -490,21 +501,25 @@ describe('Processing Worker Functions', () => {
 
     it('should replace text', () => {
       const text = 'Hello World';
-      const result = processingWorkerFunctions.processText(text, [{
-        type: 'replace',
-        pattern: 'World',
-        replacement: 'Universe'
-      }]);
+      const result = processingWorkerFunctions.processText(text, [
+        {
+          type: 'replace',
+          pattern: 'World',
+          replacement: 'Universe'
+        }
+      ]);
       expect(result).toBe('Hello Universe');
     });
 
     it('should extract with regex', () => {
       const text = 'Numbers: 123, 456, 789';
-      const result = processingWorkerFunctions.processText(text, [{
-        type: 'extract-regex',
-        pattern: '\\d+',
-        flags: 'g'
-      }]);
+      const result = processingWorkerFunctions.processText(text, [
+        {
+          type: 'extract-regex',
+          pattern: '\\d+',
+          flags: 'g'
+        }
+      ]);
       expect(result).toContain('123');
       expect(result).toContain('456');
       expect(result).toContain('789');

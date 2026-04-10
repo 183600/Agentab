@@ -14,7 +14,9 @@ import {
 
 describe('escapeHtml', () => {
   it('should escape HTML special characters', () => {
-    expect(escapeHtml('<script>alert("xss")</script>')).toBe('&lt;script&gt;alert("xss")&lt;/script&gt;');
+    expect(escapeHtml('<script>alert("xss")</script>')).toBe(
+      '&lt;script&gt;alert("xss")&lt;/script&gt;'
+    );
   });
 
   it('should escape ampersand', () => {

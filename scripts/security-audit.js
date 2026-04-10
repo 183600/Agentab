@@ -205,10 +205,7 @@ function generateReport() {
   console.log('='.repeat(60) + '\n');
 
   const totalIssues =
-    issues.critical.length +
-    issues.high.length +
-    issues.medium.length +
-    issues.low.length;
+    issues.critical.length + issues.high.length + issues.medium.length + issues.low.length;
 
   if (totalIssues === 0) {
     console.log(`${COLORS.green}✓ No security issues found${COLORS.reset}\n`);
@@ -225,7 +222,12 @@ function generateReport() {
 
   // Details
   const severityOrder = ['critical', 'high', 'medium', 'low'];
-  const colors = { critical: COLORS.red, high: COLORS.yellow, medium: COLORS.blue, low: COLORS.reset };
+  const colors = {
+    critical: COLORS.red,
+    high: COLORS.yellow,
+    medium: COLORS.blue,
+    low: COLORS.reset
+  };
 
   for (const severity of severityOrder) {
     if (issues[severity].length === 0) continue;

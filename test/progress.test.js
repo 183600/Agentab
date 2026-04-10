@@ -34,10 +34,7 @@ describe('ExecutionProgress', () => {
     });
 
     it('should accept custom steps', () => {
-      const steps = [
-        { type: 'analyze' },
-        { type: 'execute' }
-      ];
+      const steps = [{ type: 'analyze' }, { type: 'execute' }];
 
       progressTracker.start({ steps });
 

@@ -8,9 +8,7 @@
     "ecmaVersion": "latest",
     "sourceType": "module"
   },
-  "extends": [
-    "eslint:recommended"
-  ],
+  "extends": ["eslint:recommended"],
   "overrides": [
     {
       "files": ["scripts/**/*.js", "test/**/*.js"],
@@ -47,16 +45,15 @@
     "semi": ["warn", "always"],
     "semi-spacing": "warn",
     "space-before-blocks": "warn",
-    "space-before-function-paren": ["warn", { "anonymous": "never", "named": "never", "asyncArrow": "always" }],
+    "space-before-function-paren": [
+      "warn",
+      { "anonymous": "never", "named": "never", "asyncArrow": "always" }
+    ],
     "space-in-parens": "warn",
     "space-infix-ops": "warn",
     "spaced-comment": "warn"
   },
-  "ignorePatterns": [
-    "node_modules/",
-    "dist/",
-    "*.min.js"
-  ],
+  "ignorePatterns": ["node_modules/", "dist/", "*.min.js"],
   "globals": {
     "chrome": "readonly",
     "i18n": "readonly",

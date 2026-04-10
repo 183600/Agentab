@@ -33,24 +33,28 @@
 ## ✨ Features
 
 ### 🧠 AI Agent Mode
+
 - Describe tasks in **natural language** — Agentab figures out the rest
 - Multi-step reasoning loop: the agent thinks → executes → observes → repeats
 - Automatically analyzes page structure (forms, buttons, links, text)
 - Supports up to **10 iterations** per task
 
 ### ⚡ Direct Code Mode
+
 - Write and execute **JavaScript** directly on any page
 - Full DOM access with `async/await` support
 - Built-in helper utilities via `__chromeAgent`
 - Real-time execution results
 
 ### 💾 Task Management
+
 - Save tasks as **Prompt** type or **Code** type
 - Full task list with search and filter
 - Edit, duplicate, delete tasks
 - Track execution count and last run time
 
 ### 🔌 Flexible LLM Support
+
 - Works with **any OpenAI-compatible API**
 - OpenAI, Azure OpenAI, Ollama, LM Studio, DeepSeek, and more
 - Configurable base URL, API key, and model name
@@ -89,11 +93,11 @@ Icons will be automatically downloaded to your `icons/` folder.
 2. Click the ⚙️ Settings button
 3. Fill in your API details:
 
-| Field | Example |
-|-------|---------|
+| Field        | Example                     |
+| ------------ | --------------------------- |
 | API Base URL | `https://api.openai.com/v1` |
-| API Key | `sk-xxxxxxxxxxxxxxxx` |
-| Model | `gpt-4o` |
+| API Key      | `sk-xxxxxxxxxxxxxxxx`       |
+| Model        | `gpt-4o`                    |
 
 ---
 
@@ -106,20 +110,25 @@ Switch to the **Prompt** tab and describe what you want:
 ```
 Find all email addresses on this page and list them
 ```
+
 ```
 Fill the login form with username "demo" and password "demo123"
 ```
+
 ```
 Scroll to the bottom of the page and click the "Load More" button
 ```
+
 ```
 Extract the title, price, and rating of every product on this page
 ```
+
 ```
 Take all the links in the navigation menu and return them as a JSON array
 ```
 
 The agent will:
+
 1. 🔍 Analyze the current page structure
 2. 🧠 Generate JavaScript code to accomplish the task
 3. ⚡ Execute the code on the page
@@ -134,8 +143,10 @@ Switch to the **Code** tab and write JavaScript:
 
 ```javascript
 // Extract all image URLs from the page
-const images = Array.from(document.querySelectorAll('img'))
-  .map(img => ({ src: img.src, alt: img.alt }));
+const images = Array.from(document.querySelectorAll('img')).map(img => ({
+  src: img.src,
+  alt: img.alt
+}));
 return images;
 ```
 
@@ -193,9 +204,9 @@ const table = __chromeAgent.extractTable('#data-table');
 
 // Fill multiple form fields at once
 __chromeAgent.fillForm({
-  '#name':  'John Doe',
+  '#name': 'John Doe',
   '#email': 'john@example.com',
-  '#role':  'developer'
+  '#role': 'developer'
 });
 ```
 
@@ -233,24 +244,24 @@ agentab/
 
 ### Supported LLM Providers
 
-| Provider | Base URL | Notes |
-|----------|----------|-------|
-| OpenAI | `https://api.openai.com/v1` | Default |
-| Azure OpenAI | `https://{resource}.openai.azure.com/openai/deployments/{deployment}` | |
-| Ollama | `http://localhost:11434/v1` | Local, free |
-| LM Studio | `http://localhost:1234/v1` | Local, free |
-| DeepSeek | `https://api.deepseek.com/v1` | Affordable |
-| Groq | `https://api.groq.com/openai/v1` | Fast inference |
-| OpenRouter | `https://openrouter.ai/api/v1` | Multi-model |
+| Provider     | Base URL                                                              | Notes          |
+| ------------ | --------------------------------------------------------------------- | -------------- |
+| OpenAI       | `https://api.openai.com/v1`                                           | Default        |
+| Azure OpenAI | `https://{resource}.openai.azure.com/openai/deployments/{deployment}` |                |
+| Ollama       | `http://localhost:11434/v1`                                           | Local, free    |
+| LM Studio    | `http://localhost:1234/v1`                                            | Local, free    |
+| DeepSeek     | `https://api.deepseek.com/v1`                                         | Affordable     |
+| Groq         | `https://api.groq.com/openai/v1`                                      | Fast inference |
+| OpenRouter   | `https://openrouter.ai/api/v1`                                        | Multi-model    |
 
 ### Recommended Models
 
-| Use Case | Model |
-|----------|-------|
-| Best accuracy | `gpt-4o` |
-| Balanced | `gpt-4o-mini` |
-| Local / Free | `llama3.2` via Ollama |
-| Fast & cheap | `deepseek-chat` |
+| Use Case      | Model                 |
+| ------------- | --------------------- |
+| Best accuracy | `gpt-4o`              |
+| Balanced      | `gpt-4o-mini`         |
+| Local / Free  | `llama3.2` via Ollama |
+| Fast & cheap  | `deepseek-chat`       |
 
 ---
 
@@ -269,12 +280,12 @@ agentab/
 
 ## 🧩 Keyboard Shortcuts
 
-| Shortcut | Action |
-|----------|--------|
-| `Ctrl / Cmd + Enter` | Run current prompt or code |
-| `Tab` | Insert 2-space indent (in code editor) |
-| `Esc` | Close modal or dialog |
-| Right-click selected text | Run selection as agent prompt |
+| Shortcut                  | Action                                 |
+| ------------------------- | -------------------------------------- |
+| `Ctrl / Cmd + Enter`      | Run current prompt or code             |
+| `Tab`                     | Insert 2-space indent (in code editor) |
+| `Esc`                     | Close modal or dialog                  |
+| Right-click selected text | Run selection as agent prompt          |
 
 ---
 
@@ -306,6 +317,7 @@ git push origin feature/my-feature
 ```
 
 Please follow these guidelines:
+
 - Keep code clean and commented
 - Test on Chrome 120+
 - Do not introduce external dependencies
@@ -353,8 +365,8 @@ copies or substantial portions of the Software.
 
 **Made with ❤️ by the Agentab team**
 
-[Report Bug](https://github.com/yourname/agentab/issues) · 
-[Request Feature](https://github.com/yourname/agentab/issues) · 
-[Chrome Web Store](#) *(coming soon)*
+[Report Bug](https://github.com/yourname/agentab/issues) ·
+[Request Feature](https://github.com/yourname/agentab/issues) ·
+[Chrome Web Store](#) _(coming soon)_
 
 </div>

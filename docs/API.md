@@ -27,6 +27,7 @@ import { StorageManager } from './lib/storage.js';
 #### 方法
 
 ##### getApiKey()
+
 获取解密后的 API 密钥。
 
 ```javascript
@@ -36,6 +37,7 @@ const apiKey = await StorageManager.getApiKey();
 **返回**: `Promise<string|null>`
 
 ##### saveApiKey(key)
+
 加密并保存 API 密钥。
 
 ```javascript
@@ -43,11 +45,13 @@ await StorageManager.saveApiKey('sk-xxxxxxxx');
 ```
 
 **参数**:
+
 - `key` (string): API 密钥
 
 **返回**: `Promise<void>`
 
 ##### getApiBaseUrl()
+
 获取 API Base URL。
 
 ```javascript
@@ -57,6 +61,7 @@ const baseUrl = await StorageManager.getApiBaseUrl();
 **返回**: `Promise<string>`
 
 ##### getModel()
+
 获取模型名称。
 
 ```javascript
@@ -66,6 +71,7 @@ const model = await StorageManager.getModel();
 **返回**: `Promise<string>`
 
 ##### getTasks()
+
 获取所有保存的任务。
 
 ```javascript
@@ -89,6 +95,7 @@ interface Task {
 ```
 
 ##### saveTask(task)
+
 保存新任务。
 
 ```javascript
@@ -100,11 +107,13 @@ const task = await StorageManager.saveTask({
 ```
 
 **参数**:
+
 - `task` (Object): 任务对象
 
 **返回**: `Promise<Task>`
 
 ##### updateTask(taskId, updates)
+
 更新任务。
 
 ```javascript
@@ -114,12 +123,14 @@ await StorageManager.updateTask('task-id', {
 ```
 
 **参数**:
+
 - `taskId` (string): 任务 ID
 - `updates` (Object): 更新内容
 
 **返回**: `Promise<Task>`
 
 ##### deleteTask(taskId)
+
 删除任务。
 
 ```javascript
@@ -127,11 +138,13 @@ await StorageManager.deleteTask('task-id');
 ```
 
 **参数**:
+
 - `taskId` (string): 任务 ID
 
 **返回**: `Promise<boolean>`
 
 ##### addHistory(entry)
+
 添加历史记录。
 
 ```javascript
@@ -145,6 +158,7 @@ await StorageManager.addHistory({
 ```
 
 **参数**:
+
 - `entry` (Object): 历史记录条目
 
 **返回**: `Promise<void>`
@@ -169,15 +183,17 @@ const agent = new AgentExecutor({
 #### 方法
 
 ##### runPrompt(tabId, prompt, onUpdate)
+
 运行智能体处理提示词。
 
 ```javascript
-const results = await agent.runPrompt(tabId, 'Extract all emails', (update) => {
+const results = await agent.runPrompt(tabId, 'Extract all emails', update => {
   console.log(update);
 });
 ```
 
 **参数**:
+
 - `tabId` (number): 标签页 ID
 - `prompt` (string): 用户提示词
 - `onUpdate` (Function): 更新回调
@@ -185,6 +201,7 @@ const results = await agent.runPrompt(tabId, 'Extract all emails', (update) => {
 **返回**: `Promise<Array>`
 
 **更新类型**:
+
 ```javascript
 // 思考中
 { type: 'thinking', iteration: 1, message: '...' }
@@ -203,6 +220,7 @@ const results = await agent.runPrompt(tabId, 'Extract all emails', (update) => {
 ```
 
 ##### runCode(tabId, code, onUpdate)
+
 直接执行代码。
 
 ```javascript
@@ -210,6 +228,7 @@ const results = await agent.runCode(tabId, 'return document.title');
 ```
 
 **参数**:
+
 - `tabId` (number): 标签页 ID
 - `code` (string): JavaScript 代码
 - `onUpdate` (Function): 更新回调
@@ -217,6 +236,7 @@ const results = await agent.runCode(tabId, 'return document.title');
 **返回**: `Promise<Array>`
 
 ##### stop()
+
 停止当前执行。
 
 ```javascript
@@ -224,6 +244,7 @@ agent.stop();
 ```
 
 ##### isRunning
+
 检查是否正在运行。
 
 ```javascript
@@ -247,20 +268,25 @@ import { apiClient } from './lib/api-client.js';
 #### 方法
 
 ##### chatCompletion(messages, options)
+
 调用 LLM API。
 
 ```javascript
-const response = await apiClient.chatCompletion([
-  { role: 'system', content: 'You are a helpful assistant.' },
-  { role: 'user', content: 'Hello!' }
-], {
-  timeout: 60000,
-  retries: 3,
-  signal: abortController.signal
-});
+const response = await apiClient.chatCompletion(
+  [
+    { role: 'system', content: 'You are a helpful assistant.' },
+    { role: 'user', content: 'Hello!' }
+  ],
+  {
+    timeout: 60000,
+    retries: 3,
+    signal: abortController.signal
+  }
+);
 ```
 
 **参数**:
+
 - `messages` (Array): 消息数组
 - `options` (Object): 选项
   - `timeout` (number): 超时时间（毫秒）
@@ -270,6 +296,7 @@ const response = await apiClient.chatCompletion([
 **返回**: `Promise<string>`
 
 ##### testConnection()
+
 测试 API 连接。
 
 ```javascript
@@ -280,6 +307,7 @@ const result = await apiClient.testConnection();
 **返回**: `Promise<Object>`
 
 ##### listModels()
+
 列出可用模型。
 
 ```javascript
@@ -298,6 +326,7 @@ import { enhancedApiClient } from './lib/enhanced-api-client.js';
 ```
 
 ##### getCacheStats()
+
 获取缓存统计。
 
 ```javascript
@@ -306,6 +335,7 @@ const stats = enhancedApiClient.getCacheStats();
 ```
 
 ##### clearCache()
+
 清除缓存。
 
 ```javascript
@@ -327,6 +357,7 @@ import { InputValidator } from './lib/validator.js';
 #### 方法
 
 ##### validatePrompt(prompt)
+
 验证提示词。
 
 ```javascript
@@ -337,6 +368,7 @@ const result = InputValidator.validatePrompt('Extract emails');
 **返回**: `Object` - `{ valid: boolean, value?: string, error?: string }`
 
 ##### validateCode(code)
+
 验证代码。
 
 ```javascript
@@ -344,6 +376,7 @@ const result = InputValidator.validateCode('return 1');
 ```
 
 ##### validateTask(task)
+
 验证任务对象。
 
 ```javascript
@@ -355,6 +388,7 @@ const result = InputValidator.validateTask({
 ```
 
 ##### sanitizeHtml(input)
+
 清理 HTML 标签。
 
 ```javascript
@@ -363,6 +397,7 @@ const clean = InputValidator.sanitizeHtml('<script>alert(1)</script>Hello');
 ```
 
 ##### escapeHtml(input)
+
 转义 HTML 实体。
 
 ```javascript
@@ -385,6 +420,7 @@ import { ErrorHandler } from './lib/errors.js';
 #### 方法
 
 ##### normalize(error)
+
 标准化错误对象。
 
 ```javascript
@@ -393,6 +429,7 @@ const normalized = ErrorHandler.normalize(error);
 ```
 
 ##### getSolution(error)
+
 获取解决方案建议。
 
 ```javascript
@@ -403,12 +440,7 @@ const solution = ErrorHandler.getSolution(error);
 ### 错误类型
 
 ```javascript
-import { 
-  ValidationError, 
-  ApiError, 
-  TimeoutError, 
-  AbortError 
-} from './lib/errors.js';
+import { ValidationError, ApiError, TimeoutError, AbortError } from './lib/errors.js';
 
 // 抛出验证错误
 throw new ValidationError('Invalid input', 'field', value);
@@ -432,6 +464,7 @@ import { CryptoManager } from './lib/crypto.js';
 #### 方法
 
 ##### encrypt(data, password)
+
 加密数据。
 
 ```javascript
@@ -441,6 +474,7 @@ const encrypted = await CryptoManager.encrypt('secret data', 'password');
 **返回**: `Promise<string>` - Base64 编码的加密数据
 
 ##### decrypt(encryptedData, password)
+
 解密数据。
 
 ```javascript
@@ -450,6 +484,7 @@ const decrypted = await CryptoManager.decrypt(encrypted, 'password');
 **返回**: `Promise<string>`
 
 ##### generateKey()
+
 生成随机密钥。
 
 ```javascript
@@ -479,6 +514,7 @@ const cache = new SmartCache({
 #### 方法
 
 ##### get(key)
+
 获取缓存值。
 
 ```javascript
@@ -486,6 +522,7 @@ const value = cache.get('my-key');
 ```
 
 ##### set(key, value, ttl)
+
 设置缓存值。
 
 ```javascript
@@ -493,15 +530,21 @@ cache.set('my-key', { data: 'value' }, 30000);
 ```
 
 ##### getOrSet(key, fn, ttl)
+
 获取或计算缓存值。
 
 ```javascript
-const value = await cache.getOrSet('key', async () => {
-  return await fetchData();
-}, 60000);
+const value = await cache.getOrSet(
+  'key',
+  async () => {
+    return await fetchData();
+  },
+  60000
+);
 ```
 
 ##### getStats()
+
 获取缓存统计。
 
 ```javascript
@@ -520,6 +563,7 @@ const deduper = new RequestDeduplicator();
 ```
 
 ##### execute(key, fn)
+
 执行或加入待处理请求。
 
 ```javascript
@@ -543,6 +587,7 @@ import { logger, agentLogger } from './lib/logger.js';
 #### 方法
 
 ##### debug(message, data)
+
 调试日志。
 
 ```javascript
@@ -550,6 +595,7 @@ logger.debug('Processing', { step: 1 });
 ```
 
 ##### info(message, data)
+
 信息日志。
 
 ```javascript
@@ -557,6 +603,7 @@ logger.info('Task completed', { duration: 1000 });
 ```
 
 ##### warn(message, data)
+
 警告日志。
 
 ```javascript
@@ -564,6 +611,7 @@ logger.warn('Rate limit approaching', { remaining: 5 });
 ```
 
 ##### error(message, error)
+
 错误日志。
 
 ```javascript
@@ -571,6 +619,7 @@ logger.error('API call failed', error);
 ```
 
 ##### time(label)
+
 开始计时。
 
 ```javascript
@@ -578,6 +627,7 @@ logger.time('operation');
 ```
 
 ##### timeEnd(label)
+
 结束计时。
 
 ```javascript
@@ -600,6 +650,7 @@ import { metrics, tracker } from './lib/performance.js';
 #### 方法
 
 ##### startTimer(name)
+
 开始计时。
 
 ```javascript
@@ -607,6 +658,7 @@ const timer = metrics.startTimer('api-call');
 ```
 
 ##### timer.end()
+
 结束计时。
 
 ```javascript
@@ -614,6 +666,7 @@ timer.end();
 ```
 
 ##### increment(name, value)
+
 增加计数器。
 
 ```javascript
@@ -622,6 +675,7 @@ metrics.increment('bytes', 1024);
 ```
 
 ##### getStats(name)
+
 获取统计信息。
 
 ```javascript
@@ -658,6 +712,7 @@ import { PageAnalyzer } from './lib/page-analyzer.js';
 #### 方法
 
 ##### getPromptContext(tabId)
+
 获取智能体上下文。
 
 ```javascript
@@ -673,6 +728,7 @@ const context = await PageAnalyzer.getPromptContext(tabId);
 ```
 
 ##### analyze(tabId)
+
 完整分析页面。
 
 ```javascript
@@ -680,6 +736,7 @@ const analysis = await PageAnalyzer.analyze(tabId);
 ```
 
 ##### clearCache()
+
 清除缓存。
 
 ```javascript

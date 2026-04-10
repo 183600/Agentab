@@ -81,7 +81,7 @@ describe('SnippetLibrary', () => {
     const results = snippetLibrary.search('click');
     expect(results.length).toBeGreaterThan(0);
     results.forEach(snippet => {
-      const matches = 
+      const matches =
         snippet.name.toLowerCase().includes('click') ||
         snippet.description.toLowerCase().includes('click') ||
         snippet.tags.some(tag => tag.toLowerCase().includes('click'));

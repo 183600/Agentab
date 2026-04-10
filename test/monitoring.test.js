@@ -238,9 +238,7 @@ describe('Monitoring', () => {
     });
 
     it('should load stored events', async () => {
-      mockStorage.data['monitoring_events'] = [
-        { event_id: 'test-1', message: 'Previous event' }
-      ];
+      mockStorage.data['monitoring_events'] = [{ event_id: 'test-1', message: 'Previous event' }];
 
       await monitoring.loadStoredEvents();
 

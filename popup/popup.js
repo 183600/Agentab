@@ -77,43 +77,61 @@ document.addEventListener('DOMContentLoaded', () => {
       const update = message.update;
       switch (update.type) {
         case 'thinking':
-          addOutput('thinking', `
+          addOutput(
+            'thinking',
+            `
             <div class="spinner"></div>
             <span>${escapeHtml(update.message)}</span>
-          `);
+          `
+          );
           break;
         case 'executing':
-          addOutput('executing', `
+          addOutput(
+            'executing',
+            `
             <div class="label">⚡ ${i18n('execCodeStep', [update.iteration || 1])}</div>
             <div>${escapeHtml(update.explanation || '')}</div>
             <div class="code-block">${escapeHtml(update.code)}</div>
-          `);
+          `
+          );
           break;
         case 'executed':
           if (update.result?.success) {
-            addOutput('success', `
+            addOutput(
+              'success',
+              `
               <div class="label">✅ ${i18n('execResult')}</div>
               <div class="code-block">${escapeHtml(JSON.stringify(update.result.result, null, 2) || 'undefined')}</div>
-            `);
+            `
+            );
           } else {
-            addOutput('error', `
+            addOutput(
+              'error',
+              `
               <div class="label">❌ ${i18n('execError')}</div>
               <div>${escapeHtml(update.result?.error || i18n('unknownError'))}</div>
-            `);
+            `
+            );
           }
           break;
         case 'complete':
-          addOutput('success', `
+          addOutput(
+            'success',
+            `
             <div class="label">🎉 ${i18n('taskComplete')}</div>
             <div>${escapeHtml(update.message)}</div>
             ${update.explanation ? `<div class="text-muted mt-8">${escapeHtml(update.explanation)}</div>` : ''}
-          `);
+          `
+          );
           break;
         case 'error':
-          addOutput('error', `
+          addOutput(
+            'error',
+            `
             <div class="label">❌ ${i18n('error')}</div>
             <div>${escapeHtml(update.message)}</div>
-          `);
+          `
+          );
           break;
       }
     }
@@ -136,16 +154,22 @@ document.addEventListener('DOMContentLoaded', () => {
       });
 
       if (!response.success && response.error) {
-        addOutput('error', `
+        addOutput(
+          'error',
+          `
           <div class="label">❌ ${i18n('error')}</div>
           <div>${escapeHtml(response.error)}</div>
-        `);
+        `
+        );
       }
     } catch (e) {
-      addOutput('error', `
+      addOutput(
+        'error',
+        `
         <div class="label">❌ ${i18n('error')}</div>
         <div>${escapeHtml(e.message)}</div>
-      `);
+      `
+      );
     } finally {
       isRunning = false;
       btnRunPrompt.disabled = false;
@@ -175,16 +199,22 @@ document.addEventListener('DOMContentLoaded', () => {
       });
 
       if (!response.success && response.error) {
-        addOutput('error', `
+        addOutput(
+          'error',
+          `
           <div class="label">❌ ${i18n('error')}</div>
           <div>${escapeHtml(response.error)}</div>
-        `);
+        `
+        );
       }
     } catch (e) {
-      addOutput('error', `
+      addOutput(
+        'error',
+        `
         <div class="label">❌ ${i18n('error')}</div>
         <div>${escapeHtml(e.message)}</div>
-      `);
+      `
+      );
     } finally {
       isRunning = false;
       btnRunCode.disabled = false;
@@ -205,7 +235,8 @@ document.addEventListener('DOMContentLoaded', () => {
     taskDescInput.value = '';
     taskTypeBadge.textContent = i18n(type === 'prompt' ? 'typePrompt' : 'typeCode');
     taskTypeBadge.className = `task-type-badge ${type}`;
-    taskContentPreview.textContent = content.substring(0, 300) + (content.length > 300 ? '...' : '');
+    taskContentPreview.textContent =
+      content.substring(0, 300) + (content.length > 300 ? '...' : '');
     saveDialog.classList.remove('hidden');
     taskNameInput.focus();
   }

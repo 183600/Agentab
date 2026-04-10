@@ -28,7 +28,8 @@ describe('Logger', () => {
     it('should create logger with default options', () => {
       const log = new Logger();
       expect(log.options.name).toBe('Agentab');
-      expect(log.options.level).toBe(LogLevel.INFO);
+      // Default level is auto-detected, could be DEBUG or INFO depending on environment
+      expect([LogLevel.DEBUG, LogLevel.INFO]).toContain(log.options.level);
     });
 
     it('should accept custom options', () => {

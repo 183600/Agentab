@@ -63,7 +63,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   function getFilteredHistory() {
     return allHistory.filter(item => {
       const matchesFilter = currentFilter === 'all' || item.type === currentFilter;
-      const matchesSearch = !currentSearch ||
+      const matchesSearch =
+        !currentSearch ||
         item.input?.toLowerCase().includes(currentSearch) ||
         item.tabUrl?.toLowerCase().includes(currentSearch) ||
         item.tabTitle?.toLowerCase().includes(currentSearch);
@@ -125,9 +126,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     div.className = 'history-item';
     div.dataset.id = item.timestamp;
 
-    const typeIcon = item.type === 'prompt'
-      ? `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>`
-      : `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>`;
+    const typeIcon =
+      item.type === 'prompt'
+        ? `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>`
+        : `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>`;
 
     const lastResult = item.results?.[item.results.length - 1];
     const isSuccess = lastResult?.type === 'complete' || lastResult?.type === 'execution';
@@ -278,10 +280,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   function renderResultItem(result, index) {
-    const typeClass = result.type === 'complete' ? 'complete' :
-      result.type === 'error' ? 'error' : 'execution';
-    const typeIcon = result.type === 'complete' ? '✅' :
-      result.type === 'error' ? '❌' : '⚡';
+    const typeClass =
+      result.type === 'complete' ? 'complete' : result.type === 'error' ? 'error' : 'execution';
+    const typeIcon = result.type === 'complete' ? '✅' : result.type === 'error' ? '❌' : '⚡';
 
     let content = '';
     if (result.type === 'execution') {

@@ -13,6 +13,7 @@
 **问题**: 原代码使用 `eval()` 执行用户代码，存在 XSS 风险
 
 **解决方案**:
+
 - 创建 `lib/sandbox.js` - 安全代码执行沙箱
 - 使用 `Function` 构造器替代 `eval()`
 - 添加代码大小限制 (100KB)
@@ -28,6 +29,7 @@
 **问题**: 缺少统一的输入验证，可能导致注入攻击
 
 **解决方案**:
+
 - 创建 `lib/validator.js` - 输入验证工具类
 - 实现 Prompt、Code、Task 等多种验证器
 - 添加 HTML 标签过滤和实体转义
@@ -42,6 +44,7 @@
 
 **解决方案**:
 拆分为多个模块化组件:
+
 - `lib/errors.js` - 统一错误处理
 - `lib/api-client.js` - LLM API 客户端
 - `lib/page-analyzer.js` - 页面分析
@@ -54,6 +57,7 @@
 **问题**: API 密钥明文存储，存在安全风险
 
 **解决方案**:
+
 - 创建 `lib/crypto.js` - 加密工具类
 - 使用 Web Crypto API (AES-GCM)
 - PBKDF2 密钥派生
@@ -67,6 +71,7 @@
 **问题**: popup.js 和 sidepanel.js 存在大量重复代码
 
 **解决方案**:
+
 - 创建 `lib/ui-components.js` - 共享 UI 组件
 - AgentUI - 统一的 UI 功能类
 - SaveTaskDialog - 可复用的保存对话框
@@ -77,6 +82,7 @@
 **文件**: `lib/ui-components.js`
 
 **改进效果**:
+
 - 减少 ~40% 代码重复
 - 更易于维护和扩展
 - 统一的用户体验
@@ -88,6 +94,7 @@
 **问题**: 代码编辑器缺少语法高亮，用户体验差
 
 **解决方案**:
+
 - 创建 `lib/syntax-highlighter.js` - 轻裁剪语法高亮器
 - 支持亮色/暗色主题
 - 无外部依赖
@@ -102,6 +109,7 @@
 **问题**: 每次都重新分析页面，性能开销大
 
 **解决方案**:
+
 - PageAnalyzer 添加缓存机制
 - 5 秒 TTL 缓存
 - 最多 50 条缓存条目
@@ -116,6 +124,7 @@
 **问题**: 错误提示不够友好，缺少解决方案建议
 
 **解决方案**:
+
 - 添加错误图标映射
 - 添加解决方案建议
 - 改进错误显示信息
@@ -130,6 +139,7 @@
 
 **解决方案**:
 添加更多快捷键:
+
 - `Ctrl/Cmd + S` - 保存任务
 - `Ctrl/Cmd + L` - 清除输出
 - `Ctrl/Cmd + 1/2` - 切换标签页
@@ -148,6 +158,7 @@
 **新增文件**: `lib/logger.js`
 
 **功能**:
+
 - 统一日志管理
 - 支持多级别日志 (DEBUG, INFO, WARN, ERROR)
 - 日志持久化存储
@@ -156,6 +167,7 @@
 - 特化日志器 (agent, api, storage, ui)
 
 **示例**:
+
 ```javascript
 import { logger, agentLogger } from './lib/logger.js';
 
@@ -172,6 +184,7 @@ agentLogger.timeEnd('execution'); // 输出耗时
 **新增文件**: `lib/performance.js`
 
 **功能**:
+
 - PerformanceMetrics - 指标收集和分析
 - 计时器 API (startTimer/endTimer)
 - 计数器 API (increment)
@@ -181,6 +194,7 @@ agentLogger.timeEnd('execution'); // 输出耗时
 - 方法装饰器支持
 
 **示例**:
+
 ```javascript
 import { tracker, metrics } from './lib/performance.js';
 
@@ -204,6 +218,7 @@ console.log(stats.avg, stats.p95);
 **新增文件**: `lib/snippets.js`
 
 **功能**:
+
 - 内置 20+ 常用代码片段
 - 分类管理 (DOM, Form, Extraction, Navigation, Wait, Network, Utility)
 - 变量模板支持
@@ -211,6 +226,7 @@ console.log(stats.avg, stats.p95);
 - 自定义片段扩展
 
 **内置片段**:
+
 - DOM: 选择元素、批量选择
 - 表单: 填充输入、提交表单、批量填充
 - 提取: 文本、链接、图片、表格、邮箱
@@ -228,12 +244,14 @@ console.log(stats.avg, stats.p95);
 **新增文件**: `lib/templates.js`
 
 **功能**:
+
 - 内置 20+ 预定义任务模板
 - 分类管理 (数据提取、表单操作、页面导航、内容分析、代码模板、测试验证)
 - 变量模板支持
 - 支持提示词和代码两种类型
 
 **内置模板**:
+
 - 数据提取: 提取邮箱、链接、图片、表格、价格
 - 表单操作: 自动登录、智能填充、清空表单
 - 页面导航: 点击按钮、滚动加载、菜单导航
@@ -250,6 +268,7 @@ console.log(stats.avg, stats.p95);
 **新增文件**: `lib/config.js`
 
 **功能**:
+
 - AppConfig - 应用默认配置
 - SettingsManager - 用户设置管理
 - 支持点表示法 (如 `api.timeout`)
@@ -260,7 +279,8 @@ console.log(stats.avg, stats.p95);
 
 ### 15. ✅ 添加单元测试框架
 
-**新增文件**: 
+**新增文件**:
+
 - `package.json` - 项目配置和依赖
 - `vitest.config.js` - Vitest 测试配置
 - `test/setup.js` - 测试环境设置和 Chrome API 模拟
@@ -270,6 +290,7 @@ console.log(stats.avg, stats.p95);
 - `test/snippets.test.js` - 代码片段测试
 
 **测试命令**:
+
 ```bash
 npm test           # 运行测试
 npm run test:watch # 监视模式
@@ -281,10 +302,12 @@ npm run test:coverage # 测试覆盖率
 ### 16. ✅ 添加代码质量工具
 
 **新增文件**:
+
 - `.eslintrc.json` - ESLint 配置
 - `.prettierrc` - Prettier 配置
 
 **代码质量命令**:
+
 ```bash
 npm run lint       # 代码检查
 npm run lint:fix   # 自动修复
@@ -297,59 +320,61 @@ npm run format:check # 检查格式
 ## 文件变更清单
 
 ### 新增文件
-| 文件 | 描述 |
-|------|------|
-| `lib/sandbox.js` | 安全执行沙箱 |
-| `lib/validator.js` | 输入验证 |
-| `lib/errors.js` | 错误处理 |
-| `lib/api-client.js` | API 客户端 |
-| `lib/page-analyzer.js` | 页面分析 |
-| `lib/agent.js` | 智能体核心 |
-| `lib/crypto.js` | 加密工具 |
-| `lib/ui-components.js` | UI 组件库 |
-| `lib/syntax-highlighter.js` | 语法高亮 |
-| `lib/logger.js` | 日志系统 |
-| `lib/performance.js` | 性能监控 |
-| `lib/snippets.js` | 代码片段库 |
-| `lib/templates.js` | 任务模板 |
-| `lib/config.js` | 配置管理 |
-| `package.json` | 项目配置 |
-| `vitest.config.js` | 测试配置 |
-| `.eslintrc.json` | ESLint 配置 |
-| `.prettierrc` | Prettier 配置 |
-| `test/*.test.js` | 单元测试 |
+
+| 文件                        | 描述          |
+| --------------------------- | ------------- |
+| `lib/sandbox.js`            | 安全执行沙箱  |
+| `lib/validator.js`          | 输入验证      |
+| `lib/errors.js`             | 错误处理      |
+| `lib/api-client.js`         | API 客户端    |
+| `lib/page-analyzer.js`      | 页面分析      |
+| `lib/agent.js`              | 智能体核心    |
+| `lib/crypto.js`             | 加密工具      |
+| `lib/ui-components.js`      | UI 组件库     |
+| `lib/syntax-highlighter.js` | 语法高亮      |
+| `lib/logger.js`             | 日志系统      |
+| `lib/performance.js`        | 性能监控      |
+| `lib/snippets.js`           | 代码片段库    |
+| `lib/templates.js`          | 任务模板      |
+| `lib/config.js`             | 配置管理      |
+| `package.json`              | 项目配置      |
+| `vitest.config.js`          | 测试配置      |
+| `.eslintrc.json`            | ESLint 配置   |
+| `.prettierrc`               | Prettier 配置 |
+| `test/*.test.js`            | 单元测试      |
 
 ### 修改文件
-| 文件 | 变更内容 |
-|------|----------|
-| `background/background.js` | 重构，使用新模块 |
-| `lib/storage.js` | 添加加密存储支持 |
-| `sidepanel/sidepanel.js` | 使用共享组件、集成片段和模板 |
-| `sidepanel/sidepanel.css` | 新增片段和模板面板样式 |
-| `popup/popup.js` | 使用共享组件 |
+
+| 文件                       | 变更内容                     |
+| -------------------------- | ---------------------------- |
+| `background/background.js` | 重构，使用新模块             |
+| `lib/storage.js`           | 添加加密存储支持             |
+| `sidepanel/sidepanel.js`   | 使用共享组件、集成片段和模板 |
+| `sidepanel/sidepanel.css`  | 新增片段和模板面板样式       |
+| `popup/popup.js`           | 使用共享组件                 |
 
 ---
 
 ## 安全性改进总结
 
-| 改进项 | 之前 | 之后 |
-|--------|------|------|
-| 代码执行 | eval() | Function + 沙箱 |
-| 输入验证 | 无 | 全面验证 |
-| API Key | 明文存储 | AES-GCM 加密 |
-| 错误处理 | 分散 | 统一处理 |
-| 代码结构 | 单文件 | 模块化 |
+| 改进项   | 之前     | 之后            |
+| -------- | -------- | --------------- |
+| 代码执行 | eval()   | Function + 沙箱 |
+| 输入验证 | 无       | 全面验证        |
+| API Key  | 明文存储 | AES-GCM 加密    |
+| 错误处理 | 分散     | 统一处理        |
+| 代码结构 | 单文件   | 模块化          |
 
 ---
 
 ## 性能改进
 
-| 改进项 | 效果 |
-|--------|------|
-| 页面分析缓存 | 减少 80% 重复分析 |
-| UI 组件复用 | 减少 40% JS 代码 |
-| 懒加载语法高亮 | 减少初始加载 |
-| 性能监控 | 可追踪关键操作耗时 |
+| 改进项         | 效果               |
+| -------------- | ------------------ |
+| 页面分析缓存   | 减少 80% 重复分析  |
+| UI 组件复用    | 减少 40% JS 代码   |
+| 懒加载语法高亮 | 减少初始加载       |
+| 性能监控       | 可追踪关键操作耗时 |
 
 ---
 
@@ -400,23 +425,27 @@ npm run format:check # 检查格式
 ## 使用指南
 
 ### 运行测试
+
 ```bash
 npm install
 npm test
 ```
 
 ### 代码质量检查
+
 ```bash
 npm run lint
 npm run format
 ```
 
 ### 使用代码片段
+
 1. 点击侧边栏顶部的代码片段按钮
 2. 选择分类或搜索片段
 3. 点击插入按钮将代码插入编辑器
 
 ### 使用任务模板
+
 1. 点击侧边栏顶部的模板按钮
 2. 选择分类或搜索模板
 3. 点击使用按钮应用模板

@@ -30,13 +30,13 @@ export class AgentExecutor {
   constructor(options = {}) {
     // 使用增强的安全沙箱
     this.sandbox = new SecureSandbox(options.sandbox);
-    
+
     // 添加错误恢复管理器
     this.recovery = new RecoveryManager({
       enableRecovery: true,
       enableLogging: true
     });
-    
+
     // 添加进度追踪器
     this.progress = new ExecutionProgress(options.progress);
   }
@@ -120,7 +120,7 @@ export class AgentExecutor {
     try {
       // 初始化阶段
       this.progress.transitionTo(ExecutionPhase.INITIALIZING);
-      
+
       // 获取页面信息
       this.progress.transitionTo(ExecutionPhase.ANALYZING);
       const pageInfo = await PageAnalyzer.getPromptContext(tabId);
@@ -140,10 +140,10 @@ export class AgentExecutor {
         // 生成代码
         this.progress.transitionTo(ExecutionPhase.GENERATING);
         const llmResponse = await this.recovery.executeWithRecovery(
-          () => apiClient.chatCompletion(
-            [systemMessage, ...this.conversationHistory],
-            { signal: this.abortController?.signal }
-          ),
+          () =>
+            apiClient.chatCompletion([systemMessage, ...this.conversationHistory], {
+              signal: this.abortController?.signal
+            }),
           RecoveryStrategy.API
         );
 
@@ -165,7 +165,6 @@ export class AgentExecutor {
       // 完成
       this.progress.complete({ iterations: this.maxIterations });
       return results;
-
     } catch (error) {
       this.progress.fail(error);
       throw error;
@@ -256,10 +255,7 @@ async function handleGetSchedules(message) {
 
 // 更新调度
 async function handleUpdateSchedule(message) {
-  const schedule = await taskScheduler.updateSchedule(
-    message.scheduleId,
-    message.updates
-  );
+  const schedule = await taskScheduler.updateSchedule(message.scheduleId, message.updates);
   return { success: true, schedule };
 }
 
@@ -376,7 +372,7 @@ async function runPrompt() {
 
   try {
     // 监听智能体更新
-    const listener = (message) => {
+    const listener = message => {
       if (message.action === 'agent_update') {
         handleAgentUpdate(message.update);
       }
@@ -514,7 +510,7 @@ async function showCreateScheduleDialog(taskId) {
   document.body.appendChild(dialog);
 
   // 处理类型变化
-  document.getElementById('schedule-type').addEventListener('change', (e) => {
+  document.getElementById('schedule-type').addEventListener('change', e => {
     const configDiv = dialog.querySelector('.schedule-config');
     switch (e.target.value) {
       case 'once':
@@ -540,7 +536,7 @@ async function showCreateScheduleDialog(taskId) {
   });
 
   // 处理表单提交
-  dialog.querySelector('#schedule-form').addEventListener('submit', async (e) => {
+  dialog.querySelector('#schedule-form').addEventListener('submit', async e => {
     e.preventDefault();
 
     const formData = {
@@ -553,9 +549,7 @@ async function showCreateScheduleDialog(taskId) {
     // 根据类型收集配置
     switch (formData.type) {
       case 'once':
-        formData.config.runAt = new Date(
-          document.getElementById('run-at').value
-        ).getTime();
+        formData.config.runAt = new Date(document.getElementById('run-at').value).getTime();
         break;
       case 'interval':
         formData.config.interval = document.getElementById('interval').value;
@@ -594,7 +588,9 @@ async function loadSchedules() {
   });
 
   const list = document.getElementById('schedules-list');
-  list.innerHTML = response.schedules.map(schedule => `
+  list.innerHTML = response.schedules
+    .map(
+      schedule => `
     <div class="schedule-item">
       <div class="schedule-info">
         <span class="schedule-name">${schedule.name}</span>
@@ -602,15 +598,21 @@ async function loadSchedules() {
         <span class="schedule-status">${schedule.status}</span>
       </div>
       <div class="schedule-actions">
-        ${schedule.status === 'active' ? `
+        ${
+          schedule.status === 'active'
+            ? `
           <button onclick="pauseSchedule('${schedule.id}')">暂停</button>
-        ` : `
+        `
+            : `
           <button onclick="resumeSchedule('${schedule.id}')">恢复</button>
-        `}
+        `
+        }
         <button onclick="deleteSchedule('${schedule.id}')">删除</button>
       </div>
     </div>
-  `).join('');
+  `
+    )
+    .join('');
 }
 
 // =============================================================================
@@ -619,29 +621,29 @@ async function loadSchedules() {
 
 /**
  * 集成步骤总结:
- * 
+ *
  * 1. 在 agent.js 中:
  *    - 替换 SandboxExecutor 为 SecureSandbox
  *    - 添加 RecoveryManager 处理错误
  *    - 添加 ExecutionProgress 追踪进度
- * 
+ *
  * 2. 在 background.js 中:
  *    - 初始化 TaskScheduler
  *    - 添加调度相关的消息处理
  *    - 使用 CircuitBreaker 保护API调用
- * 
+ *
  * 3. 在 sidepanel.js 中:
  *    - 添加 AutocompleteUI 到代码编辑器
  *    - 使用 ExecutionProgress 显示进度
  *    - 监听智能体更新事件
- * 
+ *
  * 4. 在 settings.js 中:
  *    - 显示恢复统计和断路器状态
- * 
+ *
  * 5. 在 tasks.js 中:
  *    - 添加调度创建UI
  *    - 显示调度列表
  *    - 实现调度管理功能
- * 
+ *
  * 所有改进都向后兼容,可以逐步集成,不需要一次性全部替换。
  */

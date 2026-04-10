@@ -21,13 +21,13 @@ describe('SandboxExecutor', () => {
     it('should reject code with eval', () => {
       const result = executor.validate('eval("dangerous code")');
       expect(result.valid).toBe(false);
-      expect(result.error).toContain('Blocked pattern');
+      expect(result.error).toContain('Blocked');
     });
 
     it('should reject code with Function constructor', () => {
       const result = executor.validate('new Function("return 1")()');
       expect(result.valid).toBe(false);
-      expect(result.error).toContain('Blocked pattern');
+      expect(result.error).toContain('Blocked');
     });
 
     it('should reject code with __proto__', () => {

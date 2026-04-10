@@ -27,8 +27,9 @@ describe('SyntaxHighlighter', () => {
 
   describe('escapeHtml', () => {
     it('should escape HTML entities', () => {
-      expect(highlighter.escapeHtml('<script>alert("xss")</script>'))
-        .toBe('&lt;script&gt;alert(&quot;xss&quot;)&lt;/script&gt;');
+      expect(highlighter.escapeHtml('<script>alert("xss")</script>')).toBe(
+        '&lt;script&gt;alert(&quot;xss&quot;)&lt;/script&gt;'
+      );
     });
 
     it('should escape ampersands', () => {
@@ -181,7 +182,7 @@ describe('addHighlightStyles', () => {
     if (existing) existing.remove();
 
     addHighlightStyles();
-    
+
     const styles = document.getElementById('syntax-highlight-styles');
     expect(styles).toBeDefined();
     expect(styles.tagName).toBe('STYLE');
@@ -190,7 +191,7 @@ describe('addHighlightStyles', () => {
   it('should not duplicate styles', () => {
     addHighlightStyles();
     addHighlightStyles();
-    
+
     const styles = document.querySelectorAll('#syntax-highlight-styles');
     expect(styles.length).toBe(1);
   });
