@@ -19,8 +19,8 @@ export default defineConfig({
       provider: 'v8',
       reporter: ['text', 'json', 'html', 'lcov'],
       exclude: ['node_modules/**', 'test/**', '**/*.test.js', '**/*.spec.js', 'lib/workers/**'],
-      // Don't collect coverage by default for faster tests
-      enabled: false
+      // Enable coverage in CI environment, disable locally for faster tests
+      enabled: process.env.CI === 'true' || process.env.COVERAGE === 'true'
     },
 
     // Test file patterns (exclude e2e tests by default)

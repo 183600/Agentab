@@ -9,6 +9,7 @@
     "sourceType": "module"
   },
   "extends": ["eslint:recommended"],
+  "plugins": ["no-unsanitized"],
   "overrides": [
     {
       "files": ["scripts/**/*.js", "test/**/*.js"],
@@ -51,7 +52,17 @@
     ],
     "space-in-parens": "warn",
     "space-infix-ops": "warn",
-    "spaced-comment": "warn"
+    "spaced-comment": "warn",
+    "no-unsanitized/method": "warn",
+    "no-unsanitized/property": [
+      "warn",
+      {
+        "escape": {
+          "left": ["escapeHtml", "escapeHtmlUtil"],
+          "right": ["textContent", "innerText"]
+        }
+      }
+    ]
   },
   "ignorePatterns": ["node_modules/", "dist/", "*.min.js"],
   "globals": {

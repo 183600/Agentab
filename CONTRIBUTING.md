@@ -197,6 +197,59 @@ try {
 }
 ```
 
+### 安全编码 - XSS 防护
+
+**重要：本项目高度重视安全性，必须遵循以下规则防止XSS攻击。**
+
+#### innerHTML 安全规则
+
+```javascript
+// ❌ 危险：直接使用 innerHTML 插入用户输入
+element.innerHTML = userInput;  // 禁止！
+
+// ✅ 安全：使用 textContent 插入纯文本
+element.textContent = userInput;
+
+// ✅ 安全：使用 escapeHtml 转义后插入
+import { escapeHtml } from '../lib/ui-components.js';
+element.innerHTML = escapeHtml(userInput);
+
+// ✅ 安全：使用 DOM API 构建元素
+const div = document.createElement('div');
+div.className = 'message';
+div.textContent = userInput;
+container.appendChild(div);
+
+// ✅ 安全：使用 createElement 工具函数
+import { createElement } from '../lib/ui-components.js';
+const el = createElement('div', { className: 'message' }, userInput);
+container.appendChild(el);
+```
+
+#### 安全模式检查清单
+
+1. **用户输入永远不要直接插入 innerHTML**
+2. **URL 必须验证协议**（仅允许 http/https）
+3. **API 密钥不得暴露到控制台或日志**
+4. **代码执行前必须通过沙箱验证**
+5. **敏感数据使用 chrome.storage.local 加密存储**
+
+#### ESLint 安全检查
+
+项目配置了 `no-unsanitized` 插件检查潜在XSS风险：
+
+```bash
+npm run lint  # 会检查 innerHTML 使用是否安全
+```
+
+#### 安全审查
+
+提交 PR 前请确认：
+- [ ] 无直接 innerHTML 用户输入
+- [ ] URL/路径经过验证
+- [ ] 敏感数据已加密
+- [ ] 代码通过沙箱执行
+
 ### 性能追踪
 
 ```javascript
