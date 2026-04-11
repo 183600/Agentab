@@ -1,0 +1,38 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "node",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "checkJs": true,
+    "strict": false,
+    "noImplicitAny": false,
+    "allowJs": true,
+    "maxNodeModuleJsDepth": 0,
+    "typeRoots": ["./types", "./node_modules/@types"],
+    "baseUrl": ".",
+    "paths": {
+      "lib/*": ["./lib/*"],
+      "test/*": ["./test/*"]
+    },
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true
+  },
+  "include": [
+    "lib/**/*.js",
+    "background/**/*.js",
+    "content/**/*.js",
+    "popup/**/*.js",
+    "sidepanel/**/*.js",
+    "settings/**/*.js",
+    "tasks/**/*.js",
+    "history/**/*.js",
+    "scripts/**/*.js"
+  ],
+  "exclude": [
+    "node_modules",
+    "coverage",
+    "test/**/*.js"
+  ]
+}

@@ -1,0 +1,250 @@
+{
+  "extName": {
+    "message": "Agentab",
+    "description": "Extension name"
+  },
+  "extDescription": {
+    "message": "모든 탭을 AI 에이전트로 변환하는 Chrome 확장 프로그램",
+    "description": "Extension description"
+  },
+  "promptTab": {
+    "message": "프롬프트",
+    "description": "Prompt tab label"
+  },
+  "codeTab": {
+    "message": "코드",
+    "description": "Code tab label"
+  },
+  "runAgent": {
+    "message": "에이전트 실행",
+    "description": "Run agent button"
+  },
+  "stopAgent": {
+    "message": "중지",
+    "description": "Stop agent button"
+  },
+  "saveTask": {
+    "message": "작업 저장",
+    "description": "Save task button"
+  },
+  "clearOutput": {
+    "message": "출력 지우기",
+    "description": "Clear output button"
+  },
+  "settings": {
+    "message": "설정",
+    "description": "Settings button"
+  },
+  "tasks": {
+    "message": "작업",
+    "description": "Tasks button"
+  },
+  "apiBaseUrl": {
+    "message": "API 기본 URL",
+    "description": "API base URL label"
+  },
+  "apiKey": {
+    "message": "API 키",
+    "description": "API key label"
+  },
+  "model": {
+    "message": "모델",
+    "description": "Model label"
+  },
+  "testConnection": {
+    "message": "연결 테스트",
+    "description": "Test connection button"
+  },
+  "connectionSuccess": {
+    "message": "연결 성공",
+    "description": "Connection success message"
+  },
+  "connectionFailed": {
+    "message": "연결 실패",
+    "description": "Connection failed message"
+  },
+  "saved": {
+    "message": "저장됨",
+    "description": "Saved message"
+  },
+  "error": {
+    "message": "오류",
+    "description": "Error label"
+  },
+  "success": {
+    "message": "성공",
+    "description": "Success label"
+  },
+  "thinking": {
+    "message": "생각 중...",
+    "description": "Thinking message"
+  },
+  "executing": {
+    "message": "실행 중...",
+    "description": "Executing message"
+  },
+  "completed": {
+    "message": "완료",
+    "description": "Completed message"
+  },
+  "noTasks": {
+    "message": "작업 없음",
+    "description": "No tasks message"
+  },
+  "searchTasks": {
+    "message": "작업 검색...",
+    "description": "Search tasks placeholder"
+  },
+  "taskName": {
+    "message": "작업 이름",
+    "description": "Task name label"
+  },
+  "taskDescription": {
+    "message": "설명",
+    "description": "Task description label"
+  },
+  "taskType": {
+    "message": "유형",
+    "description": "Task type label"
+  },
+  "delete": {
+    "message": "삭제",
+    "description": "Delete button"
+  },
+  "edit": {
+    "message": "편집",
+    "description": "Edit button"
+  },
+  "copy": {
+    "message": "복사",
+    "description": "Copy button"
+  },
+  "cancel": {
+    "message": "취소",
+    "description": "Cancel button"
+  },
+  "confirm": {
+    "message": "확인",
+    "description": "Confirm button"
+  },
+  "exportTasks": {
+    "message": "작업 내보내기",
+    "description": "Export tasks button"
+  },
+  "importTasks": {
+    "message": "작업 가져오기",
+    "description": "Import tasks button"
+  },
+  "history": {
+    "message": "기록",
+    "description": "History label"
+  },
+  "clearHistory": {
+    "message": "기록 지우기",
+    "description": "Clear history button"
+  },
+  "theme": {
+    "message": "테마",
+    "description": "Theme label"
+  },
+  "lightTheme": {
+    "message": "라이트",
+    "description": "Light theme"
+  },
+  "darkTheme": {
+    "message": "다크",
+    "description": "Dark theme"
+  },
+  "autoTheme": {
+    "message": "자동",
+    "description": "Auto theme"
+  },
+  "snippets": {
+    "message": "스니펫",
+    "description": "Snippets label"
+  },
+  "templates": {
+    "message": "템플릿",
+    "description": "Templates label"
+  },
+  "schedule": {
+    "message": "일정",
+    "description": "Schedule label"
+  },
+  "runOnce": {
+    "message": "한 번 실행",
+    "description": "Run once schedule"
+  },
+  "runInterval": {
+    "message": "간격 실행",
+    "description": "Run at interval"
+  },
+  "runDaily": {
+    "message": "매일 실행",
+    "description": "Run daily"
+  },
+  "runWeekly": {
+    "message": "매주 실행",
+    "description": "Run weekly"
+  },
+  "selectElement": {
+    "message": "요소 선택",
+    "description": "Select element button"
+  },
+  "generatingCode": {
+    "message": "코드 생성 중...",
+    "description": "Generating code message"
+  },
+  "pageAnalysis": {
+    "message": "페이지 분석",
+    "description": "Page analysis label"
+  },
+  "forms": {
+    "message": "폼",
+    "description": "Forms label"
+  },
+  "buttons": {
+    "message": "버튼",
+    "description": "Buttons label"
+  },
+  "links": {
+    "message": "링크",
+    "description": "Links label"
+  },
+  "inputs": {
+    "message": "입력",
+    "description": "Inputs label"
+  },
+  "loading": {
+    "message": "로딩 중...",
+    "description": "Loading message"
+  },
+  "noResults": {
+    "message": "결과 없음",
+    "description": "No results message"
+  },
+  "retry": {
+    "message": "재시도",
+    "description": "Retry button"
+  },
+  "downloadModel": {
+    "message": "모델 다운로드",
+    "description": "Download model button"
+  },
+  "localModel": {
+    "message": "로컬 모델",
+    "description": "Local model label"
+  },
+  "apiModel": {
+    "message": "API 모델",
+    "description": "API model label"
+  },
+  "webllmNotSupported": {
+    "message": "WebLLM은 이 브라우저에서 지원되지 않습니다",
+    "description": "WebLLM not supported message"
+  },
+  "webgpuRequired": {
+    "message": "WebGPU가 필요합니다",
+    "description": "WebGPU required message"
+  }
+}

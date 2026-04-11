@@ -1,0 +1,250 @@
+{
+  "extName": {
+    "message": "Agentab",
+    "description": "Extension name"
+  },
+  "extDescription": {
+    "message": "任意のタブをAIエージェントに変えるChrome拡張機能",
+    "description": "Extension description"
+  },
+  "promptTab": {
+    "message": "プロンプト",
+    "description": "Prompt tab label"
+  },
+  "codeTab": {
+    "message": "コード",
+    "description": "Code tab label"
+  },
+  "runAgent": {
+    "message": "エージェントを実行",
+    "description": "Run agent button"
+  },
+  "stopAgent": {
+    "message": "停止",
+    "description": "Stop agent button"
+  },
+  "saveTask": {
+    "message": "タスクを保存",
+    "description": "Save task button"
+  },
+  "clearOutput": {
+    "message": "出力をクリア",
+    "description": "Clear output button"
+  },
+  "settings": {
+    "message": "設定",
+    "description": "Settings button"
+  },
+  "tasks": {
+    "message": "タスク",
+    "description": "Tasks button"
+  },
+  "apiBaseUrl": {
+    "message": "APIベースURL",
+    "description": "API base URL label"
+  },
+  "apiKey": {
+    "message": "APIキー",
+    "description": "API key label"
+  },
+  "model": {
+    "message": "モデル",
+    "description": "Model label"
+  },
+  "testConnection": {
+    "message": "接続テスト",
+    "description": "Test connection button"
+  },
+  "connectionSuccess": {
+    "message": "接続成功",
+    "description": "Connection success message"
+  },
+  "connectionFailed": {
+    "message": "接続失敗",
+    "description": "Connection failed message"
+  },
+  "saved": {
+    "message": "保存しました",
+    "description": "Saved message"
+  },
+  "error": {
+    "message": "エラー",
+    "description": "Error label"
+  },
+  "success": {
+    "message": "成功",
+    "description": "Success label"
+  },
+  "thinking": {
+    "message": "思考中...",
+    "description": "Thinking message"
+  },
+  "executing": {
+    "message": "実行中...",
+    "description": "Executing message"
+  },
+  "completed": {
+    "message": "完了",
+    "description": "Completed message"
+  },
+  "noTasks": {
+    "message": "タスクがありません",
+    "description": "No tasks message"
+  },
+  "searchTasks": {
+    "message": "タスクを検索...",
+    "description": "Search tasks placeholder"
+  },
+  "taskName": {
+    "message": "タスク名",
+    "description": "Task name label"
+  },
+  "taskDescription": {
+    "message": "説明",
+    "description": "Task description label"
+  },
+  "taskType": {
+    "message": "タイプ",
+    "description": "Task type label"
+  },
+  "delete": {
+    "message": "削除",
+    "description": "Delete button"
+  },
+  "edit": {
+    "message": "編集",
+    "description": "Edit button"
+  },
+  "copy": {
+    "message": "コピー",
+    "description": "Copy button"
+  },
+  "cancel": {
+    "message": "キャンセル",
+    "description": "Cancel button"
+  },
+  "confirm": {
+    "message": "確認",
+    "description": "Confirm button"
+  },
+  "exportTasks": {
+    "message": "タスクをエクスポート",
+    "description": "Export tasks button"
+  },
+  "importTasks": {
+    "message": "タスクをインポート",
+    "description": "Import tasks button"
+  },
+  "history": {
+    "message": "履歴",
+    "description": "History label"
+  },
+  "clearHistory": {
+    "message": "履歴をクリア",
+    "description": "Clear history button"
+  },
+  "theme": {
+    "message": "テーマ",
+    "description": "Theme label"
+  },
+  "lightTheme": {
+    "message": "ライト",
+    "description": "Light theme"
+  },
+  "darkTheme": {
+    "message": "ダーク",
+    "description": "Dark theme"
+  },
+  "autoTheme": {
+    "message": "自動",
+    "description": "Auto theme"
+  },
+  "snippets": {
+    "message": "スニペット",
+    "description": "Snippets label"
+  },
+  "templates": {
+    "message": "テンプレート",
+    "description": "Templates label"
+  },
+  "schedule": {
+    "message": "スケジュール",
+    "description": "Schedule label"
+  },
+  "runOnce": {
+    "message": "一度だけ実行",
+    "description": "Run once schedule"
+  },
+  "runInterval": {
+    "message": "間隔実行",
+    "description": "Run at interval"
+  },
+  "runDaily": {
+    "message": "毎日実行",
+    "description": "Run daily"
+  },
+  "runWeekly": {
+    "message": "毎週実行",
+    "description": "Run weekly"
+  },
+  "selectElement": {
+    "message": "要素を選択",
+    "description": "Select element button"
+  },
+  "generatingCode": {
+    "message": "コードを生成中...",
+    "description": "Generating code message"
+  },
+  "pageAnalysis": {
+    "message": "ページ分析",
+    "description": "Page analysis label"
+  },
+  "forms": {
+    "message": "フォーム",
+    "description": "Forms label"
+  },
+  "buttons": {
+    "message": "ボタン",
+    "description": "Buttons label"
+  },
+  "links": {
+    "message": "リンク",
+    "description": "Links label"
+  },
+  "inputs": {
+    "message": "入力欄",
+    "description": "Inputs label"
+  },
+  "loading": {
+    "message": "読み込み中...",
+    "description": "Loading message"
+  },
+  "noResults": {
+    "message": "結果がありません",
+    "description": "No results message"
+  },
+  "retry": {
+    "message": "再試行",
+    "description": "Retry button"
+  },
+  "downloadModel": {
+    "message": "モデルをダウンロード",
+    "description": "Download model button"
+  },
+  "localModel": {
+    "message": "ローカルモデル",
+    "description": "Local model label"
+  },
+  "apiModel": {
+    "message": "APIモデル",
+    "description": "API model label"
+  },
+  "webllmNotSupported": {
+    "message": "WebLLMはこのブラウザではサポートされていません",
+    "description": "WebLLM not supported message"
+  },
+  "webgpuRequired": {
+    "message": "WebGPUが必要です",
+    "description": "WebGPU required message"
+  }
+}
