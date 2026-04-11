@@ -658,5 +658,173 @@
   "modelSelectHint": {
     "message": "选择预设模型或输入自定义模型名称",
     "description": "Model select hint"
+  },
+  "localModelTitle": {
+    "message": "本地模型 (WebLLM)",
+    "description": "Local model section title"
+  },
+  "checkingWebGPU": {
+    "message": "检查 WebGPU 支持...",
+    "description": "Checking WebGPU support"
+  },
+  "webGPUSupported": {
+    "message": "WebGPU 已支持",
+    "description": "WebGPU supported"
+  },
+  "webGPUNotSupported": {
+    "message": "WebGPU 不支持",
+    "description": "WebGPU not supported"
+  },
+  "webGPUCheckFailed": {
+    "message": "WebGPU 检查失败",
+    "description": "WebGPU check failed"
+  },
+  "localModelLabel": {
+    "message": "选择本地模型",
+    "description": "Local model select label"
+  },
+  "localModelHint": {
+    "message": "选择要在浏览器中本地运行的模型",
+    "description": "Local model select hint"
+  },
+  "btnLoadModel": {
+    "message": "加载模型",
+    "description": "Load model button"
+  },
+  "btnUnloadModel": {
+    "message": "卸载模型",
+    "description": "Unload model button"
+  },
+  "loadingModel": {
+    "message": "正在加载模型...",
+    "description": "Loading model status"
+  },
+  "modelLoaded": {
+    "message": "模型已加载",
+    "description": "Model loaded status"
+  },
+  "modelLoadSuccess": {
+    "message": "模型加载成功",
+    "description": "Model load success"
+  },
+  "modelLoadFailed": {
+    "message": "模型加载失败",
+    "description": "Model load failed"
+  },
+  "modelUnloaded": {
+    "message": "模型已卸载",
+    "description": "Model unloaded"
+  },
+  "preferLocalModelLabel": {
+    "message": "优先使用本地模型",
+    "description": "Prefer local model checkbox label"
+  },
+  "preferLocalModelHint": {
+    "message": "当本地模型可用时优先使用，API 作为备用",
+    "description": "Prefer local model hint"
+  },
+  "schedulesTitle": {
+    "message": "任务调度",
+    "description": "Schedules section title"
+  },
+  "btnAddSchedule": {
+    "message": "添加调度",
+    "description": "Add schedule button"
+  },
+  "activeSchedules": {
+    "message": "活动: ",
+    "description": "Active schedules label"
+  },
+  "pausedSchedules": {
+    "message": "暂停: ",
+    "description": "Paused schedules label"
+  },
+  "noSchedules": {
+    "message": "暂无调度任务",
+    "description": "No schedules message"
+  },
+  "createSchedule": {
+    "message": "创建调度",
+    "description": "Create schedule title"
+  },
+  "selectTask": {
+    "message": "选择任务",
+    "description": "Select task label"
+  },
+  "scheduleType": {
+    "message": "调度类型",
+    "description": "Schedule type label"
+  },
+  "intervalSchedule": {
+    "message": "间隔执行",
+    "description": "Interval schedule"
+  },
+  "dailySchedule": {
+    "message": "每日定时",
+    "description": "Daily schedule"
+  },
+  "weeklySchedule": {
+    "message": "每周定时",
+    "description": "Weekly schedule"
+  },
+  "intervalMinutes": {
+    "message": "间隔时间 (分钟)",
+    "description": "Interval minutes label"
+  },
+  "scheduleTime": {
+    "message": "执行时间",
+    "description": "Schedule time label"
+  },
+  "scheduleDays": {
+    "message": "执行日期",
+    "description": "Schedule days label"
+  },
+  "btnCreateSchedule": {
+    "message": "创建调度",
+    "description": "Create schedule button"
+  },
+  "scheduleCreated": {
+    "message": "调度已创建",
+    "description": "Schedule created notification"
+  },
+  "scheduleUpdated": {
+    "message": "调度已更新",
+    "description": "Schedule updated notification"
+  },
+  "scheduleDeleted": {
+    "message": "调度已删除",
+    "description": "Schedule deleted notification"
+  },
+  "schedulePaused": {
+    "message": "调度已暂停",
+    "description": "Schedule paused notification"
+  },
+  "scheduleResumed": {
+    "message": "调度已恢复",
+    "description": "Schedule resumed notification"
+  },
+  "nextRunAt": {
+    "message": "下次执行: ",
+    "description": "Next run at label"
+  },
+  "lastRunAt": {
+    "message": "上次执行: ",
+    "description": "Last run at label"
+  },
+  "runCount": {
+    "message": "执行次数: ",
+    "description": "Run count label"
+  },
+  "intervalEvery": {
+    "message": "每 {0} 分钟",
+    "description": "Interval every label"
+  },
+  "dailyAt": {
+    "message": "每日 {0}",
+    "description": "Daily at label"
+  },
+  "weeklyAt": {
+    "message": "每周 {0} {1}",
+    "description": "Weekly at label"
   }
 }

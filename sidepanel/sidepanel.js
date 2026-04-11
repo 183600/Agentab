@@ -11,8 +11,8 @@ import {
 } from '../lib/ui-components.js';
 import { uiLogger } from '../lib/logger.js';
 import { integrateFeatures } from '../lib/feature-integration.js';
-import { debounce, throttle } from '../lib/utils.js';
-import { withBoundary, ErrorBoundary } from '../lib/error-boundary.js';
+import { debounce } from '../lib/utils.js';
+import { withBoundary } from '../lib/error-boundary.js';
 import { CommandPalette, DEFAULT_COMMANDS, addCommandPaletteStyles } from '../lib/command-palette.js';
 import { getGlobalStateSync, StateKeys } from '../lib/state-sync.js';
 import { getToast, addLoadingStateStyles } from '../lib/loading-state.js';
@@ -37,13 +37,18 @@ const lazyModules = {
  */
 async function loadSnippetsModule() {
   if (lazyModules.snippets) return lazyModules.snippets;
-  
-  const module = await import('../lib/snippets.js');
-  snippetLibrary = module.snippetLibrary;
-  getCategoriesWithLabels = module.getCategoriesWithLabels;
-  lazyModules.snippets = module;
-  uiLogger.debug('Snippets module loaded');
-  return module;
+
+  try {
+    const module = await import('../lib/snippets.js');
+    snippetLibrary = module.snippetLibrary;
+    getCategoriesWithLabels = module.getCategoriesWithLabels;
+    lazyModules.snippets = module;
+    uiLogger.info('Snippets module loaded');
+    return module;
+  } catch (error) {
+    uiLogger.error('Failed to load snippets module', { error: error.message });
+    return null;
+  }
 }
 
 /**
@@ -51,13 +56,18 @@ async function loadSnippetsModule() {
  */
 async function loadTemplatesModule() {
   if (lazyModules.templates) return lazyModules.templates;
-  
-  const module = await import('../lib/templates.js');
-  templateLibrary = module.templateLibrary;
-  getTemplateCategoriesWithMeta = module.getTemplateCategoriesWithMeta;
-  lazyModules.templates = module;
-  uiLogger.debug('Templates module loaded');
-  return module;
+
+  try {
+    const module = await import('../lib/templates.js');
+    templateLibrary = module.templateLibrary;
+    getTemplateCategoriesWithMeta = module.getTemplateCategoriesWithMeta;
+    lazyModules.templates = module;
+    uiLogger.info('Templates module loaded');
+    return module;
+  } catch (error) {
+    uiLogger.error('Failed to load templates module', { error: error.message });
+    return null;
+  }
 }
 
 /**
@@ -65,13 +75,36 @@ async function loadTemplatesModule() {
  */
 async function loadAutocompleteModule() {
   if (lazyModules.autocomplete) return lazyModules.autocomplete;
-  
-  const module = await import('../lib/autocomplete.js');
-  AutocompleteUI = module.AutocompleteUI;
-  autocompleteEngine = module.autocompleteEngine;
-  lazyModules.autocomplete = module;
-  uiLogger.debug('Autocomplete module loaded');
-  return module;
+
+  try {
+    const module = await import('../lib/autocomplete.js');
+    AutocompleteUI = module.AutocompleteUI;
+    autocompleteEngine = module.autocompleteEngine;
+    lazyModules.autocomplete = module;
+    uiLogger.info('Autocomplete module loaded');
+    return module;
+  } catch (error) {
+    uiLogger.error('Failed to load autocomplete module', { error: error.message });
+    return null;
+  }
+}
+
+/**
+ * Check if snippets are available
+ * @returns {boolean}
+ */
+// eslint-disable-next-line no-unused-vars
+function isSnippetsAvailable() {
+  return snippetLibrary !== null;
+}
+
+/**
+ * Check if templates are available
+ * @returns {boolean}
+ */
+// eslint-disable-next-line no-unused-vars
+function isTemplatesAvailable() {
+  return templateLibrary !== null;
 }
 
 /**
@@ -203,11 +236,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Initialize animations
   addAnimationStyles();
-  
+
   // Initialize loading state styles
   addLoadingStateStyles();
-  
-  // Initialize toast notification system
+
+  // Initialize toast notification system (for future use)
+  // eslint-disable-next-line no-unused-vars
   const toast = getToast();
 
   // === Global State Sync ===
@@ -344,20 +378,27 @@ document.addEventListener('DOMContentLoaded', async () => {
     textarea: document.getElementById('code-input')
   });
 
-  // Setup autocomplete for code editor
-  try {
-    new AutocompleteUI(document.getElementById('code-input'), autocompleteEngine);
-    uiLogger.info('Autocomplete enabled for code editor');
-  } catch (e) {
-    uiLogger.warn('Failed to initialize autocomplete', { error: e.message });
-  }
+  // Setup autocomplete for code editor (lazy loaded)
+  const initAutocomplete = async () => {
+    await loadAutocompleteModule();
+    if (AutocompleteUI && autocompleteEngine) {
+      try {
+        new AutocompleteUI(document.getElementById('code-input'), autocompleteEngine);
+        uiLogger.info('Autocomplete enabled for code editor');
+      } catch (e) {
+        uiLogger.warn('Failed to initialize autocomplete', { error: e.message });
+      }
+    }
+  };
+  // Initialize autocomplete in background
+  initAutocomplete();
 
   // Setup message listener
   setupAgentMessageListener(agentUI);
 
   // === Command Palette Integration ===
   addCommandPaletteStyles();
-  
+
   // Create command palette with default commands
   const commandPalette = new CommandPalette({
     container: document.body,
@@ -387,7 +428,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           promptEditor.setValue('');
         }
       };
-      
+
       return {
         ...cmd,
         handler: handlers[cmd.id] || (() => uiLogger.warn(`Command ${cmd.id} not implemented`))
@@ -397,7 +438,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     onOpen: () => uiLogger.debug('Command palette opened'),
     onClose: () => uiLogger.debug('Command palette closed')
   });
-  
+
   // Add keyboard shortcut for command palette (Ctrl+Shift+P)
   document.addEventListener('keydown', e => {
     if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === 'p') {
@@ -405,13 +446,13 @@ document.addEventListener('DOMContentLoaded', async () => {
       commandPalette.toggle();
     }
   });
-  
+
   uiLogger.info('Command palette initialized');
 
   // === Feature Integration (V4) ===
-  let featureIntegrator = null;
   try {
-    featureIntegrator = await integrateFeatures({
+    /* eslint-disable no-unused-vars */
+    const featureIntegrator = await integrateFeatures({
       container: document.body,
       agentUI,
       tabManager,
@@ -429,6 +470,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
       }
     });
+    /* eslint-enable no-unused-vars */
     uiLogger.info('V4 features integrated successfully');
   } catch (e) {
     uiLogger.warn('Failed to integrate V4 features', { error: e.message });
@@ -501,7 +543,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     agentUI.setRunningState(true, { run: btnRunPrompt, stop: btnStopPrompt });
     agentUI.clearOutput();
 
-    const { success, result, error } = await withBoundary(
+    const { success, error } = await withBoundary(
       async () => {
         const response = await chrome.runtime.sendMessage({
           action: 'execute_prompt',
@@ -879,21 +921,50 @@ document.addEventListener('DOMContentLoaded', async () => {
     agentUI.showNotification(i18n('snippetInserted', [snippet.name]), 'success');
   }
 
-  // Add snippets button to header
+  // Add snippets button to header (lazy loaded)
+
   const headerRight = document.querySelector('.header-right');
-  if (headerRight) {
+
+
+  // Initialize snippets panel with lazy loading
+
+  const initSnippetsPanel = async () => {
+
+    await loadSnippetsModule();
+
+    if (!snippetLibrary || !headerRight) return;
+
+
     snippetsBtn = createSnippetsButton();
+
     headerRight.insertBefore(snippetsBtn, headerRight.firstChild);
 
+
     snippetsBtn.addEventListener('click', () => {
+
       if (!snippetsPanel) {
+
         snippetsPanel = createSnippetsPanel();
+
         document.body.appendChild(snippetsPanel);
+
         renderSnippetsCategories(snippetsPanel);
+
       }
+
       snippetsPanel.classList.toggle('hidden');
+
     });
-  }
+
+
+    uiLogger.info('Snippets panel initialized');
+
+  };
+
+
+  // Initialize snippets in background
+
+  initSnippetsPanel();
 
   // === Templates Panel ===
   let templatesPanel = null;
@@ -1088,10 +1159,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     agentUI.showNotification(i18n('templateApplied', [template.name]), 'success');
   }
 
-  // Add templates button to header
-  if (headerRight) {
+  // Initialize templates panel with lazy loading
+  const initTemplatesPanel = async () => {
+    await loadTemplatesModule();
+    if (!templateLibrary || !headerRight) return;
+
     templatesBtn = createTemplatesButton();
-    headerRight.insertBefore(templatesBtn, snippetsBtn);
+    // Insert before snippets button if it exists, otherwise first
+    const insertBefore = snippetsBtn || headerRight.firstChild;
+    headerRight.insertBefore(templatesBtn, insertBefore);
 
     templatesBtn.addEventListener('click', () => {
       if (!templatesPanel) {
@@ -1101,7 +1177,12 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
       templatesPanel.classList.toggle('hidden');
     });
-  }
+
+    uiLogger.info('Templates panel initialized');
+  };
+
+  // Initialize templates in background (after snippets)
+  setTimeout(() => initTemplatesPanel(), 100);
 
   // === Close panels on click outside ===
   document.addEventListener('click', e => {

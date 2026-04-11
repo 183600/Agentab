@@ -313,4 +313,148 @@ document.addEventListener('DOMContentLoaded', async () => {
       btnTestConnection.innerHTML = originalContent;
     }
   });
+
+  // === WebLLM Local Model Support ===
+  const webllmStatusIndicator = document.getElementById('webllm-status-indicator');
+  const webllmModelGroup = document.getElementById('webllm-model-group');
+  const webllmActions = document.getElementById('webllm-actions');
+  const webllmModelSelect = document.getElementById('webllm-model');
+  const btnLoadWebLLM = document.getElementById('btn-load-webllm');
+  const btnUnloadWebLLM = document.getElementById('btn-unload-webllm');
+  const webllmProgress = document.getElementById('webllm-progress');
+  const webllmProgressFill = document.getElementById('webllm-progress-fill');
+  const webllmProgressText = document.getElementById('webllm-progress-text');
+  const preferLocalModelCheckbox = document.getElementById('prefer-local-model');
+
+  /**
+   * Update WebLLM status display
+   */
+  function updateWebLLMStatus(status, text, isError = false) {
+    const statusDot = webllmStatusIndicator.querySelector('.status-dot');
+    const statusText = webllmStatusIndicator.querySelector('.status-text');
+
+    statusDot.className = 'status-dot';
+    if (status === 'supported') {
+      statusDot.classList.add('supported');
+    } else if (status === 'unsupported' || isError) {
+      statusDot.classList.add('unsupported');
+    } else if (status === 'loading') {
+      statusDot.classList.add('loading');
+    } else if (status === 'ready') {
+      statusDot.classList.add('ready');
+    }
+
+    statusText.textContent = text;
+  }
+
+  /**
+   * Check WebGPU support and initialize WebLLM UI
+   */
+  async function initWebLLM() {
+    try {
+      // Check if WebGPU is supported
+      const response = await chrome.runtime.sendMessage({ action: 'check_webgpu_support' });
+
+      if (response.supported) {
+        updateWebLLMStatus('supported', i18n('webGPUSupported') || 'WebGPU 已支持');
+        webllmModelGroup.style.display = 'block';
+        webllmActions.style.display = 'block';
+        btnLoadWebLLM.disabled = false;
+
+        // Check if a model is already loaded
+        const stateResponse = await chrome.runtime.sendMessage({ action: 'get_webllm_state' });
+        if (stateResponse.state === 'ready') {
+          updateWebLLMStatus('ready', `${i18n('modelLoaded') || '模型已加载'}: ${stateResponse.model}`);
+          btnLoadWebLLM.style.display = 'none';
+          btnUnloadWebLLM.style.display = 'inline-flex';
+          webllmModelSelect.value = stateResponse.model;
+        }
+
+        // Load saved preference
+        const settings = await chrome.storage.local.get('preferLocalModel');
+        preferLocalModelCheckbox.checked = settings.preferLocalModel || false;
+      } else {
+        updateWebLLMStatus('unsupported', response.reason || (i18n('webGPUNotSupported') || 'WebGPU 不支持'));
+      }
+    } catch (error) {
+      updateWebLLMStatus('unsupported', `${i18n('webGPUCheckFailed') || 'WebGPU 检查失败'}: ${error.message}`, true);
+    }
+  }
+
+  // Initialize WebLLM
+  initWebLLM();
+
+  // Model selection change
+  webllmModelSelect.addEventListener('change', () => {
+    btnLoadWebLLM.disabled = !webllmModelSelect.value;
+  });
+
+  // Load model button
+  btnLoadWebLLM.addEventListener('click', async () => {
+    const modelId = webllmModelSelect.value;
+    if (!modelId) return;
+
+    btnLoadWebLLM.disabled = true;
+    webllmProgress.style.display = 'flex';
+    updateWebLLMStatus('loading', i18n('loadingModel') || '正在加载模型...');
+
+    try {
+      // Listen for progress updates
+      const progressListener = message => {
+        if (message.action === 'webllm_progress') {
+          const progress = message.progress;
+          webllmProgressFill.style.width = `${progress}%`;
+          webllmProgressText.textContent = `${Math.round(progress)}%`;
+        }
+      };
+      chrome.runtime.onMessage.addListener(progressListener);
+
+      const response = await chrome.runtime.sendMessage({
+        action: 'load_webllm_model',
+        modelId
+      });
+
+      chrome.runtime.onMessage.removeListener(progressListener);
+
+      if (response.success) {
+        updateWebLLMStatus('ready', `${i18n('modelLoaded') || '模型已加载'}: ${modelId}`);
+        btnLoadWebLLM.style.display = 'none';
+        btnUnloadWebLLM.style.display = 'inline-flex';
+        showToast(i18n('modelLoadSuccess') || '模型加载成功', 'success');
+      } else {
+        throw new Error(response.error || 'Unknown error');
+      }
+    } catch (error) {
+      updateWebLLMStatus('unsupported', `${i18n('modelLoadFailed') || '模型加载失败'}: ${error.message}`, true);
+      showToast(`${i18n('modelLoadFailed') || '模型加载失败'}: ${error.message}`, 'error');
+    } finally {
+      btnLoadWebLLM.disabled = false;
+      webllmProgress.style.display = 'none';
+    }
+  });
+
+  // Unload model button
+  btnUnloadWebLLM.addEventListener('click', async () => {
+    btnUnloadWebLLM.disabled = true;
+
+    try {
+      const response = await chrome.runtime.sendMessage({ action: 'unload_webllm_model' });
+
+      if (response.success) {
+        updateWebLLMStatus('supported', i18n('webGPUSupported') || 'WebGPU 已支持');
+        btnLoadWebLLM.style.display = 'inline-flex';
+        btnUnloadWebLLM.style.display = 'none';
+        showToast(i18n('modelUnloaded') || '模型已卸载', 'success');
+      }
+    } catch (error) {
+      showToast(`${i18n('error') || '错误'}: ${error.message}`, 'error');
+    } finally {
+      btnUnloadWebLLM.disabled = false;
+    }
+  });
+
+  // Save prefer local model preference
+  preferLocalModelCheckbox.addEventListener('change', async () => {
+    await chrome.storage.local.set({ preferLocalModel: preferLocalModelCheckbox.checked });
+  });
 });

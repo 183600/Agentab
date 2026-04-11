@@ -76,6 +76,42 @@
         </div>
       </div>
 
+      <!-- Schedule Management Section -->
+      <section class="schedule-section">
+        <div class="section-header">
+          <h2>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/>
+              <polyline points="12 6 12 12 16 14"/>
+            </svg>
+            <span data-i18n="schedulesTitle">任务调度</span>
+          </h2>
+          <button class="btn btn-secondary btn-sm" id="btn-add-schedule" disabled>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="12" y1="5" x2="12" y2="19"/>
+              <line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+            <span data-i18n="btnAddSchedule">添加调度</span>
+          </button>
+        </div>
+        <div class="schedule-stats">
+          <span class="schedule-stat">
+            <span class="stat-dot active"></span>
+            <span data-i18n="activeSchedules">活动: </span><span id="active-schedules-count">0</span>
+          </span>
+          <span class="schedule-stat">
+            <span class="stat-dot paused"></span>
+            <span data-i18n="pausedSchedules">暂停: </span><span id="paused-schedules-count">0</span>
+          </span>
+        </div>
+        <div id="schedules-list" class="schedules-list">
+          <!-- Schedules will be rendered here -->
+          <div class="schedules-empty" id="schedules-empty">
+            <span data-i18n="noSchedules">暂无调度任务</span>
+          </div>
+        </div>
+      </section>
+
       <!-- Tasks Grid -->
       <div id="tasks-grid" class="tasks-grid">
         <!-- Tasks will be rendered here -->
@@ -173,6 +209,100 @@
         <div class="modal-footer">
           <button class="btn btn-secondary" id="btn-cancel-delete" data-i18n="btnCancel">取消</button>
           <button class="btn btn-danger" id="btn-confirm-delete" data-i18n="btnDelete">删除</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Schedule Modal -->
+    <div
+      id="schedule-modal"
+      class="modal-overlay hidden"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="schedule-modal-title"
+    >
+      <div class="modal">
+        <div class="modal-header">
+          <h2 id="schedule-modal-title" data-i18n="createSchedule">创建调度</h2>
+          <button class="close-btn" id="btn-close-schedule-modal" aria-label="Close dialog">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="schedule-task-id" />
+          <input type="hidden" id="schedule-edit-id" />
+          <div class="form-group">
+            <label for="schedule-task-select" data-i18n="selectTask">选择任务</label>
+            <select id="schedule-task-select">
+              <option value="">-- 选择任务 --</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label data-i18n="scheduleType">调度类型</label>
+            <div class="schedule-type-selector">
+              <button class="type-option active" data-schedule-type="interval">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M23 4v6h-6"/><path d="M1 20v-6h6"/>
+                  <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 12M1 12l4.64 4.36A9 9 0 0 0 20.49 15"/>
+                </svg>
+                <span data-i18n="intervalSchedule">间隔执行</span>
+              </button>
+              <button class="type-option" data-schedule-type="daily">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                  <line x1="16" y1="2" x2="16" y2="6"/>
+                  <line x1="8" y1="2" x2="8" y2="6"/>
+                  <line x1="3" y1="10" x2="21" y2="10"/>
+                </svg>
+                <span data-i18n="dailySchedule">每日定时</span>
+              </button>
+              <button class="type-option" data-schedule-type="weekly">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                  <line x1="16" y1="2" x2="16" y2="6"/>
+                  <line x1="8" y1="2" x2="8" y2="6"/>
+                  <line x1="3" y1="10" x2="21" y2="10"/>
+                </svg>
+                <span data-i18n="weeklySchedule">每周定时</span>
+              </button>
+            </div>
+          </div>
+          <div class="form-group" id="schedule-interval-group">
+            <label for="schedule-interval" data-i18n="intervalMinutes">间隔时间 (分钟)</label>
+            <select id="schedule-interval">
+              <option value="1">1 分钟</option>
+              <option value="5">5 分钟</option>
+              <option value="15" selected>15 分钟</option>
+              <option value="30">30 分钟</option>
+              <option value="60">1 小时</option>
+              <option value="360">6 小时</option>
+              <option value="720">12 小时</option>
+              <option value="1440">24 小时</option>
+            </select>
+          </div>
+          <div class="form-group hidden" id="schedule-time-group">
+            <label for="schedule-time" data-i18n="scheduleTime">执行时间</label>
+            <input type="time" id="schedule-time" value="09:00" />
+          </div>
+          <div class="form-group hidden" id="schedule-days-group">
+            <label data-i18n="scheduleDays">执行日期</label>
+            <div class="days-selector">
+              <label class="day-option"><input type="checkbox" value="0" /><span>日</span></label>
+              <label class="day-option"><input type="checkbox" value="1" checked /><span>一</span></label>
+              <label class="day-option"><input type="checkbox" value="2" checked /><span>二</span></label>
+              <label class="day-option"><input type="checkbox" value="3" checked /><span>三</span></label>
+              <label class="day-option"><input type="checkbox" value="4" checked /><span>四</span></label>
+              <label class="day-option"><input type="checkbox" value="5" checked /><span>五</span></label>
+              <label class="day-option"><input type="checkbox" value="6" /><span>六</span></label>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" id="btn-cancel-schedule" data-i18n="btnCancel">取消</button>
+          <button class="btn btn-primary" id="btn-save-schedule" data-i18n="btnCreateSchedule">创建调度</button>
         </div>
       </div>
     </div>

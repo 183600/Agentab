@@ -14,7 +14,8 @@
   function isValidSender(sender) {
     // Must come from our extension
     if (sender.id !== EXTENSION_ID) {
-      console.warn('[Content] Rejected message from unknown sender:', sender.id);
+      // Using console directly in content script - logger module not available here
+      console.warn('[Agentab][Content][Security] Rejected message from unknown sender:', sender.id);
       return false;
     }
     return true;
@@ -332,7 +333,7 @@
                 )
               );
             } catch (error) {
-              console.error('[ChromeAgent] extractTable error:', error);
+              console.error('[Agentab][ChromeAgent] extractTable error:', error);
               return null;
             }
           },
@@ -502,8 +503,8 @@
         height: Math.round(rect.height)
       },
       isVisible: rect.width > 0 && rect.height > 0,
-      isInteractive: ['a', 'button', 'input', 'select', 'textarea'].includes(element.tagName.toLowerCase()) || 
-                     element.onclick !== null || 
+      isInteractive: ['a', 'button', 'input', 'select', 'textarea'].includes(element.tagName.toLowerCase()) ||
+                     element.onclick !== null ||
                      element.hasAttribute('onclick') ||
                      element.getAttribute('role') === 'button'
     };
@@ -521,36 +522,45 @@
     elementSelectorActive = true;
     elementSelectorCallback = sendResponse;
 
+    // Inject styles for element selector (CSP compliant)
+    const styleEl = document.createElement('style');
+    styleEl.id = '__agentab_selector_styles__';
+    styleEl.textContent = `
+      .__agentab-selector-overlay__ {
+        position: fixed;
+        pointer-events: none;
+        z-index: 2147483646;
+        border: 2px solid #007acc;
+        background: rgba(0, 122, 204, 0.1);
+        transition: all 0.1s ease;
+        display: none;
+      }
+      .__agentab-selector-tooltip__ {
+        position: fixed;
+        top: 16px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 2147483647;
+        padding: 8px 16px;
+        background: #333;
+        color: #fff;
+        border-radius: 6px;
+        font-size: 13px;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      }
+    `;
+    document.head.appendChild(styleEl);
+
     // Create overlay
     elementSelectorOverlay = document.createElement('div');
-    elementSelectorOverlay.style.cssText = `
-      position: fixed;
-      pointer-events: none;
-      z-index: 2147483646;
-      border: 2px solid #007acc;
-      background: rgba(0, 122, 204, 0.1);
-      transition: all 0.1s ease;
-      display: none;
-    `;
+    elementSelectorOverlay.className = '__agentab-selector-overlay__';
     document.body.appendChild(elementSelectorOverlay);
 
     // Show tooltip
     elementSelectorTooltip = document.createElement('div');
+    elementSelectorTooltip.className = '__agentab-selector-tooltip__';
     elementSelectorTooltip.textContent = 'Click an element to select it, or press Esc to cancel';
-    elementSelectorTooltip.style.cssText = `
-      position: fixed;
-      top: 16px;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 2147483647;
-      padding: 8px 16px;
-      background: #333;
-      color: #fff;
-      border-radius: 6px;
-      font-size: 13px;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-    `;
     document.body.appendChild(elementSelectorTooltip);
 
     // Add event listeners
@@ -594,12 +604,17 @@
       elementSelectorTooltip.remove();
       elementSelectorTooltip = null;
     }
+    // Remove injected styles
+    const styleEl = document.getElementById('__agentab_selector_styles__');
+    if (styleEl) {
+      styleEl.remove();
+    }
     if (elementSelectorInfoPanel) {
       elementSelectorInfoPanel.remove();
       elementSelectorInfoPanel = null;
     }
 
-    console.log('[Content] Element selector stopped');
+    console.debug('[Agentab][Content] Element selector stopped');
   }
 
   /**
@@ -640,7 +655,7 @@
       elementSelectorCallback = null;
     }
 
-    console.log('[Content] Element selected:', info.selector);
+    console.debug('[Agentab][Content] Element selected:', info.selector);
   }
 
   /**
@@ -709,7 +724,7 @@
     // Inject page helpers
     injectPageHelpers();
 
-    console.log('[Content] Agentab content script initialized');
+    console.debug('[Agentab][Content] Agentab content script initialized');
   }
 
   // Run initialization

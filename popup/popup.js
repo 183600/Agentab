@@ -1,8 +1,20 @@
-// popup/popup.js
+// popup/popup.js - Using shared UI components
+
+import {
+  AgentUI,
+  SaveTaskDialog,
+  KeyboardShortcuts,
+  setupAgentMessageListener,
+  addAnimationStyles,
+  escapeHtml
+} from '../lib/ui-components.js';
 
 document.addEventListener('DOMContentLoaded', () => {
   // Localize document
   localizeDocument();
+
+  // Initialize animations
+  addAnimationStyles();
 
   // === Elements ===
   const tabs = document.querySelectorAll('.tab');
@@ -19,19 +31,41 @@ document.addEventListener('DOMContentLoaded', () => {
   const outputContent = document.getElementById('output-content');
   const btnClearOutput = document.getElementById('btn-clear-output');
 
-  // Save dialog elements
-  const saveDialog = document.getElementById('save-dialog');
-  const taskNameInput = document.getElementById('task-name');
-  const taskDescInput = document.getElementById('task-description');
-  const taskTypeBadge = document.getElementById('task-type-badge');
-  const taskContentPreview = document.getElementById('task-content-preview');
-  const btnCloseSaveDialog = document.getElementById('btn-close-save-dialog');
-  const btnCancelSave = document.getElementById('btn-cancel-save');
-  const btnConfirmSave = document.getElementById('btn-confirm-save');
+  // === Initialize Shared UI Components ===
+  const agentUI = new AgentUI({
+    outputSection,
+    outputContent,
+    clearOutputBtn: btnClearOutput
+  });
 
-  let isRunning = false;
-  let currentSaveType = 'prompt';
-  let currentSaveContent = '';
+  const saveDialog = new SaveTaskDialog({
+    dialog: document.getElementById('save-dialog'),
+    nameInput: document.getElementById('task-name'),
+    descInput: document.getElementById('task-description'),
+    typeBadge: document.getElementById('task-type-badge'),
+    contentPreview: document.getElementById('task-content-preview'),
+    closeBtn: document.getElementById('btn-close-save-dialog'),
+    cancelBtn: document.getElementById('btn-cancel-save'),
+    confirmBtn: document.getElementById('btn-confirm-save'),
+    onConfirm: async task => {
+      try {
+        const response = await chrome.runtime.sendMessage({
+          action: 'save_task',
+          task
+        });
+        if (response.success) {
+          agentUI.showNotification(i18n('taskSaved'));
+        }
+      } catch (e) {
+        agentUI.showNotification(i18n('taskSaveFailed', [e.message]), 'error');
+      }
+    }
+  });
+
+  // Setup message listener
+  setupAgentMessageListener(agentUI);
+
+  let currentTab = 'prompt';
 
   // === Tab Switching ===
   tabs.forEach(tab => {
@@ -39,7 +73,9 @@ document.addEventListener('DOMContentLoaded', () => {
       tabs.forEach(t => t.classList.remove('active'));
       tabContents.forEach(tc => tc.classList.remove('active'));
       tab.classList.add('active');
-      document.getElementById(`tab-${tab.dataset.tab}`).classList.add('active');
+      const tabId = tab.dataset.tab;
+      document.getElementById(`tab-${tabId}`).classList.add('active');
+      currentTab = tabId;
     });
   });
 
@@ -48,104 +84,52 @@ document.addEventListener('DOMContentLoaded', () => {
     chrome.tabs.create({ url: chrome.runtime.getURL('settings/settings.html') });
   });
 
-  // === Output ===
-  function addOutput(type, content) {
-    outputSection.classList.remove('hidden');
-    const entry = document.createElement('div');
-    entry.className = `output-entry ${type}`;
-
-    if (typeof content === 'string') {
-      entry.textContent = content;
-    } else {
-      entry.innerHTML = content;
-    }
-
-    outputContent.appendChild(entry);
-    outputContent.scrollTop = outputContent.scrollHeight;
-  }
-
-  function clearOutput() {
-    outputContent.innerHTML = '';
-    outputSection.classList.add('hidden');
-  }
-
-  btnClearOutput.addEventListener('click', clearOutput);
-
-  // === Handle Agent Updates ===
-  chrome.runtime.onMessage.addListener(message => {
-    if (message.action === 'agent_update') {
-      const update = message.update;
-      switch (update.type) {
-        case 'thinking':
-          addOutput(
-            'thinking',
-            `
-            <div class="spinner"></div>
-            <span>${escapeHtml(update.message)}</span>
-          `
-          );
-          break;
-        case 'executing':
-          addOutput(
-            'executing',
-            `
-            <div class="label">⚡ ${i18n('execCodeStep', [update.iteration || 1])}</div>
-            <div>${escapeHtml(update.explanation || '')}</div>
-            <div class="code-block">${escapeHtml(update.code)}</div>
-          `
-          );
-          break;
-        case 'executed':
-          if (update.result?.success) {
-            addOutput(
-              'success',
-              `
-              <div class="label">✅ ${i18n('execResult')}</div>
-              <div class="code-block">${escapeHtml(JSON.stringify(update.result.result, null, 2) || 'undefined')}</div>
-            `
-            );
-          } else {
-            addOutput(
-              'error',
-              `
-              <div class="label">❌ ${i18n('execError')}</div>
-              <div>${escapeHtml(update.result?.error || i18n('unknownError'))}</div>
-            `
-            );
-          }
-          break;
-        case 'complete':
-          addOutput(
-            'success',
-            `
-            <div class="label">🎉 ${i18n('taskComplete')}</div>
-            <div>${escapeHtml(update.message)}</div>
-            ${update.explanation ? `<div class="text-muted mt-8">${escapeHtml(update.explanation)}</div>` : ''}
-          `
-          );
-          break;
-        case 'error':
-          addOutput(
-            'error',
-            `
-            <div class="label">❌ ${i18n('error')}</div>
-            <div>${escapeHtml(update.message)}</div>
-          `
-          );
-          break;
+  // === Keyboard Shortcuts ===
+  new KeyboardShortcuts({
+    onRun: () => {
+      if (currentTab === 'prompt') {
+        runPrompt();
+      } else {
+        runCode();
       }
+    },
+    onClear: () => {
+      agentUI.clearOutput();
+    },
+    onSave: () => {
+      const content = currentTab === 'prompt' ? promptInput.value.trim() : codeInput.value.trim();
+      if (content) {
+        saveDialog.open(currentTab, content);
+      } else {
+        agentUI.showNotification(
+          currentTab === 'prompt' ? i18n('enterPromptFirst') : i18n('enterCodeFirst'),
+          'error'
+        );
+      }
+    },
+    onFocusPrompt: () => {
+      tabs[0].click();
+      promptInput.focus();
+    },
+    onFocusCode: () => {
+      tabs[1]?.click();
+      codeInput.focus();
+    },
+    onOpenTasks: () => {
+      chrome.tabs.create({ url: chrome.runtime.getURL('tasks/tasks.html') });
+    },
+    onOpenSettings: () => {
+      chrome.tabs.create({ url: chrome.runtime.getURL('settings/settings.html') });
     }
   });
 
   // === Run Prompt ===
-  btnRunPrompt.addEventListener('click', async () => {
+  async function runPrompt() {
     const prompt = promptInput.value.trim();
-    if (!prompt || isRunning) return;
+    if (!prompt || agentUI.isRunning) return;
 
-    isRunning = true;
-    btnRunPrompt.disabled = true;
-    btnRunPrompt.innerHTML = `<div class="spinner"></div> ${i18n('running')}`;
-    clearOutput();
+    agentUI.setRunningState(true, { run: btnRunPrompt });
+    agentUI.clearOutput();
 
     try {
       const response = await chrome.runtime.sendMessage({
@@ -154,7 +138,7 @@ document.addEventListener('DOMContentLoaded', () => {
       });
 
       if (!response.success && response.error) {
-        addOutput(
+        agentUI.addOutput(
           'error',
           `
           <div class="label">❌ ${i18n('error')}</div>
@@ -163,7 +147,7 @@ document.addEventListener('DOMContentLoaded', () => {
         );
       }
     } catch (e) {
-      addOutput(
+      agentUI.addOutput(
         'error',
         `
         <div class="label">❌ ${i18n('error')}</div>
@@ -171,26 +155,19 @@ document.addEventListener('DOMContentLoaded', () => {
       `
       );
     } finally {
-      isRunning = false;
-      btnRunPrompt.disabled = false;
-      btnRunPrompt.innerHTML = `
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <polygon points="5 3 19 12 5 21 5 3"/>
-        </svg>
-        <span>${i18n('btnRunAgent')}</span>
-      `;
+      agentUI.setRunningState(false, { run: btnRunPrompt });
     }
-  });
+  }
+
+  btnRunPrompt.addEventListener('click', runPrompt);
 
   // === Run Code ===
-  btnRunCode.addEventListener('click', async () => {
+  async function runCode() {
     const code = codeInput.value.trim();
-    if (!code || isRunning) return;
+    if (!code || agentUI.isRunning) return;
 
-    isRunning = true;
-    btnRunCode.disabled = true;
-    btnRunCode.innerHTML = `<div class="spinner"></div> ${i18n('running')}`;
-    clearOutput();
+    agentUI.setRunningState(true, { run: btnRunCode });
+    agentUI.clearOutput();
 
     try {
       const response = await chrome.runtime.sendMessage({
@@ -199,7 +176,7 @@ document.addEventListener('DOMContentLoaded', () => {
       });
 
       if (!response.success && response.error) {
-        addOutput(
+        agentUI.addOutput(
           'error',
           `
           <div class="label">❌ ${i18n('error')}</div>
@@ -208,7 +185,7 @@ document.addEventListener('DOMContentLoaded', () => {
         );
       }
     } catch (e) {
-      addOutput(
+      agentUI.addOutput(
         'error',
         `
         <div class="label">❌ ${i18n('error')}</div>
@@ -216,81 +193,23 @@ document.addEventListener('DOMContentLoaded', () => {
       `
       );
     } finally {
-      isRunning = false;
-      btnRunCode.disabled = false;
-      btnRunCode.innerHTML = `
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <polygon points="5 3 19 12 5 21 5 3"/>
-        </svg>
-        <span>${i18n('btnExecute')}</span>
-      `;
+      agentUI.setRunningState(false, { run: btnRunCode });
     }
-  });
+  }
+
+  btnRunCode.addEventListener('click', runCode);
 
   // === Save Task Dialog ===
-  function openSaveDialog(type, content) {
-    currentSaveType = type;
-    currentSaveContent = content;
-    taskNameInput.value = '';
-    taskDescInput.value = '';
-    taskTypeBadge.textContent = i18n(type === 'prompt' ? 'typePrompt' : 'typeCode');
-    taskTypeBadge.className = `task-type-badge ${type}`;
-    taskContentPreview.textContent =
-      content.substring(0, 300) + (content.length > 300 ? '...' : '');
-    saveDialog.classList.remove('hidden');
-    taskNameInput.focus();
-  }
-
-  function closeSaveDialog() {
-    saveDialog.classList.add('hidden');
-  }
-
   btnSavePrompt.addEventListener('click', () => {
     const prompt = promptInput.value.trim();
-    if (!prompt) return showNotification(i18n('enterPromptFirst'), 'error');
-    openSaveDialog('prompt', prompt);
+    if (!prompt) return agentUI.showNotification(i18n('enterPromptFirst'), 'error');
+    saveDialog.open('prompt', prompt);
   });
 
   btnSaveCode.addEventListener('click', () => {
     const code = codeInput.value.trim();
-    if (!code) return showNotification(i18n('enterCodeFirst'), 'error');
-    openSaveDialog('code', code);
-  });
-
-  btnCloseSaveDialog.addEventListener('click', closeSaveDialog);
-  btnCancelSave.addEventListener('click', closeSaveDialog);
-
-  btnConfirmSave.addEventListener('click', async () => {
-    const name = taskNameInput.value.trim();
-    if (!name) {
-      taskNameInput.style.borderColor = 'var(--error)';
-      taskNameInput.focus();
-      return;
-    }
-
-    try {
-      const response = await chrome.runtime.sendMessage({
-        action: 'save_task',
-        task: {
-          name,
-          type: currentSaveType,
-          content: currentSaveContent,
-          description: taskDescInput.value.trim()
-        }
-      });
-
-      if (response.success) {
-        closeSaveDialog();
-        showNotification(i18n('taskSaved'));
-      }
-    } catch (e) {
-      showNotification(i18n('taskSaveFailed', [e.message]), 'error');
-    }
-  });
-
-  // Reset border color on focus
-  taskNameInput.addEventListener('focus', () => {
-    taskNameInput.style.borderColor = '';
+    if (!code) return agentUI.showNotification(i18n('enterCodeFirst'), 'error');
+    saveDialog.open('code', code);
   });
 
   // === Open Tasks Page ===
@@ -308,68 +227,4 @@ document.addEventListener('DOMContentLoaded', () => {
       codeInput.selectionStart = codeInput.selectionEnd = start + 2;
     }
   });
-
-  // === Keyboard shortcuts ===
-  document.addEventListener('keydown', e => {
-    if (e.ctrlKey || e.metaKey) {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        const activeTab = document.querySelector('.tab.active');
-        if (activeTab.dataset.tab === 'prompt') {
-          btnRunPrompt.click();
-        } else {
-          btnRunCode.click();
-        }
-      }
-    }
-  });
-
-  // === Notification ===
-  function showNotification(message, type = 'success') {
-    const notification = document.createElement('div');
-    notification.className = `output-entry ${type}`;
-    notification.style.cssText = `
-      position: fixed;
-      bottom: 16px;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 1000;
-      padding: 8px 16px;
-      border-radius: 6px;
-      font-size: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-      animation: slideUp 0.3s ease;
-    `;
-    notification.textContent = message;
-    document.body.appendChild(notification);
-
-    setTimeout(() => {
-      notification.style.animation = 'fadeOut 0.3s ease forwards';
-      setTimeout(() => notification.remove(), 300);
-    }, 2000);
-  }
-
-  // === Utility ===
-  // Note: Local escapeHtml for backward compatibility.
-  // Consider migrating popup.js to ES6 module to use shared version from ui-components.js
-  function escapeHtml(text) {
-    if (text === null || text === undefined) return '';
-    const div = document.createElement('div');
-    div.textContent = String(text);
-    return div.innerHTML;
-  }
-
-  // Add CSS animations
-  const style = document.createElement('style');
-  style.textContent = `
-    @keyframes slideUp {
-      from { opacity: 0; transform: translateX(-50%) translateY(10px); }
-      to { opacity: 1; transform: translateX(-50%) translateY(0); }
-    }
-    @keyframes fadeOut {
-      from { opacity: 1; }
-      to { opacity: 0; }
-    }
-  `;
-  document.head.appendChild(style);
 });

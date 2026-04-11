@@ -9,9 +9,15 @@ import { initCacheCleanup } from '../lib/smart-cache.js';
 import { initMigration } from '../lib/migration.js';
 import { MultiTabCoordinator } from '../lib/multi-tab.js';
 import { logger } from '../lib/logger.js';
+import { initCircuitBreaker } from '../lib/recovery.js';
 
 // Setup error boundary
 ErrorHandler.setupErrorBoundary?.();
+
+// Initialize Circuit Breaker from persisted state
+initCircuitBreaker().catch(err => {
+  logger.warn('Failed to initialize circuit breaker', { error: err.message });
+});
 
 // Initialize data migration (runs on install/update)
 initMigration()
@@ -40,10 +46,10 @@ const multiTabCoordinator = new MultiTabCoordinator({
   maxConcurrentTabs: 5,
   taskTimeout: 60000,
   onProgress: (taskId, tabId, progress) => {
-    console.log(`[MultiTab] Task ${taskId} progress on tab ${tabId}:`, progress);
+    logger.debug('MultiTab task progress', { taskId, tabId, progress });
   },
   onComplete: (taskId, results) => {
-    console.log(`[MultiTab] Task ${taskId} completed:`, results.summary);
+    logger.info('MultiTab task completed', { taskId, summary: results.summary });
   }
 });
 
@@ -51,10 +57,10 @@ const multiTabCoordinator = new MultiTabCoordinator({
 
 // Handle extension install/update
 chrome.runtime.onInstalled.addListener(async details => {
-  console.log('[Background] Extension event:', details.reason);
+  logger.info('Extension lifecycle event', { reason: details.reason });
 
   if (details.reason === 'install') {
-    console.log('[Background] First install - initializing default data');
+    logger.info('First install - initializing default data');
 
     // Set initial schema version
     await chrome.storage.local.set({ schemaVersion: 1 });
@@ -75,16 +81,16 @@ chrome.runtime.onInstalled.addListener(async details => {
     };
     await chrome.storage.local.set(defaultSettings);
   } else if (details.reason === 'update') {
-    console.log('[Background] Extension updated from', details.previousVersion);
+    logger.info('Extension updated', { previousVersion: details.previousVersion });
 
     // Run migration for updates
     const { MigrationManager } = await import('../lib/migration.js');
     const result = await MigrationManager.migrate({ backup: true });
 
     if (result.success && result.fromVersion !== result.toVersion) {
-      console.log(`[Background] Migrated data: v${result.fromVersion} -> v${result.toVersion}`);
+      logger.info('Data migrated', { fromVersion: result.fromVersion, toVersion: result.toVersion });
     } else if (!result.success) {
-      console.error('[Background] Migration failed:', result.errors);
+      logger.error('Migration failed', { errors: result.errors });
     }
   }
 });
@@ -129,7 +135,7 @@ function isValidSender(sender) {
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   // Security: Validate sender
   if (!isValidSender(sender)) {
-    console.warn('[Security] Rejected message from invalid sender:', sender);
+    logger.warn('Rejected message from invalid sender', { senderId: sender.id });
     sendResponse({ error: 'Invalid sender', code: 'SECURITY_ERROR' });
     return false;
   }
@@ -211,6 +217,35 @@ async function handleMessage(message, sender) {
 
     case 'multi_tab_cancel':
       return handleMultiTabCancel(message);
+
+    // WebLLM Local Model Handlers
+    case 'check_webgpu_support':
+      return handleCheckWebGPUSupport();
+
+    case 'get_webllm_state':
+      return handleGetWebLLMState();
+
+    case 'load_webllm_model':
+      return handleLoadWebLLMModel(message);
+
+    case 'unload_webllm_model':
+      return handleUnloadWebLLMModel();
+
+    // Schedule Handlers
+    case 'get_schedules':
+      return handleGetSchedules();
+
+    case 'create_schedule':
+      return handleCreateSchedule(message);
+
+    case 'pause_schedule':
+      return handlePauseSchedule(message);
+
+    case 'resume_schedule':
+      return handleResumeSchedule(message);
+
+    case 'delete_schedule':
+      return handleDeleteSchedule(message);
 
     default:
       throw new Error(`Unknown action: ${message.action}`);
@@ -555,6 +590,256 @@ async function handleMultiTabCancel(message) {
   return { success: true, cancelled: result };
 }
 
+// ===== WebLLM Local Model Handlers =====
+
+// WebLLM state (lazy initialized)
+let webLLMProvider = null;
+let webLLMInitialized = false;
+
+/**
+ * Get or initialize WebLLM provider
+ */
+async function getWebLLMProvider() {
+  if (!webLLMInitialized) {
+    try {
+      const module = await import('../lib/web-llm-provider.js');
+      webLLMProvider = module.webLLMProvider;
+      webLLMInitialized = true;
+    } catch (error) {
+      logger.error('Failed to load WebLLM provider', { error: error.message });
+      return null;
+    }
+  }
+  return webLLMProvider;
+}
+
+/**
+ * Check WebGPU support
+ */
+async function handleCheckWebGPUSupport() {
+  const provider = await getWebLLMProvider();
+
+  if (!provider) {
+    return {
+      supported: false,
+      reason: 'WebLLM module not available. Install @mlc-ai/web-llm package.'
+    };
+  }
+
+  try {
+    const gpuSupported = await provider.checkWebGPUSupport();
+
+    if (gpuSupported) {
+      // Also check if WebLLM package is installed
+      const webLLMAvailable = await provider.isAvailable();
+
+      return {
+        supported: webLLMAvailable,
+        reason: webLLMAvailable ? null : 'WebGPU supported, but WebLLM package not installed. Run: npm install @mlc-ai/web-llm'
+      };
+    } else {
+      return {
+        supported: false,
+        reason: 'WebGPU is not supported on this device. Try using a browser with WebGPU support (Chrome 113+).'
+      };
+    }
+  } catch (error) {
+    return {
+      supported: false,
+      reason: `Error checking WebGPU: ${error.message}`
+    };
+  }
+}
+
+/**
+ * Get WebLLM state
+ */
+async function handleGetWebLLMState() {
+  const provider = await getWebLLMProvider();
+
+  if (!provider) {
+    return { state: 'unavailable', model: null };
+  }
+
+  const state = provider.getLoadingState();
+  return {
+    state: state.state,
+    model: state.model,
+    progress: state.progress
+  };
+}
+
+/**
+ * Load WebLLM model
+ */
+async function handleLoadWebLLMModel(message) {
+  const { modelId } = message;
+
+  if (!modelId) {
+    throw new ValidationError('Model ID is required', 'modelId', modelId);
+  }
+
+  const provider = await getWebLLMProvider();
+
+  if (!provider) {
+    throw new Error('WebLLM not available');
+  }
+
+  try {
+    // Load with progress callback
+    await provider.loadModel(modelId, progress => {
+      // Broadcast progress to all listeners
+      broadcastUpdate({
+        type: 'webllm_progress',
+        progress: progress.progress,
+        stage: progress.stage,
+        text: progress.text
+      });
+    });
+
+    return { success: true, modelId };
+  } catch (error) {
+    logger.error('Failed to load WebLLM model', { modelId, error: error.message });
+    throw error;
+  }
+}
+
+/**
+ * Unload WebLLM model
+ */
+async function handleUnloadWebLLMModel() {
+  const provider = await getWebLLMProvider();
+
+  if (provider) {
+    await provider.unloadModel();
+    return { success: true };
+  }
+
+  return { success: true };
+}
+
+// ===== Schedule Handlers =====
+
+// Task scheduler instance (lazy initialized)
+let taskSchedulerInstance = null;
+let taskSchedulerInitialized = false;
+
+/**
+ * Get or initialize task scheduler
+ */
+async function getTaskScheduler() {
+  if (!taskSchedulerInitialized) {
+    try {
+      const module = await import('../lib/task-scheduler.js');
+      taskSchedulerInstance = module.taskScheduler;
+      await taskSchedulerInstance.initialize();
+      taskSchedulerInitialized = true;
+    } catch (error) {
+      logger.error('Failed to initialize task scheduler', { error: error.message });
+      return null;
+    }
+  }
+  return taskSchedulerInstance;
+}
+
+/**
+ * Get all schedules
+ */
+async function handleGetSchedules() {
+  const scheduler = await getTaskScheduler();
+
+  if (!scheduler) {
+    return { success: true, schedules: [] };
+  }
+
+  const schedules = scheduler.getAllSchedules();
+  return { success: true, schedules };
+}
+
+/**
+ * Create a schedule
+ */
+async function handleCreateSchedule(message) {
+  const { taskId, type, config } = message;
+
+  const scheduler = await getTaskScheduler();
+
+  if (!scheduler) {
+    throw new Error('Task scheduler not available');
+  }
+
+  try {
+    const schedule = await scheduler.createSchedule(taskId, type, config);
+    return { success: true, schedule };
+  } catch (error) {
+    logger.error('Failed to create schedule', { taskId, type, error: error.message });
+    throw error;
+  }
+}
+
+/**
+ * Pause a schedule
+ */
+async function handlePauseSchedule(message) {
+  const { scheduleId } = message;
+
+  const scheduler = await getTaskScheduler();
+
+  if (!scheduler) {
+    throw new Error('Task scheduler not available');
+  }
+
+  try {
+    await scheduler.pauseSchedule(scheduleId);
+    return { success: true };
+  } catch (error) {
+    logger.error('Failed to pause schedule', { scheduleId, error: error.message });
+    throw error;
+  }
+}
+
+/**
+ * Resume a schedule
+ */
+async function handleResumeSchedule(message) {
+  const { scheduleId } = message;
+
+  const scheduler = await getTaskScheduler();
+
+  if (!scheduler) {
+    throw new Error('Task scheduler not available');
+  }
+
+  try {
+    await scheduler.resumeSchedule(scheduleId);
+    return { success: true };
+  } catch (error) {
+    logger.error('Failed to resume schedule', { scheduleId, error: error.message });
+    throw error;
+  }
+}
+
+/**
+ * Delete a schedule
+ */
+async function handleDeleteSchedule(message) {
+  const { scheduleId } = message;
+
+  const scheduler = await getTaskScheduler();
+
+  if (!scheduler) {
+    throw new Error('Task scheduler not available');
+  }
+
+  try {
+    await scheduler.deleteSchedule(scheduleId);
+    return { success: true };
+  } catch (error) {
+    logger.error('Failed to delete schedule', { scheduleId, error: error.message });
+    throw error;
+  }
+}
+
 // ===== Context Menu =====
 
 chrome.runtime.onInstalled.addListener(() => {
@@ -571,7 +856,7 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
       // Validate selection text
       const validation = InputValidator.validatePrompt(info.selectionText);
       if (!validation.valid) {
-        console.error('Invalid selection:', validation.error);
+        logger.error('Invalid selection', { error: validation.error });
         // Notify user of validation error
         broadcastUpdate({
           type: 'error',
@@ -600,14 +885,34 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
 // ===== Keep-alive for Service Worker =====
 
 // Service workers can be terminated after 30 seconds of inactivity
-// This keeps the worker alive during long-running tasks
-setInterval(() => {
-  if (agent.isRunning) {
-    chrome.runtime.getPlatformInfo(() => {
-      // Ping to keep alive
+// Using chrome.alarms API instead of setInterval for better Service Worker compatibility
+const KEEP_ALIVE_ALARM = 'keep-alive';
+
+// Create alarm on install
+chrome.runtime.onInstalled.addListener(() => {
+  chrome.alarms.create(KEEP_ALIVE_ALARM, {
+    periodInMinutes: 0.3 // 18 seconds (within 30s service worker timeout)
+  });
+});
+
+// Also create alarm on startup (when service worker wakes up)
+chrome.alarms.get(KEEP_ALIVE_ALARM, alarm => {
+  if (!alarm) {
+    chrome.alarms.create(KEEP_ALIVE_ALARM, {
+      periodInMinutes: 0.3
     });
   }
-}, 20000);
+});
+
+// Handle alarm
+chrome.alarms.onAlarm.addListener(alarm => {
+  if (alarm.name === KEEP_ALIVE_ALARM && agent.isRunning) {
+    // Ping to keep alive - agent is actively running
+    chrome.runtime.getPlatformInfo(() => {
+      // Keep-alive ping
+    });
+  }
+});
 
 // ===== Cleanup on Service Worker Suspend =====
 

@@ -448,4 +448,305 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // === Initialize ===
   loadTasks();
+
+  // ============================================
+  // Schedule Management
+  // ============================================
+
+  const btnAddSchedule = document.getElementById('btn-add-schedule');
+  const schedulesList = document.getElementById('schedules-list');
+  const schedulesEmpty = document.getElementById('schedules-empty');
+  const activeSchedulesCount = document.getElementById('active-schedules-count');
+  const pausedSchedulesCount = document.getElementById('paused-schedules-count');
+
+  // Schedule modal elements
+  const scheduleModal = document.getElementById('schedule-modal');
+  const scheduleTaskSelect = document.getElementById('schedule-task-select');
+  const scheduleEditIdInput = document.getElementById('schedule-edit-id');
+  const scheduleIntervalGroup = document.getElementById('schedule-interval-group');
+  const scheduleTimeGroup = document.getElementById('schedule-time-group');
+  const scheduleDaysGroup = document.getElementById('schedule-days-group');
+  const scheduleInterval = document.getElementById('schedule-interval');
+  const scheduleTime = document.getElementById('schedule-time');
+  const scheduleTypeOptions = document.querySelectorAll('.schedule-type-selector .type-option');
+  const dayOptions = document.querySelectorAll('.day-option input');
+  const btnCloseScheduleModal = document.getElementById('btn-close-schedule-modal');
+  const btnCancelSchedule = document.getElementById('btn-cancel-schedule');
+  const btnSaveSchedule = document.getElementById('btn-save-schedule');
+
+  let allSchedules = [];
+  let currentScheduleType = 'interval';
+
+  /**
+   * Load schedules from background
+   */
+  async function loadSchedules() {
+    try {
+      const response = await chrome.runtime.sendMessage({ action: 'get_schedules' });
+      if (response.success) {
+        allSchedules = response.schedules || [];
+        updateScheduleStats();
+        renderSchedules();
+      }
+    } catch (error) {
+      console.error('Failed to load schedules:', error);
+    }
+  }
+
+  /**
+   * Update schedule statistics
+   */
+  function updateScheduleStats() {
+    const active = allSchedules.filter(s => s.status === 'active').length;
+    const paused = allSchedules.filter(s => s.status === 'paused').length;
+    activeSchedulesCount.textContent = active;
+    pausedSchedulesCount.textContent = paused;
+  }
+
+  /**
+   * Render schedules list
+   */
+  function renderSchedules() {
+    if (allSchedules.length === 0) {
+      schedulesEmpty.style.display = 'block';
+      schedulesList.querySelectorAll('.schedule-item').forEach(el => el.remove());
+      return;
+    }
+
+    schedulesEmpty.style.display = 'none';
+    schedulesList.querySelectorAll('.schedule-item').forEach(el => el.remove());
+
+    for (const schedule of allSchedules) {
+      const item = createScheduleItem(schedule);
+      schedulesList.appendChild(item);
+    }
+  }
+
+  /**
+   * Create schedule item element
+   */
+  function createScheduleItem(schedule) {
+    const item = document.createElement('div');
+    item.className = 'schedule-item';
+    item.dataset.id = schedule.id;
+
+    const typeLabel = getScheduleTypeLabel(schedule);
+    const nextRun = schedule.nextRunAt ? formatScheduleTime(schedule.nextRunAt) : '-';
+    const taskName = schedule.metadata?.taskName || schedule.taskId;
+
+    item.innerHTML = `
+      <div class="schedule-info">
+        <div class="schedule-task-name">${escapeHtml(taskName)}</div>
+        <div class="schedule-details">
+          <span class="schedule-type-badge">${typeLabel}</span>
+          <span class="schedule-next-run">${i18n('nextRunAt')}${nextRun}</span>
+        </div>
+      </div>
+      <div class="schedule-actions">
+        <button class="icon-btn ${schedule.status === 'active' ? 'pause' : 'play'}" 
+                title="${schedule.status === 'active' ? '暂停' : '恢复'}"
+                data-action="${schedule.status === 'active' ? 'pause' : 'resume'}">
+          ${schedule.status === 'active'
+    ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>'
+    : '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>'}
+        </button>
+        <button class="icon-btn delete" title="删除" data-action="delete">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="3 6 5 6 21 6"/>
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+          </svg>
+        </button>
+      </div>
+    `;
+
+    // Add event listeners
+    item.querySelectorAll('.icon-btn').forEach(btn => {
+      btn.addEventListener('click', () => handleScheduleAction(schedule.id, btn.dataset.action));
+    });
+
+    return item;
+  }
+
+  /**
+   * Get schedule type label
+   */
+  function getScheduleTypeLabel(schedule) {
+    switch (schedule.type) {
+      case 'interval':
+        return i18n('intervalEvery', [schedule.config.interval]);
+      case 'daily':
+        return i18n('dailyAt', [schedule.config.time]);
+      case 'weekly': {
+        const days = ['日', '一', '二', '三', '四', '五', '六'];
+        const selectedDays = schedule.config.days.map(d => days[d]).join(', ');
+        return i18n('weeklyAt', [selectedDays, schedule.config.time || '00:00']);
+      }
+      default:
+        return schedule.type;
+    }
+  }
+
+  /**
+   * Format schedule time
+   */
+  function formatScheduleTime(timestamp) {
+    const date = new Date(timestamp);
+    const now = new Date();
+    const diff = date - now;
+
+    if (diff < 60000) return '< 1分钟';
+    if (diff < 3600000) return `${Math.round(diff / 60000)}分钟`;
+    if (diff < 86400000) return `${Math.round(diff / 3600000)}小时`;
+
+    return date.toLocaleDateString('zh-CN', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+  }
+
+  /**
+   * Handle schedule action
+   */
+  async function handleScheduleAction(scheduleId, action) {
+    try {
+      let response;
+      switch (action) {
+        case 'pause':
+          response = await chrome.runtime.sendMessage({ action: 'pause_schedule', scheduleId });
+          if (response.success) showToast(i18n('schedulePaused'), 'success');
+          break;
+        case 'resume':
+          response = await chrome.runtime.sendMessage({ action: 'resume_schedule', scheduleId });
+          if (response.success) showToast(i18n('scheduleResumed'), 'success');
+          break;
+        case 'delete':
+          response = await chrome.runtime.sendMessage({ action: 'delete_schedule', scheduleId });
+          if (response.success) showToast(i18n('scheduleDeleted'), 'success');
+          break;
+      }
+      await loadSchedules();
+    } catch (error) {
+      showToast(`${i18n('error')}: ${error.message}`, 'error');
+    }
+  }
+
+  /**
+   * Populate task select dropdown
+   */
+  function populateScheduleTaskSelect() {
+    scheduleTaskSelect.innerHTML = '<option value="">-- 选择任务 --</option>';
+    for (const task of allTasks) {
+      const option = document.createElement('option');
+      option.value = task.id;
+      option.textContent = task.name;
+      scheduleTaskSelect.appendChild(option);
+    }
+  }
+
+  /**
+   * Open schedule modal
+   */
+  function openScheduleModal() {
+    populateScheduleTaskSelect();
+    scheduleEditIdInput.value = '';
+    scheduleTaskSelect.value = '';
+    currentScheduleType = 'interval';
+    updateScheduleTypeUI();
+    scheduleModal.classList.remove('hidden');
+  }
+
+  /**
+   * Close schedule modal
+   */
+  function closeScheduleModal() {
+    scheduleModal.classList.add('hidden');
+  }
+
+  /**
+   * Update schedule type UI
+   */
+  function updateScheduleTypeUI() {
+    scheduleTypeOptions.forEach(opt => {
+      opt.classList.toggle('active', opt.dataset.scheduleType === currentScheduleType);
+    });
+
+    scheduleIntervalGroup.classList.toggle('hidden', currentScheduleType !== 'interval');
+    scheduleTimeGroup.classList.toggle('hidden', currentScheduleType === 'interval');
+    scheduleDaysGroup.classList.toggle('hidden', currentScheduleType !== 'weekly');
+  }
+
+  /**
+   * Save schedule
+   */
+  async function saveSchedule() {
+    const taskId = scheduleTaskSelect.value;
+    if (!taskId) {
+      showToast('请选择任务', 'error');
+      return;
+    }
+
+    const config = {};
+    switch (currentScheduleType) {
+      case 'interval':
+        config.interval = parseInt(scheduleInterval.value);
+        break;
+      case 'daily':
+        config.time = scheduleTime.value;
+        break;
+      case 'weekly':
+        config.time = scheduleTime.value;
+        config.days = Array.from(dayOptions)
+          .filter(opt => opt.checked)
+          .map(opt => parseInt(opt.value));
+        if (config.days.length === 0) {
+          showToast('请选择至少一天', 'error');
+          return;
+        }
+        break;
+    }
+
+    try {
+      const response = await chrome.runtime.sendMessage({
+        action: 'create_schedule',
+        taskId,
+        type: currentScheduleType,
+        config
+      });
+
+      if (response.success) {
+        showToast(i18n('scheduleCreated'), 'success');
+        closeScheduleModal();
+        await loadSchedules();
+      } else {
+        throw new Error(response.error || 'Failed to create schedule');
+      }
+    } catch (error) {
+      showToast(`${i18n('error')}: ${error.message}`, 'error');
+    }
+  }
+
+  // Schedule event listeners
+  btnAddSchedule.addEventListener('click', openScheduleModal);
+  btnCloseScheduleModal.addEventListener('click', closeScheduleModal);
+  btnCancelSchedule.addEventListener('click', closeScheduleModal);
+  btnSaveSchedule.addEventListener('click', saveSchedule);
+
+  scheduleTypeOptions.forEach(opt => {
+    opt.addEventListener('click', () => {
+      currentScheduleType = opt.dataset.scheduleType;
+      updateScheduleTypeUI();
+    });
+  });
+
+  // Enable add schedule button when tasks are loaded
+  function updateAddScheduleButton() {
+    btnAddSchedule.disabled = allTasks.length === 0;
+  }
+
+  // Load tasks and schedules together
+  async function loadTasksAndSchedules() {
+    await loadTasks();
+    updateAddScheduleButton();
+    await loadSchedules();
+  }
+
+  // Initial load
+  loadTasksAndSchedules();
 });

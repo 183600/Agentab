@@ -138,6 +138,82 @@
           </div>
         </section>
 
+        <!-- Local Model (WebLLM) -->
+        <section class="settings-section" id="webllm-section">
+          <h2 class="section-title">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="4" y="4" width="16" height="16" rx="2" ry="2"/>
+              <rect x="9" y="9" width="6" height="6"/>
+              <line x1="9" y1="1" x2="9" y2="4"/>
+              <line x1="15" y1="1" x2="15" y2="4"/>
+              <line x1="9" y1="20" x2="9" y2="23"/>
+              <line x1="15" y1="20" x2="15" y2="23"/>
+              <line x1="20" y1="9" x2="23" y2="9"/>
+              <line x1="20" y1="15" x2="23" y2="15"/>
+              <line x1="1" y1="9" x2="4" y2="9"/>
+              <line x1="1" y1="15" x2="4" y2="15"/>
+            </svg>
+            <span data-i18n="localModelTitle">本地模型 (WebLLM)</span>
+          </h2>
+          <div class="webllm-status" id="webllm-status">
+            <div class="status-indicator" id="webllm-status-indicator">
+              <span class="status-dot"></span>
+              <span class="status-text" data-i18n="checkingWebGPU">检查 WebGPU 支持...</span>
+            </div>
+          </div>
+          <div class="form-group" id="webllm-model-group" style="display: none;">
+            <label for="webllm-model" data-i18n="localModelLabel">选择本地模型</label>
+            <select id="webllm-model">
+              <option value="">-- 选择模型 --</option>
+              <optgroup label="推荐模型">
+                <option value="Phi-3-mini-4k-instruct">Phi-3 Mini (3.8B) - 推荐</option>
+                <option value="Llama-3-8B-Instruct-q4f16_1-MLC">Llama 3 8B (4-bit) - 最佳质量</option>
+              </optgroup>
+              <optgroup label="轻量模型">
+                <option value="gemma-2b-it-q4f16_1-MLC">Gemma 2B (4-bit) - 轻量</option>
+                <option value="TinyLlama-1.1B-Chat-v1.0-q4f16_1-MLC">TinyLlama (1.1B) - 最小</option>
+              </optgroup>
+              <optgroup label="其他模型">
+                <option value="Phi-2">Phi-2 (2.7B)</option>
+                <option value="Mistral-7B-Instruct-v0.2-q4f16_1-MLC">Mistral 7B (4-bit)</option>
+              </optgroup>
+            </select>
+            <p class="hint" data-i18n="localModelHint">选择要在浏览器中本地运行的模型</p>
+          </div>
+          <div class="form-group" id="webllm-actions" style="display: none;">
+            <div class="webllm-buttons">
+              <button id="btn-load-webllm" class="btn btn-secondary" disabled>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                  <polyline points="7 10 12 15 17 10"/>
+                  <line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+                <span data-i18n="btnLoadModel">加载模型</span>
+              </button>
+              <button id="btn-unload-webllm" class="btn btn-secondary" style="display: none;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="18" y1="6" x2="6" y2="18"/>
+                  <line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+                <span data-i18n="btnUnloadModel">卸载模型</span>
+              </button>
+            </div>
+            <div class="webllm-progress" id="webllm-progress" style="display: none;">
+              <div class="progress-bar">
+                <div class="progress-fill" id="webllm-progress-fill"></div>
+              </div>
+              <span class="progress-text" id="webllm-progress-text"></span>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="checkbox-label">
+              <input type="checkbox" id="prefer-local-model" />
+              <span class="checkbox-text" data-i18n="preferLocalModelLabel">优先使用本地模型</span>
+            </label>
+            <p class="hint" data-i18n="preferLocalModelHint">当本地模型可用时优先使用，API 作为备用</p>
+          </div>
+        </section>
+
         <!-- Actions -->
         <div class="settings-actions">
           <button id="btn-save-settings" class="btn btn-primary">
