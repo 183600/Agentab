@@ -9,13 +9,16 @@
     "scripting",
     "storage",
     "tabs",
-    "contextMenus"
+    "contextMenus",
+    "sidePanel",
+    "webNavigation"
   ],
   "host_permissions": [
     "<all_urls>"
   ],
-  "action": {
-    "default_popup": "popup/popup.html"
+  "action": {},
+  "side_panel": {
+    "default_path": "popup/popup.html"
   },
   "background": {
     "service_worker": "background/background.js",

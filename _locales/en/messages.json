@@ -386,5 +386,77 @@
   "connectionFailed": {
     "message": "Connection failed: {0}",
     "description": "Connection failed"
+  },
+  "saveAsLabel": {
+    "message": "Save as",
+    "description": "Save as label"
+  },
+  "saveAsPrompt": {
+    "message": "Prompt",
+    "description": "Save as prompt option"
+  },
+  "saveAsCode": {
+    "message": "Generated Code",
+    "description": "Save as generated code option"
+  },
+  "autoRunSitesLabel": {
+    "message": "Auto-run Sites",
+    "description": "Auto-run sites label"
+  },
+  "autoRunSitesPlaceholder": {
+    "message": "*.github.com, www.google.com",
+    "description": "Auto-run sites placeholder"
+  },
+  "autoRunSitesHint": {
+    "message": "Separate multiple sites with commas, supports wildcards like *.example.com",
+    "description": "Auto-run sites hint"
+  },
+  "btnAutoRun": {
+    "message": "Auto-run",
+    "description": "Auto-run button"
+  },
+  "autoRunSettings": {
+    "message": "Auto-run Settings",
+    "description": "Auto-run settings title"
+  },
+  "enableAutoRun": {
+    "message": "Enable auto-run",
+    "description": "Enable auto-run checkbox"
+  },
+  "autoRunEnabled": {
+    "message": "Auto-run enabled",
+    "description": "Auto-run enabled indicator"
+  },
+  "autoRunUpdated": {
+    "message": "Auto-run settings updated",
+    "description": "Auto-run updated notification"
+  },
+  "examples": {
+    "message": "Examples:",
+    "description": "Examples label"
+  },
+  "contentLabel": {
+    "message": "Content",
+    "description": "Content label"
+  },
+  "btnRun": {
+    "message": "Run",
+    "description": "Run button"
+  },
+  "btnEdit": {
+    "message": "Edit",
+    "description": "Edit button"
+  },
+  "moreActions": {
+    "message": "More actions",
+    "description": "More actions button title"
+  },
+  "executions": {
+    "message": "times",
+    "description": "Executions count unit"
+  },
+  "deleteConfirm": {
+    "message": "Delete",
+    "description": "Delete confirm prefix"
   }
 }

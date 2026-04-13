@@ -386,5 +386,77 @@
   "connectionFailed": {
     "message": "连接失败: {0}",
     "description": "Connection failed"
+  },
+  "saveAsLabel": {
+    "message": "保存为",
+    "description": "Save as label"
+  },
+  "saveAsPrompt": {
+    "message": "提示词",
+    "description": "Save as prompt option"
+  },
+  "saveAsCode": {
+    "message": "生成的代码",
+    "description": "Save as generated code option"
+  },
+  "autoRunSitesLabel": {
+    "message": "自动执行网站",
+    "description": "Auto-run sites label"
+  },
+  "autoRunSitesPlaceholder": {
+    "message": "*.github.com, www.google.com",
+    "description": "Auto-run sites placeholder"
+  },
+  "autoRunSitesHint": {
+    "message": "多个网站用逗号分隔，支持通配符如 *.example.com",
+    "description": "Auto-run sites hint"
+  },
+  "btnAutoRun": {
+    "message": "自动执行",
+    "description": "Auto-run button"
+  },
+  "autoRunSettings": {
+    "message": "自动执行设置",
+    "description": "Auto-run settings title"
+  },
+  "enableAutoRun": {
+    "message": "启用自动执行",
+    "description": "Enable auto-run checkbox"
+  },
+  "autoRunEnabled": {
+    "message": "已启用自动执行",
+    "description": "Auto-run enabled indicator"
+  },
+  "autoRunUpdated": {
+    "message": "自动执行设置已更新",
+    "description": "Auto-run updated notification"
+  },
+  "examples": {
+    "message": "示例：",
+    "description": "Examples label"
+  },
+  "contentLabel": {
+    "message": "内容",
+    "description": "Content label"
+  },
+  "btnRun": {
+    "message": "运行",
+    "description": "Run button"
+  },
+  "btnEdit": {
+    "message": "编辑",
+    "description": "Edit button"
+  },
+  "moreActions": {
+    "message": "更多操作",
+    "description": "More actions button title"
+  },
+  "executions": {
+    "message": "次",
+    "description": "Executions count unit"
+  },
+  "deleteConfirm": {
+    "message": "确定删除",
+    "description": "Delete confirm prefix"
   }
 }

@@ -34,10 +34,19 @@
   box-sizing: border-box;
 }
 
+html, body {
+  height: 100%;
+}
+
+.app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
 body {
-  width: 460px;
-  min-height: 400px;
-  max-height: 600px;
+  width: 100%;
+  min-height: 100vh;
   overflow-y: auto;
   font-family: var(--font);
   font-size: 13px;
@@ -270,9 +279,9 @@ textarea::placeholder {
 /* Output Section */
 .output-section {
   border-top: 1px solid var(--border);
-  max-height: 300px;
   display: flex;
   flex-direction: column;
+  flex: 1;
 }
 
 .output-section.hidden {
@@ -300,7 +309,6 @@ textarea::placeholder {
   padding: 12px 16px;
   overflow-y: auto;
   flex: 1;
-  max-height: 250px;
 }
 
 .output-entry {
@@ -462,7 +470,7 @@ textarea::placeholder {
 
 .dialog {
   width: 100%;
-  max-width: 420px;
+  max-width: 480px;
   background: var(--bg-secondary);
   border-radius: var(--radius);
   border: 1px solid var(--border);
@@ -580,3 +588,398 @@ textarea::placeholder {
 
 .mt-8 { margin-top: 8px; }
 .mb-8 { margin-bottom: 8px; }
+
+/* Save Type Selector */
+.save-type-selector {
+  margin-bottom: 14px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--border);
+}
+
+.save-type-selector > label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.save-options {
+  display: flex;
+  gap: 8px;
+}
+
+.save-option {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  font-family: var(--font);
+  font-size: 12px;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.save-option:hover {
+  border-color: var(--accent);
+  background: var(--bg-hover);
+}
+
+.save-option.active {
+  border-color: var(--accent);
+  background: var(--accent-light);
+  color: var(--accent);
+}
+
+.save-option-icon {
+  font-size: 14px;
+}
+
+.save-option-text {
+  font-weight: 500;
+}
+
+/* Save button with generated code indicator */
+.btn.has-generated-code {
+  position: relative;
+}
+
+.btn.has-generated-code::after {
+  content: '';
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 8px;
+  height: 8px;
+  background: var(--success);
+  border-radius: 50%;
+  border: 2px solid var(--bg-secondary);
+}
+
+/* Tasks Panel */
+.tasks-panel-body {
+  padding: 12px !important;
+}
+
+.tasks-stats {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.stat-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px;
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-sm);
+}
+
+.stat-item .stat-value {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.stat-item .stat-value.prompt {
+  color: var(--accent);
+}
+
+.stat-item .stat-value.code {
+  color: var(--success);
+}
+
+.stat-item .stat-label {
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.tasks-filter {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 12px;
+}
+
+.filter-btn {
+  flex: 1;
+  padding: 6px 8px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  font-family: var(--font);
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.filter-btn:hover {
+  background: var(--bg-hover);
+}
+
+.filter-btn.active {
+  border-color: var(--accent);
+  background: var(--accent-light);
+  color: var(--accent);
+}
+
+.tasks-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.task-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.task-item:hover {
+  background: var(--bg-hover);
+}
+
+.task-item .task-icon {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+
+.task-item .task-icon.prompt {
+  background: var(--accent-light);
+  color: var(--accent);
+}
+
+.task-item .task-icon.code {
+  background: var(--success-bg);
+  color: var(--success);
+}
+
+.task-item .task-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.task-item .task-name {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.task-item .task-meta {
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.task-item .task-actions {
+  opacity: 0;
+  transition: opacity var(--transition);
+}
+
+.task-item:hover .task-actions {
+  opacity: 1;
+}
+
+.task-action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.task-action-btn:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.tasks-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  color: var(--text-muted);
+}
+
+.tasks-empty .empty-icon {
+  font-size: 32px;
+  margin-bottom: 8px;
+  opacity: 0.5;
+}
+
+.tasks-empty p {
+  font-size: 12px;
+}
+
+/* Task Menu */
+.task-menu {
+  position: fixed;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow);
+  z-index: 300;
+  min-width: 120px;
+  padding: 4px;
+}
+
+.task-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 10px;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: var(--font);
+  font-size: 12px;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.task-menu-item:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.task-menu-item.danger:hover {
+  background: var(--error-bg);
+  color: var(--error);
+}
+
+/* Dialog small variant */
+.dialog-small {
+  max-width: 320px;
+}
+
+/* Textarea in dialog */
+.dialog-body textarea {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 1.4;
+  resize: vertical;
+  outline: none;
+  transition: border-color var(--transition);
+}
+
+.dialog-body textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-light);
+}
+
+/* Form hint */
+.form-hint {
+  margin-top: 4px;
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+/* Checkbox */
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 12px;
+  color: var(--text-primary);
+}
+
+.checkbox-label input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  accent-color: var(--accent);
+}
+
+/* Task name label */
+.task-name-label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+/* Auto run examples */
+.auto-run-examples {
+  margin-top: 12px;
+  padding: 10px 12px;
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-sm);
+  font-size: 11px;
+}
+
+.auto-run-examples .example-title {
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+}
+
+.auto-run-examples ul {
+  margin: 0;
+  padding-left: 16px;
+  color: var(--text-muted);
+}
+
+.auto-run-examples li {
+  margin-bottom: 4px;
+}
+
+.auto-run-examples code {
+  background: var(--bg-secondary);
+  padding: 1px 4px;
+  border-radius: 3px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+}
+
+/* Task auto-run indicator */
+.task-item .task-auto-indicator {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  flex-shrink: 0;
+}
+
+.task-item .task-auto-indicator.disabled {
+  background: var(--text-muted);
+  opacity: 0.3;
+}

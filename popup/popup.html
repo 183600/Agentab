@@ -95,6 +95,20 @@
           </button>
         </div>
         <div class="dialog-body">
+          <!-- 保存类型选择器 -->
+          <div id="save-type-selector" class="save-type-selector hidden">
+            <label data-i18n="saveAsLabel">保存为</label>
+            <div class="save-options">
+              <button type="button" id="save-option-prompt" class="save-option active">
+                <span class="save-option-icon">💬</span>
+                <span class="save-option-text" data-i18n="saveAsPrompt">提示词</span>
+              </button>
+              <button type="button" id="save-option-code" class="save-option">
+                <span class="save-option-icon">⚡</span>
+                <span class="save-option-text" data-i18n="saveAsCode">生成的代码</span>
+              </button>
+            </div>
+          </div>
           <div class="form-group">
             <label for="task-name" data-i18n="taskNameLabel">任务名称 *</label>
             <input type="text" id="task-name" data-i18n-placeholder="taskNamePlaceholder">
@@ -108,6 +122,11 @@
             <div class="task-type-badge" id="task-type-badge">提示词</div>
           </div>
           <div class="form-group">
+            <label for="task-auto-sites" data-i18n="autoRunSitesLabel">自动执行网站（可选）</label>
+            <input type="text" id="task-auto-sites" data-i18n-placeholder="autoRunSitesPlaceholder">
+            <p class="form-hint" data-i18n="autoRunSitesHint">多个网站用逗号分隔，支持通配符如 *.example.com</p>
+          </div>
+          <div class="form-group">
             <label data-i18n="contentPreviewLabel">内容预览</label>
             <pre id="task-content-preview" class="content-preview"></pre>
           </div>
@@ -115,6 +134,179 @@
         <div class="dialog-footer">
           <button class="btn btn-secondary" id="btn-cancel-save" data-i18n="btnCancel">取消</button>
           <button class="btn btn-primary" id="btn-confirm-save" data-i18n="btnSaveTask">保存任务</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tasks Panel (Sidebar) -->
+    <div id="tasks-panel" class="panel hidden">
+      <div class="panel-header">
+        <h3 data-i18n="tasksTitle">已保存任务</h3>
+        <button class="icon-btn small" id="btn-close-tasks-panel">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+      <div class="panel-body tasks-panel-body">
+        <!-- Stats -->
+        <div class="tasks-stats">
+          <div class="stat-item">
+            <span class="stat-value" id="tasks-total">0</span>
+            <span class="stat-label" data-i18n="totalTasks">总任务数</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-value prompt" id="tasks-prompt-count">0</span>
+            <span class="stat-label" data-i18n="promptTasks">提示词</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-value code" id="tasks-code-count">0</span>
+            <span class="stat-label" data-i18n="codeTasks">代码</span>
+          </div>
+        </div>
+        
+        <!-- Filter -->
+        <div class="tasks-filter">
+          <button class="filter-btn active" data-filter="all" data-i18n="filterAll">全部</button>
+          <button class="filter-btn" data-filter="prompt" data-i18n="typePrompt">提示词</button>
+          <button class="filter-btn" data-filter="code" data-i18n="typeCode">代码</button>
+        </div>
+        
+        <!-- Tasks List -->
+        <div id="tasks-list" class="tasks-list">
+          <!-- Tasks rendered here -->
+        </div>
+        
+        <!-- Empty State -->
+        <div id="tasks-empty" class="tasks-empty hidden">
+          <div class="empty-icon">📋</div>
+          <p data-i18n="noTasks">暂无任务</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Task Actions Menu -->
+    <div id="task-menu" class="task-menu hidden">
+      <button class="task-menu-item" id="menu-run">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polygon points="5 3 19 12 5 21 5 3"/>
+        </svg>
+        <span data-i18n="btnRun">运行</span>
+      </button>
+      <button class="task-menu-item" id="menu-auto-run">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+        </svg>
+        <span data-i18n="btnAutoRun">自动执行</span>
+      </button>
+      <button class="task-menu-item" id="menu-edit">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+        </svg>
+        <span data-i18n="btnEdit">编辑</span>
+      </button>
+      <button class="task-menu-item danger" id="menu-delete">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
+        </svg>
+        <span data-i18n="btnDelete">删除</span>
+      </button>
+    </div>
+
+    <!-- Edit Task Dialog -->
+    <div id="edit-dialog" class="dialog-overlay hidden">
+      <div class="dialog">
+        <div class="dialog-header">
+          <h3 data-i18n="editTask">编辑任务</h3>
+          <button class="icon-btn small" id="btn-close-edit-dialog">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        </div>
+        <div class="dialog-body">
+          <input type="hidden" id="edit-task-id">
+          <div class="form-group">
+            <label for="edit-task-name" data-i18n="taskNameLabel">任务名称 *</label>
+            <input type="text" id="edit-task-name" data-i18n-placeholder="taskNamePlaceholder">
+          </div>
+          <div class="form-group">
+            <label for="edit-task-desc" data-i18n="taskDescLabel">描述（可选）</label>
+            <input type="text" id="edit-task-desc" data-i18n-placeholder="taskDescPlaceholder">
+          </div>
+          <div class="form-group">
+            <label for="edit-task-sites" data-i18n="autoRunSitesLabel">自动执行网站</label>
+            <input type="text" id="edit-task-sites" data-i18n-placeholder="autoRunSitesPlaceholder">
+            <p class="form-hint" data-i18n="autoRunSitesHint">多个网站用逗号分隔，支持通配符如 *.example.com</p>
+          </div>
+          <div class="form-group">
+            <label data-i18n="contentLabel">内容</label>
+            <textarea id="edit-task-content" rows="6"></textarea>
+          </div>
+        </div>
+        <div class="dialog-footer">
+          <button class="btn btn-secondary" id="btn-cancel-edit" data-i18n="btnCancel">取消</button>
+          <button class="btn btn-primary" id="btn-save-edit" data-i18n="btnSaveChanges">保存更改</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Delete Confirm Dialog -->
+    <div id="delete-dialog" class="dialog-overlay hidden">
+      <div class="dialog dialog-small">
+        <div class="dialog-header">
+          <h3 data-i18n="deleteTask">删除任务</h3>
+        </div>
+        <div class="dialog-body">
+          <p id="delete-task-name"></p>
+          <p class="text-muted text-small mt-8" data-i18n="cannotUndo">此操作无法撤销。</p>
+        </div>
+        <div class="dialog-footer">
+          <button class="btn btn-secondary" id="btn-cancel-delete" data-i18n="btnCancel">取消</button>
+          <button class="btn btn-danger" id="btn-confirm-delete" data-i18n="btnDelete">删除</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Auto Run Settings Dialog -->
+    <div id="auto-run-dialog" class="dialog-overlay hidden">
+      <div class="dialog">
+        <div class="dialog-header">
+          <h3 data-i18n="autoRunSettings">自动执行设置</h3>
+          <button class="icon-btn small" id="btn-close-auto-run-dialog">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        </div>
+        <div class="dialog-body">
+          <input type="hidden" id="auto-run-task-id">
+          <div class="form-group">
+            <label id="auto-run-task-name" class="task-name-label"></label>
+          </div>
+          <div class="form-group">
+            <label for="auto-run-sites" data-i18n="autoRunSitesLabel">触发网站</label>
+            <input type="text" id="auto-run-sites" data-i18n-placeholder="autoRunSitesPlaceholder">
+            <p class="form-hint" data-i18n="autoRunSitesHint">多个网站用逗号分隔，支持通配符如 *.example.com</p>
+          </div>
+          <div class="form-group">
+            <label class="checkbox-label">
+              <input type="checkbox" id="auto-run-enabled">
+              <span data-i18n="enableAutoRun">启用自动执行</span>
+            </label>
+          </div>
+          <div class="auto-run-examples">
+            <p class="example-title" data-i18n="examples">示例：</p>
+            <ul>
+              <li><code>*.github.com</code> - GitHub 所有页面</li>
+              <li><code>www.google.com</code> - 仅 Google 首页</li>
+              <li><code>*.stackoverflow.com/*</code> - Stack Overflow 所有页面</li>
+            </ul>
+          </div>
+        </div>
+        <div class="dialog-footer">
+          <button class="btn btn-secondary" id="btn-cancel-auto-run" data-i18n="btnCancel">取消</button>
+          <button class="btn btn-primary" id="btn-save-auto-run" data-i18n="btnSave">保存</button>
         </div>
       </div>
     </div>

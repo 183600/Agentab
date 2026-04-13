@@ -2,6 +2,11 @@
 
 import { StorageManager } from '../lib/storage.js';
 
+// Open side panel when clicking the extension icon
+chrome.sidePanel
+  .setPanelBehavior({ openPanelOnActionClick: true })
+  .catch((error) => console.error(error));
+
 // ===== LLM Agent =====
 
 class AgentExecutor {
@@ -533,5 +538,135 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
         update
       }).catch(() => {});
     });
+  }
+});
+
+// ===== Auto-run Tasks =====
+
+/**
+ * Check if URL matches any pattern in the list
+ */
+function urlMatchesPatterns(url, patterns) {
+  const urlObj = new URL(url);
+  const hostname = urlObj.hostname;
+  const fullUrl = urlObj.href;
+
+  for (const pattern of patterns) {
+    // 处理通配符模式
+    if (pattern.includes('*')) {
+      // 将通配符模式转换为正则表达式
+      // 支持 *.example.com 和 https://*.example.com/*
+      let regexPattern = pattern
+        .replace(/\./g, '\\.')
+        .replace(/\*/g, '.*');
+      
+      // 如果模式不以协议开头，匹配任何协议
+      if (!pattern.startsWith('http://') && !pattern.startsWith('https://')) {
+        regexPattern = 'https?://' + regexPattern;
+      }
+      
+      // 如果模式不以路径结尾，匹配任何路径
+      if (!pattern.includes('/')) {
+        regexPattern = regexPattern + '(/.*)?';
+      }
+
+      try {
+        const regex = new RegExp(`^${regexPattern}$`, 'i');
+        if (regex.test(fullUrl) || regex.test(hostname)) {
+          return true;
+        }
+      } catch (e) {
+        console.error('Invalid pattern:', pattern, e);
+      }
+    } else {
+      // 精确匹配
+      if (hostname === pattern || fullUrl === pattern || fullUrl.startsWith(pattern)) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
+/**
+ * Find tasks that should auto-run on a URL
+ */
+async function findAutoRunTasks(url) {
+  const tasks = await StorageManager.getTasks();
+  return tasks.filter(task => {
+    if (!task.autoRunSites || task.autoRunSites.length === 0) return false;
+    return urlMatchesPatterns(url, task.autoRunSites);
+  });
+}
+
+/**
+ * Execute auto-run tasks for a tab
+ */
+async function executeAutoRunTasks(tabId, url) {
+  const tasks = await findAutoRunTasks(url);
+  
+  for (const task of tasks) {
+    console.log(`Auto-running task "${task.name}" on ${url}`);
+    
+    // 记录执行
+    await StorageManager.recordExecution(task.id);
+    
+    // 执行任务
+    try {
+      if (task.type === 'prompt') {
+        await agent.runPrompt(tabId, task.content, (update) => {
+          // 可以选择发送通知或记录日志
+          console.log(`Auto-run update:`, update.type);
+        });
+      } else {
+        await agent.runCode(tabId, task.content, (update) => {
+          console.log(`Auto-run update:`, update.type);
+        });
+      }
+    } catch (e) {
+      console.error(`Auto-run task "${task.name}" failed:`, e);
+    }
+  }
+}
+
+// 监听页面加载完成事件
+chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
+  // 只在页面加载完成时触发
+  if (changeInfo.status === 'complete' && tab.url) {
+    // 排除 chrome:// 和 edge:// 等特殊页面
+    if (tab.url.startsWith('chrome://') || 
+        tab.url.startsWith('edge://') || 
+        tab.url.startsWith('about:') ||
+        tab.url.startsWith('chrome-extension://')) {
+      return;
+    }
+    
+    try {
+      await executeAutoRunTasks(tabId, tab.url);
+    } catch (e) {
+      console.error('Auto-run error:', e);
+    }
+  }
+});
+
+// 监听新标签页创建（处理用户导航而非刷新的情况）
+chrome.webNavigation?.onCompleted?.addListener(async (details) => {
+  if (details.frameId !== 0) return; // 只处理主框架
+  
+  const tab = await chrome.tabs.get(details.tabId);
+  if (tab && tab.url) {
+    // 排除特殊页面
+    if (tab.url.startsWith('chrome://') || 
+        tab.url.startsWith('edge://') || 
+        tab.url.startsWith('about:') ||
+        tab.url.startsWith('chrome-extension://')) {
+      return;
+    }
+    
+    try {
+      await executeAutoRunTasks(details.tabId, tab.url);
+    } catch (e) {
+      console.error('Auto-run error:', e);
+    }
   }
 });
