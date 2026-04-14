@@ -1,6 +1,30 @@
 // background/background.js - Service Worker
 
 import { StorageManager } from '../lib/storage.js';
+import { MCPManager } from '../lib/mcp-client.js';
+import { MCPServer, createAgentabTools } from '../lib/mcp-server.js';
+
+// Initialize MCP Manager (client side - connecting to external MCP servers)
+const mcpManager = new MCPManager();
+
+// Initialize MCP Server (server side - exposing tools to external clients)
+const mcpServer = new MCPServer({
+  name: 'Agentab',
+  version: '1.0.0'
+});
+
+// Initialize MCP connections on startup
+async function initMCPConnections() {
+  try {
+    const servers = await StorageManager.getEnabledMCPServers();
+    const results = await mcpManager.reconnectAll(servers);
+    console.log('MCP connections initialized:', results);
+  } catch (e) {
+    console.error('Failed to initialize MCP connections:', e);
+  }
+}
+
+initMCPConnections();
 
 // Open side panel when clicking the extension icon
 chrome.sidePanel
@@ -16,9 +40,42 @@ class AgentExecutor {
   }
 
   /**
+   * Get MCP tools description for system prompt
+   */
+  async getMCPToolsDescription() {
+    const tools = mcpManager.getAllTools();
+    if (tools.length === 0) return '';
+    
+    const toolDescriptions = tools.map(t => {
+      const schema = t.inputSchema || { type: 'object', properties: {} };
+      const params = schema.properties ? Object.keys(schema.properties).join(', ') : 'none';
+      return `- ${t.name}: ${t.description}${params !== 'none' ? ` (params: ${params})` : ''}`;
+    }).join('\n');
+    
+    return `
+## MCP Tools Available:
+You have access to external tools via MCP (Model Context Protocol). Use these tools when needed:
+
+${toolDescriptions}
+
+To use an MCP tool:
+\`\`\`json
+{
+  "action": "mcp_call",
+  "tool": "server:tool_name",
+  "args": { "param1": "value1" },
+  "explanation": "Why you're calling this tool"
+}
+\`\`\`
+`;
+  }
+
+  /**
    * Get system prompt for the agent
    */
-  getSystemPrompt(pageInfo) {
+  async getSystemPrompt(pageInfo) {
+    const mcpToolsDesc = await this.getMCPToolsDescription();
+    
     return `You are a Chrome browser automation agent. You control web pages by generating JavaScript code.
 
 ## Current Page Info:
@@ -27,7 +84,7 @@ class AgentExecutor {
 
 ## Your Capabilities:
 You can execute JavaScript code in the context of the current web page. The code runs with full DOM access.
-
+${mcpToolsDesc}
 ## Response Format:
 You MUST respond with a JSON object in one of these formats:
 
@@ -40,7 +97,17 @@ You MUST respond with a JSON object in one of these formats:
 }
 \`\`\`
 
-2. When the task is complete:
+2. To call an MCP tool:
+\`\`\`json
+{
+  "action": "mcp_call",
+  "tool": "server:tool_name",
+  "args": { "param": "value" },
+  "explanation": "Why you're calling this tool"
+}
+\`\`\`
+
+3. When the task is complete:
 \`\`\`json
 {
   "action": "complete",
@@ -49,7 +116,7 @@ You MUST respond with a JSON object in one of these formats:
 }
 \`\`\`
 
-3. If the task cannot be completed:
+4. If the task cannot be completed:
 \`\`\`json
 {
   "action": "error",
@@ -68,7 +135,8 @@ You MUST respond with a JSON object in one of these formats:
 7. The code's return value (last expression) will be sent back to you
 8. You can use async/await and fetch API
 9. Be careful with destructive operations
-10. Always explain what you're doing`;
+10. Always explain what you're doing
+11. Use MCP tools when they can help accomplish the task more efficiently`;
   }
 
   /**
@@ -236,7 +304,7 @@ You MUST respond with a JSON object in one of these formats:
 
     const systemMessage = {
       role: 'system',
-      content: this.getSystemPrompt(pageInfo)
+      content: await this.getSystemPrompt(pageInfo)
     };
 
     this.conversationHistory.push({
@@ -305,6 +373,58 @@ You MUST respond with a JSON object in one of these formats:
         });
         results.push({ type: 'error', message: action.error, explanation: action.explanation });
         break;
+      }
+
+      if (action.action === 'mcp_call') {
+        onUpdate?.({
+          type: 'executing',
+          code: `MCP Tool: ${action.tool}`,
+          explanation: action.explanation || `Calling MCP tool: ${action.tool}`,
+          iteration
+        });
+
+        try {
+          const mcpResult = await mcpManager.callTool(action.tool, action.args || {});
+          
+          results.push({
+            type: 'mcp_call',
+            tool: action.tool,
+            args: action.args,
+            result: mcpResult,
+            explanation: action.explanation,
+            iteration
+          });
+
+          onUpdate?.({
+            type: 'executed',
+            code: `MCP Tool: ${action.tool}`,
+            result: { success: true, result: mcpResult },
+            iteration
+          });
+
+          this.conversationHistory.push({
+            role: 'user',
+            content: `MCP tool "${action.tool}" executed successfully.\nResult: ${JSON.stringify(mcpResult, null, 2)}`
+          });
+        } catch (e) {
+          onUpdate?.({
+            type: 'error',
+            message: `MCP call failed: ${e.message}`
+          });
+          
+          results.push({
+            type: 'mcp_error',
+            tool: action.tool,
+            error: e.message,
+            iteration
+          });
+
+          this.conversationHistory.push({
+            role: 'user',
+            content: `MCP tool "${action.tool}" failed.\nError: ${e.message}`
+          });
+        }
+        continue;
       }
 
       if (action.action === 'execute') {
@@ -384,6 +504,18 @@ You MUST respond with a JSON object in one of these formats:
 }
 
 const agent = new AgentExecutor();
+
+// ===== MCP Server Setup =====
+
+// Register Agentab tools on the MCP Server
+const agentabTools = createAgentabTools(StorageManager, agent);
+mcpServer.registerTools(agentabTools);
+
+// Start MCP Server
+mcpServer.start();
+
+// Log registered tools
+console.log('MCP Server tools:', mcpServer.getToolDefinitions().map(t => t.name));
 
 // ===== Message Handling =====
 
@@ -507,6 +639,95 @@ async function handleMessage(message, sender) {
     case 'clear_history': {
       await StorageManager.clearHistory();
       return { success: true };
+    }
+
+    // ===== MCP Server Management =====
+
+    case 'get_mcp_servers': {
+      const servers = await StorageManager.getMCPServers();
+      return { success: true, servers };
+    }
+
+    case 'save_mcp_server': {
+      const server = await StorageManager.saveMCPServer(message.server);
+      // Try to connect to the new server if enabled
+      if (server.enabled) {
+        try {
+          await mcpManager.addServer(server);
+        } catch (e) {
+          console.error('Failed to connect to new MCP server:', e);
+        }
+      }
+      return { success: true, server };
+    }
+
+    case 'update_mcp_server': {
+      const updated = await StorageManager.updateMCPServer(message.serverId, message.updates);
+      if (updated) {
+        // Reconnect if enabled
+        mcpManager.removeServer(updated.name);
+        if (updated.enabled) {
+          try {
+            await mcpManager.addServer(updated);
+          } catch (e) {
+            console.error('Failed to reconnect MCP server:', e);
+          }
+        }
+      }
+      return { success: true, server: updated };
+    }
+
+    case 'delete_mcp_server': {
+      const servers = await StorageManager.getMCPServers();
+      const server = servers.find(s => s.id === message.serverId);
+      if (server) {
+        mcpManager.removeServer(server.name);
+      }
+      const deleted = await StorageManager.deleteMCPServer(message.serverId);
+      return { success: true, deleted };
+    }
+
+    case 'get_mcp_status': {
+      const statuses = {};
+      const servers = await StorageManager.getMCPServers();
+      for (const server of servers) {
+        const client = mcpManager.getClient(server.name);
+        if (client && client.connected) {
+          statuses[server.id] = {
+            connected: true,
+            tools: client.tools,
+            resources: client.resources,
+            prompts: client.prompts
+          };
+        } else {
+          statuses[server.id] = {
+            connected: false,
+            error: 'Not connected'
+          };
+        }
+      }
+      return { success: true, statuses };
+    }
+
+    case 'mcp_call_tool': {
+      const result = await mcpManager.callTool(message.tool, message.args || {});
+      return { success: true, result };
+    }
+
+    case 'mcp_reconnect_all': {
+      const servers = await StorageManager.getEnabledMCPServers();
+      const results = await mcpManager.reconnectAll(servers);
+      return { success: true, results };
+    }
+
+    // ===== MCP Server (Server-side) =====
+
+    case 'get_mcp_server_info': {
+      return { success: true, info: mcpServer.getServerInfo() };
+    }
+
+    case 'get_mcp_server_tools': {
+      return { success: true, tools: mcpServer.getToolDefinitions() };
     }
 
     default:

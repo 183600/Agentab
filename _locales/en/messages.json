@@ -458,5 +458,169 @@
   "deleteConfirm": {
     "message": "Delete",
     "description": "Delete confirm prefix"
+  },
+  "mcpServersTitle": {
+    "message": "MCP Servers",
+    "description": "MCP servers title"
+  },
+  "mcpServersHint": {
+    "message": "Connect to MCP (Model Context Protocol) servers to extend agent capabilities",
+    "description": "MCP servers hint"
+  },
+  "mcpServersEmpty": {
+    "message": "No MCP servers yet. Click the button below to add one.",
+    "description": "MCP servers empty message"
+  },
+  "btnAddMCPServer": {
+    "message": "Add MCP Server",
+    "description": "Add MCP server button"
+  },
+  "mcpDialogTitle": {
+    "message": "Add MCP Server",
+    "description": "MCP dialog title"
+  },
+  "mcpAddDialogTitle": {
+    "message": "Add MCP Server",
+    "description": "MCP add dialog title"
+  },
+  "mcpEditDialogTitle": {
+    "message": "Edit MCP Server",
+    "description": "MCP edit dialog title"
+  },
+  "mcpServerNameLabel": {
+    "message": "Server Name",
+    "description": "MCP server name label"
+  },
+  "mcpServerNamePlaceholder": {
+    "message": "My MCP Server",
+    "description": "MCP server name placeholder"
+  },
+  "mcpServerNameHint": {
+    "message": "A name to identify this server",
+    "description": "MCP server name hint"
+  },
+  "mcpServerUrlLabel": {
+    "message": "Server URL",
+    "description": "MCP server URL label"
+  },
+  "mcpServerUrlPlaceholder": {
+    "message": "http://localhost:3000/mcp",
+    "description": "MCP server URL placeholder"
+  },
+  "mcpServerUrlHint": {
+    "message": "HTTP or WebSocket address of the MCP server",
+    "description": "MCP server URL hint"
+  },
+  "mcpServerTransportLabel": {
+    "message": "Transport",
+    "description": "MCP server transport label"
+  },
+  "mcpServerTimeoutLabel": {
+    "message": "Timeout (milliseconds)",
+    "description": "MCP server timeout label"
+  },
+  "mcpServerEnabledLabel": {
+    "message": "Enable this server",
+    "description": "MCP server enabled label"
+  },
+  "mcpStatusConnected": {
+    "message": "Connected",
+    "description": "MCP status connected"
+  },
+  "mcpStatusDisconnected": {
+    "message": "Disconnected",
+    "description": "MCP status disconnected"
+  },
+  "mcpStatusDisabled": {
+    "message": "Disabled",
+    "description": "MCP status disabled"
+  },
+  "mcpViewTools": {
+    "message": "View Tools",
+    "description": "MCP view tools"
+  },
+  "mcpEditServer": {
+    "message": "Edit Server",
+    "description": "MCP edit server"
+  },
+  "mcpDeleteServer": {
+    "message": "Delete Server",
+    "description": "MCP delete server"
+  },
+  "mcpNameRequired": {
+    "message": "Please enter a server name",
+    "description": "MCP name required error"
+  },
+  "mcpUrlRequired": {
+    "message": "Please enter a server URL",
+    "description": "MCP URL required error"
+  },
+  "mcpServerUpdated": {
+    "message": "Server updated",
+    "description": "MCP server updated"
+  },
+  "mcpServerAdded": {
+    "message": "Server added",
+    "description": "MCP server added"
+  },
+  "mcpServerDeleted": {
+    "message": "Server deleted",
+    "description": "MCP server deleted"
+  },
+  "mcpDeleteConfirm": {
+    "message": "Are you sure you want to delete this server?",
+    "description": "MCP delete confirm"
+  },
+  "mcpToolsTitle": {
+    "message": "Available Tools",
+    "description": "MCP tools title"
+  },
+  "mcpNoTools": {
+    "message": "No tools available",
+    "description": "MCP no tools"
+  },
+  "mcpServerInfoTitle": {
+    "message": "MCP Server",
+    "description": "MCP server info title"
+  },
+  "mcpServerInfoHint": {
+    "message": "Agentab acts as an MCP server, exposing tools to other applications",
+    "description": "MCP server info hint"
+  },
+  "mcpServerStatus": {
+    "message": "Status:",
+    "description": "MCP server status label"
+  },
+  "mcpServerTools": {
+    "message": "Registered Tools:",
+    "description": "MCP server tools label"
+  },
+  "mcpServerConnections": {
+    "message": "Connection Method:",
+    "description": "MCP server connections label"
+  },
+  "mcpServerConnectionMethod": {
+    "message": "Via Chrome Extension API",
+    "description": "MCP server connection method"
+  },
+  "registeredToolsTitle": {
+    "message": "Registered Tools",
+    "description": "Registered tools title"
+  },
+  "noRegisteredTools": {
+    "message": "No registered tools",
+    "description": "No registered tools"
+  },
+  "parameters": {
+    "message": "Parameters",
+    "description": "Parameters label"
+  },
+  "connectionInfoTitle": {
+    "message": "Connection Info",
+    "description": "Connection info title"
+  },
+  "connectionInfoDesc": {
+    "message": "Other extensions can connect to Agentab MCP Server via:",
+    "description": "Connection info description"
   }
 }

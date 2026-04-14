@@ -59,6 +59,123 @@
         </div>
       </section>
 
+      <!-- MCP Servers Configuration -->
+      <section class="settings-section">
+        <h2 class="section-title">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+            <polyline points="22,6 12,13 2,6"/>
+          </svg>
+          <span data-i18n="mcpServersTitle">MCP 服务器</span>
+        </h2>
+        <p class="hint mb-16" data-i18n="mcpServersHint">连接 MCP (Model Context Protocol) 服务器以扩展智能体能力</p>
+        
+        <!-- MCP Server List -->
+        <div id="mcp-servers-list" class="mcp-servers-list">
+          <!-- Servers will be rendered here -->
+        </div>
+        
+        <!-- Empty State -->
+        <div id="mcp-servers-empty" class="mcp-servers-empty">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.3">
+            <rect x="2" y="2" width="20" height="8" rx="2" ry="2"/>
+            <rect x="2" y="14" width="20" height="8" rx="2" ry="2"/>
+            <line x1="6" y1="6" x2="6.01" y2="6"/>
+            <line x1="6" y1="18" x2="6.01" y2="18"/>
+          </svg>
+          <p data-i18n="mcpServersEmpty">暂无 MCP 服务器，点击下方按钮添加</p>
+        </div>
+        
+        <!-- Add Server Button -->
+        <button id="btn-add-mcp-server" class="btn btn-secondary btn-full mt-16">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="12" y1="5" x2="12" y2="19"/>
+            <line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+          <span data-i18n="btnAddMCPServer">添加 MCP 服务器</span>
+        </button>
+      </section>
+
+      <!-- MCP Server (Server-side) Info -->
+      <section class="settings-section">
+        <h2 class="section-title">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+            <line x1="3" y1="9" x2="21" y2="9"/>
+            <line x1="9" y1="21" x2="9" y2="9"/>
+          </svg>
+          <span data-i18n="mcpServerInfoTitle">MCP 服务端</span>
+        </h2>
+        <p class="hint mb-16" data-i18n="mcpServerInfoHint">Agentab 作为 MCP 服务器，向其他应用暴露工具接口</p>
+        
+        <div class="mcp-server-info-box">
+          <div class="info-row">
+            <span class="info-label" data-i18n="mcpServerStatus">状态:</span>
+            <span class="info-value" id="mcp-server-status-value">
+              <span class="status-badge connected">运行中</span>
+            </span>
+          </div>
+          <div class="info-row">
+            <span class="info-label" data-i18n="mcpServerTools">已注册工具:</span>
+            <span class="info-value" id="mcp-server-tools-count">0</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label" data-i18n="mcpServerConnections">连接方式:</span>
+            <span class="info-value" data-i18n="mcpServerConnectionMethod">通过 Chrome Extension API</span>
+          </div>
+        </div>
+        
+        <!-- Registered Tools List -->
+        <div class="registered-tools-section">
+          <h4 class="tools-subtitle" data-i18n="registeredToolsTitle">已注册的工具</h4>
+          <div id="registered-tools-list" class="registered-tools-list">
+            <!-- Tools will be rendered here -->
+          </div>
+        </div>
+        
+        <!-- Connection Info -->
+        <div class="connection-info-box mt-16">
+          <h4 data-i18n="connectionInfoTitle">连接信息</h4>
+          <p data-i18n="connectionInfoDesc">其他扩展可以通过以下方式连接 Agentab MCP Server:</p>
+          <pre class="code-block"><code>const extensionId = 'YOUR_AGENTAB_EXTENSION_ID';
+
+// 发送 MCP 请求
+chrome.runtime.sendMessage(
+  extensionId,
+  {
+    jsonrpc: '2.0',
+    id: 1,
+    method: 'tools/list',
+    params: {}
+  },
+  (response) => {
+    console.log('Available tools:', response.result.tools);
+  }
+);
+
+// 调用工具
+chrome.runtime.sendMessage(
+  extensionId,
+  {
+    jsonrpc: '2.0',
+    id: 2,
+    method: 'tools/call',
+    params: {
+      name: 'save_task',
+      arguments: {
+        name: 'My Task',
+        type: 'prompt',
+        content: 'Hello world'
+      }
+    }
+  },
+  (response) => {
+    console.log('Result:', response.result);
+  }
+);</code></pre>
+        </div>
+      </section>
+
       <!-- Actions -->
       <div class="settings-actions">
         <button id="btn-save-settings" class="btn btn-primary">
@@ -82,6 +199,75 @@
 
   <!-- Toast Container -->
   <div id="toast-container" class="toast-container"></div>
+
+  <!-- MCP Server Edit Dialog -->
+  <div id="mcp-server-dialog" class="dialog-overlay hidden">
+    <div class="dialog">
+      <div class="dialog-header">
+        <h3 id="mcp-dialog-title" data-i18n="mcpDialogTitle">添加 MCP 服务器</h3>
+        <button class="dialog-close" id="btn-close-mcp-dialog">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+      <div class="dialog-content">
+        <input type="hidden" id="mcp-server-id">
+        <div class="form-group">
+          <label for="mcp-server-name" data-i18n="mcpServerNameLabel">服务器名称</label>
+          <input type="text" id="mcp-server-name" data-i18n-placeholder="mcpServerNamePlaceholder">
+          <p class="hint" data-i18n="mcpServerNameHint">用于识别服务器的名称</p>
+        </div>
+        <div class="form-group">
+          <label for="mcp-server-url" data-i18n="mcpServerUrlLabel">服务器地址</label>
+          <input type="url" id="mcp-server-url" data-i18n-placeholder="mcpServerUrlPlaceholder">
+          <p class="hint" data-i18n="mcpServerUrlHint">MCP 服务器的 HTTP 或 WebSocket 地址</p>
+        </div>
+        <div class="form-group">
+          <label for="mcp-server-transport" data-i18n="mcpServerTransportLabel">传输方式</label>
+          <select id="mcp-server-transport">
+            <option value="http">HTTP</option>
+            <option value="websocket">WebSocket</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="mcp-server-timeout" data-i18n="mcpServerTimeoutLabel">超时时间 (毫秒)</label>
+          <input type="number" id="mcp-server-timeout" value="30000" min="1000" max="300000">
+        </div>
+        <div class="form-group">
+          <label class="checkbox-label">
+            <input type="checkbox" id="mcp-server-enabled" checked>
+            <span data-i18n="mcpServerEnabledLabel">启用此服务器</span>
+          </label>
+        </div>
+      </div>
+      <div class="dialog-actions">
+        <button class="btn btn-secondary" id="btn-cancel-mcp-dialog" data-i18n="btnCancel">取消</button>
+        <button class="btn btn-primary" id="btn-save-mcp-server" data-i18n="btnSave">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MCP Server Tools Dialog -->
+  <div id="mcp-tools-dialog" class="dialog-overlay hidden">
+    <div class="dialog dialog-large">
+      <div class="dialog-header">
+        <h3 data-i18n="mcpToolsTitle">可用工具</h3>
+        <button class="dialog-close" id="btn-close-tools-dialog">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+      <div class="dialog-content">
+        <div id="mcp-tools-list" class="mcp-tools-list">
+          <!-- Tools will be rendered here -->
+        </div>
+      </div>
+    </div>
+  </div>
 
   <script src="../lib/i18n.js"></script>
   <script src="settings.js"></script>

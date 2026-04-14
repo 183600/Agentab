@@ -458,5 +458,169 @@
   "deleteConfirm": {
     "message": "确定删除",
     "description": "Delete confirm prefix"
+  },
+  "mcpServersTitle": {
+    "message": "MCP 服务器",
+    "description": "MCP servers title"
+  },
+  "mcpServersHint": {
+    "message": "连接 MCP (Model Context Protocol) 服务器以扩展智能体能力",
+    "description": "MCP servers hint"
+  },
+  "mcpServersEmpty": {
+    "message": "暂无 MCP 服务器，点击下方按钮添加",
+    "description": "MCP servers empty message"
+  },
+  "btnAddMCPServer": {
+    "message": "添加 MCP 服务器",
+    "description": "Add MCP server button"
+  },
+  "mcpDialogTitle": {
+    "message": "添加 MCP 服务器",
+    "description": "MCP dialog title"
+  },
+  "mcpAddDialogTitle": {
+    "message": "添加 MCP 服务器",
+    "description": "MCP add dialog title"
+  },
+  "mcpEditDialogTitle": {
+    "message": "编辑 MCP 服务器",
+    "description": "MCP edit dialog title"
+  },
+  "mcpServerNameLabel": {
+    "message": "服务器名称",
+    "description": "MCP server name label"
+  },
+  "mcpServerNamePlaceholder": {
+    "message": "我的 MCP 服务器",
+    "description": "MCP server name placeholder"
+  },
+  "mcpServerNameHint": {
+    "message": "用于识别服务器的名称",
+    "description": "MCP server name hint"
+  },
+  "mcpServerUrlLabel": {
+    "message": "服务器地址",
+    "description": "MCP server URL label"
+  },
+  "mcpServerUrlPlaceholder": {
+    "message": "http://localhost:3000/mcp",
+    "description": "MCP server URL placeholder"
+  },
+  "mcpServerUrlHint": {
+    "message": "MCP 服务器的 HTTP 或 WebSocket 地址",
+    "description": "MCP server URL hint"
+  },
+  "mcpServerTransportLabel": {
+    "message": "传输方式",
+    "description": "MCP server transport label"
+  },
+  "mcpServerTimeoutLabel": {
+    "message": "超时时间 (毫秒)",
+    "description": "MCP server timeout label"
+  },
+  "mcpServerEnabledLabel": {
+    "message": "启用此服务器",
+    "description": "MCP server enabled label"
+  },
+  "mcpStatusConnected": {
+    "message": "已连接",
+    "description": "MCP status connected"
+  },
+  "mcpStatusDisconnected": {
+    "message": "未连接",
+    "description": "MCP status disconnected"
+  },
+  "mcpStatusDisabled": {
+    "message": "已禁用",
+    "description": "MCP status disabled"
+  },
+  "mcpViewTools": {
+    "message": "查看工具",
+    "description": "MCP view tools"
+  },
+  "mcpEditServer": {
+    "message": "编辑服务器",
+    "description": "MCP edit server"
+  },
+  "mcpDeleteServer": {
+    "message": "删除服务器",
+    "description": "MCP delete server"
+  },
+  "mcpNameRequired": {
+    "message": "请输入服务器名称",
+    "description": "MCP name required error"
+  },
+  "mcpUrlRequired": {
+    "message": "请输入服务器地址",
+    "description": "MCP URL required error"
+  },
+  "mcpServerUpdated": {
+    "message": "服务器已更新",
+    "description": "MCP server updated"
+  },
+  "mcpServerAdded": {
+    "message": "服务器已添加",
+    "description": "MCP server added"
+  },
+  "mcpServerDeleted": {
+    "message": "服务器已删除",
+    "description": "MCP server deleted"
+  },
+  "mcpDeleteConfirm": {
+    "message": "确定要删除这个服务器吗？",
+    "description": "MCP delete confirm"
+  },
+  "mcpToolsTitle": {
+    "message": "可用工具",
+    "description": "MCP tools title"
+  },
+  "mcpNoTools": {
+    "message": "没有可用的工具",
+    "description": "MCP no tools"
+  },
+  "mcpServerInfoTitle": {
+    "message": "MCP 服务端",
+    "description": "MCP server info title"
+  },
+  "mcpServerInfoHint": {
+    "message": "Agentab 作为 MCP 服务器，向其他应用暴露工具接口",
+    "description": "MCP server info hint"
+  },
+  "mcpServerStatus": {
+    "message": "状态:",
+    "description": "MCP server status label"
+  },
+  "mcpServerTools": {
+    "message": "已注册工具:",
+    "description": "MCP server tools label"
+  },
+  "mcpServerConnections": {
+    "message": "连接方式:",
+    "description": "MCP server connections label"
+  },
+  "mcpServerConnectionMethod": {
+    "message": "通过 Chrome Extension API",
+    "description": "MCP server connection method"
+  },
+  "registeredToolsTitle": {
+    "message": "已注册的工具",
+    "description": "Registered tools title"
+  },
+  "noRegisteredTools": {
+    "message": "暂无注册工具",
+    "description": "No registered tools"
+  },
+  "parameters": {
+    "message": "参数",
+    "description": "Parameters label"
+  },
+  "connectionInfoTitle": {
+    "message": "连接信息",
+    "description": "Connection info title"
+  },
+  "connectionInfoDesc": {
+    "message": "其他扩展可以通过以下方式连接 Agentab MCP Server:",
+    "description": "Connection info description"
   }
 }
