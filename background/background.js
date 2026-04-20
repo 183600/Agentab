@@ -40,6 +40,63 @@ class AgentExecutor {
   }
 
   /**
+   * Get builtin tools description for system prompt
+   */
+  getBuiltinToolsDescription() {
+    return `
+## Built-in Tools:
+You have access to these built-in tools for managing tasks and settings:
+
+- save_task: Save a new task/tool for later reuse. MUST USE when user says "保存", "save", "创建工具", "保存工具" etc.
+  (params: name, type, content, description, autoRunSites)
+- get_tasks: Get all saved tasks. (params: type)
+- update_task: Update an existing task. (params: taskId, name, type, content, description, autoRunSites)
+- delete_task: Delete a task. (params: taskId)
+- execute_task: Execute a saved task on current tab. (params: taskId)
+- get_history: Get execution history. (params: limit)
+- clear_history: Clear execution history. (params: none)
+
+### IMPORTANT: When to use save_task vs execute
+- If user says "保存一个...工具" or "save a tool that...", USE save_task directly. DO NOT execute code first.
+- If user says "执行..." or "运行...", then use execute action.
+- When saving a tool, the "content" should be the CODE itself, not the result of running the code.
+
+### Example: User says "保存一个让网页变白的工具"
+Correct response (ONLY save, do NOT execute):
+\`\`\`json
+{
+  "action": "builtin_call",
+  "tool": "save_task",
+  "args": {
+    "name": "网页变白",
+    "type": "code",
+    "content": "document.body.style.backgroundColor = 'white'; document.body.style.color = 'black';",
+    "description": "将网页背景变为白色，文字变为黑色"
+  },
+  "explanation": "保存一个让网页变白的工具供以后使用"
+}
+\`\`\`
+
+### Example: User says "让网页变白"
+Correct response (execute directly):
+\`\`\`json
+{
+  "action": "execute",
+  "code": "document.body.style.backgroundColor = 'white'; document.body.style.color = 'black';",
+  "explanation": "将网页背景变为白色"
+}
+\`\`\`
+
+For save_task tool parameters:
+- name: A descriptive name for the task (short, e.g., "网页变白", "自动登录")
+- type: "prompt" for natural language instructions, or "code" for JavaScript code
+- content: The prompt text or JavaScript code to save (NOT the execution result)
+- description: Optional description of what the task does
+- autoRunSites: Optional array of URL patterns where this task should auto-run (e.g. ["*.example.com"])
+`;
+  }
+
+  /**
    * Get MCP tools description for system prompt
    */
   async getMCPToolsDescription() {
@@ -75,6 +132,7 @@ To use an MCP tool:
    */
   async getSystemPrompt(pageInfo) {
     const mcpToolsDesc = await this.getMCPToolsDescription();
+    const builtinToolsDesc = this.getBuiltinToolsDescription();
     
     return `You are a Chrome browser automation agent. You control web pages by generating JavaScript code.
 
@@ -84,11 +142,22 @@ To use an MCP tool:
 
 ## Your Capabilities:
 You can execute JavaScript code in the context of the current web page. The code runs with full DOM access.
+${builtinToolsDesc}
 ${mcpToolsDesc}
 ## Response Format:
 You MUST respond with a JSON object in one of these formats:
 
-1. To execute JavaScript code:
+1. To call a built-in tool (save_task, get_tasks, etc.):
+\`\`\`json
+{
+  "action": "builtin_call",
+  "tool": "save_task",
+  "args": { "name": "...", "type": "...", "content": "..." },
+  "explanation": "Why you're calling this tool"
+}
+\`\`\`
+
+2. To execute JavaScript code:
 \`\`\`json
 {
   "action": "execute",
@@ -97,7 +166,7 @@ You MUST respond with a JSON object in one of these formats:
 }
 \`\`\`
 
-2. To call an MCP tool:
+3. To call an MCP tool:
 \`\`\`json
 {
   "action": "mcp_call",
@@ -107,7 +176,7 @@ You MUST respond with a JSON object in one of these formats:
 }
 \`\`\`
 
-3. When the task is complete:
+4. When the task is complete:
 \`\`\`json
 {
   "action": "complete",
@@ -116,7 +185,7 @@ You MUST respond with a JSON object in one of these formats:
 }
 \`\`\`
 
-4. If the task cannot be completed:
+5. If the task cannot be completed:
 \`\`\`json
 {
   "action": "error",
@@ -136,7 +205,8 @@ You MUST respond with a JSON object in one of these formats:
 8. You can use async/await and fetch API
 9. Be careful with destructive operations
 10. Always explain what you're doing
-11. Use MCP tools when they can help accomplish the task more efficiently`;
+11. Use MCP tools when they can help accomplish the task more efficiently
+12. **CRITICAL: When user says "保存" or "save" a tool, use builtin_call with save_task. DO NOT execute code first.**`;
   }
 
   /**
@@ -178,24 +248,32 @@ You MUST respond with a JSON object in one of these formats:
    * Parse LLM response to extract JSON action
    */
   parseResponse(text) {
-    // Try to extract JSON from code blocks
-    const codeBlockMatch = text.match(/```(?:json)?\s*\n?([\s\S]*?)\n?```/);
-    if (codeBlockMatch) {
-      try {
-        return JSON.parse(codeBlockMatch[1].trim());
-      } catch (e) {
-        // Fall through
+    // Method 1: Try to extract JSON from code blocks with better handling
+    // Find the first ```json or ``` and the LAST ``` to handle nested code blocks
+    // This handles cases where the JSON content itself contains ``` characters
+    const firstCodeBlock = text.match(/```(?:json)?\s*\n?/);
+    if (firstCodeBlock) {
+      const startIndex = firstCodeBlock.index + firstCodeBlock[0].length;
+      // Find the LAST occurrence of ```
+      const lastTripleBacktick = text.lastIndexOf('```');
+      if (lastTripleBacktick > startIndex) {
+        const jsonContent = text.substring(startIndex, lastTripleBacktick).trim();
+        try {
+          return JSON.parse(jsonContent);
+        } catch (e) {
+          // Fall through to other methods
+        }
       }
     }
 
-    // Try to parse the entire response as JSON
+    // Method 2: Try to parse the entire response as JSON
     try {
       return JSON.parse(text.trim());
     } catch (e) {
       // Fall through
     }
 
-    // Try to find JSON object in the text
+    // Method 3: Try to find JSON object in the text
     const jsonMatch = text.match(/\{[\s\S]*\}/);
     if (jsonMatch) {
       try {
@@ -243,6 +321,84 @@ You MUST respond with a JSON object in one of these formats:
       return { success: true, result };
     } catch (e) {
       return { success: false, error: e.message };
+    }
+  }
+
+  /**
+   * Handle built-in tool calls
+   */
+  async handleBuiltinTool(toolName, args) {
+    switch (toolName) {
+      case 'save_task': {
+        if (!args.name || !args.type || !args.content) {
+          throw new Error('save_task requires name, type, and content parameters');
+        }
+        const task = await StorageManager.saveTask({
+          name: args.name,
+          type: args.type,
+          content: args.content,
+          description: args.description || '',
+          autoRunSites: args.autoRunSites || []
+        });
+        return { success: true, task };
+      }
+
+      case 'get_tasks': {
+        let tasks = await StorageManager.getTasks();
+        if (args.type && args.type !== 'all') {
+          tasks = tasks.filter(t => t.type === args.type);
+        }
+        return { tasks };
+      }
+
+      case 'update_task': {
+        if (!args.taskId) {
+          throw new Error('update_task requires taskId parameter');
+        }
+        const { taskId, ...updates } = args;
+        const task = await StorageManager.updateTask(taskId, updates);
+        if (!task) {
+          throw new Error('Task not found');
+        }
+        return { success: true, task };
+      }
+
+      case 'delete_task': {
+        if (!args.taskId) {
+          throw new Error('delete_task requires taskId parameter');
+        }
+        const deleted = await StorageManager.deleteTask(args.taskId);
+        return { success: deleted, deleted };
+      }
+
+      case 'execute_task': {
+        if (!args.taskId) {
+          throw new Error('execute_task requires taskId parameter');
+        }
+        const tasks = await StorageManager.getTasks();
+        const task = tasks.find(t => t.id === args.taskId);
+        if (!task) {
+          throw new Error('Task not found');
+        }
+        // Return info about the task (actual execution happens separately)
+        return { success: true, task, message: 'Task found. Use execute action to run it.' };
+      }
+
+      case 'get_history': {
+        let history = await StorageManager.getHistory();
+        if (args.limit) {
+          history = history.slice(0, args.limit);
+        }
+        return { history };
+      }
+
+      case 'clear_history': {
+        await StorageManager.clearHistory();
+        return { success: true };
+      }
+
+      default:
+        throw new Error(`Unknown built-in tool: ${toolName}`);
     }
   }
 
@@ -422,6 +578,58 @@ You MUST respond with a JSON object in one of these formats:
           this.conversationHistory.push({
             role: 'user',
             content: `MCP tool "${action.tool}" failed.\nError: ${e.message}`
+          });
+        }
+        continue;
+      }
+
+      if (action.action === 'builtin_call') {
+        onUpdate?.({
+          type: 'executing',
+          code: `Built-in Tool: ${action.tool}`,
+          explanation: action.explanation || `Calling built-in tool: ${action.tool}`,
+          iteration
+        });
+
+        try {
+          const builtinResult = await this.handleBuiltinTool(action.tool, action.args || {});
+
+          results.push({
+            type: 'builtin_call',
+            tool: action.tool,
+            args: action.args,
+            result: builtinResult,
+            explanation: action.explanation,
+            iteration
+          });
+
+          onUpdate?.({
+            type: 'executed',
+            code: `Built-in Tool: ${action.tool}`,
+            result: { success: true, result: builtinResult },
+            iteration
+          });
+
+          this.conversationHistory.push({
+            role: 'user',
+            content: `Built-in tool "${action.tool}" executed successfully.\nResult: ${JSON.stringify(builtinResult, null, 2)}`
+          });
+        } catch (e) {
+          onUpdate?.({
+            type: 'error',
+            message: `Built-in tool call failed: ${e.message}`
+          });
+
+          results.push({
+            type: 'builtin_error',
+            tool: action.tool,
+            error: e.message,
+            iteration
+          });
+
+          this.conversationHistory.push({
+            role: 'user',
+            content: `Built-in tool "${action.tool}" failed.\nError: ${e.message}`
           });
         }
         continue;
